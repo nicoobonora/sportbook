@@ -100,6 +100,28 @@ export async function PATCH(request: NextRequest) {
   }
 
   const body = await request.json()
+
+  // Toggle rapido di is_active / is_published (senza validazione form completa)
+  if (
+    Object.keys(body).length === 1 &&
+    ("is_active" in body || "is_published" in body)
+  ) {
+    const { data: club, error: toggleError } = await supabase
+      .from("clubs")
+      .update(body)
+      .eq("id", clubId)
+      .select()
+      .single()
+
+    if (toggleError) {
+      return NextResponse.json(
+        { error: "Errore durante l'aggiornamento" },
+        { status: 500 }
+      )
+    }
+    return NextResponse.json(club)
+  }
+
   const validation = clubFormSchema.partial().safeParse(body)
 
   if (!validation.success) {
@@ -111,7 +133,6 @@ export async function PATCH(request: NextRequest) {
 
   const data = validation.data
 
-  // Se lo slug è cambiato, verifica unicità
   if (data.slug) {
     const { data: existingClub } = await supabase
       .from("clubs")

@@ -274,30 +274,76 @@ export function ClubForm({ club }: { club?: Club }) {
 
               {/* Preview live */}
               <div className="space-y-3">
-                <Label>Anteprima</Label>
-                <div className="rounded-lg border p-6">
+                <Label>Anteprima live</Label>
+                <div className="overflow-hidden rounded-lg border">
+                  {/* Header mockup */}
                   <div
-                    className="rounded-lg p-4 text-white"
+                    className="px-4 py-3"
                     style={{ backgroundColor: watchPrimary }}
                   >
-                    <p className="font-display text-lg font-bold uppercase">
+                    <div className="flex items-center justify-between">
+                      <p className="font-display text-base font-bold uppercase text-white">
+                        {watchName || "Nome Circolo"}
+                      </p>
+                      <div className="flex gap-2">
+                        <span className="text-xs text-white/70">Home</span>
+                        <span className="text-xs text-white/70">Prenota</span>
+                        <span className="text-xs text-white/70">Contatti</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Hero mockup */}
+                  <div className="bg-gray-50 p-6 text-center">
+                    <p className="font-display text-xl font-bold uppercase text-gray-900">
                       {watchName || "Nome Circolo"}
                     </p>
-                    <p className="text-sm opacity-90">Il tuo circolo sportivo</p>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Il tuo circolo sportivo
+                    </p>
+                    <div className="mt-4 flex justify-center gap-2">
+                      <span
+                        className="inline-block rounded-md px-4 py-2 text-sm font-medium text-white"
+                        style={{ backgroundColor: watchPrimary }}
+                      >
+                        Prenota ora
+                      </span>
+                      <span
+                        className="inline-block rounded-md border px-4 py-2 text-sm font-medium"
+                        style={{
+                          borderColor: watchAccent,
+                          color: watchAccent,
+                        }}
+                      >
+                        Scopri di più
+                      </span>
+                    </div>
                   </div>
-                  <div className="mt-3 flex gap-2">
-                    <span
-                      className="inline-block rounded-md px-4 py-2 text-sm font-medium text-white"
-                      style={{ backgroundColor: watchPrimary }}
-                    >
-                      Prenota ora
-                    </span>
-                    <span
-                      className="inline-block rounded-md px-4 py-2 text-sm font-medium text-white"
-                      style={{ backgroundColor: watchAccent }}
-                    >
-                      Info
-                    </span>
+
+                  {/* Card mockup */}
+                  <div className="border-t bg-white p-4">
+                    <div className="flex gap-3">
+                      <div
+                        className="h-12 w-12 rounded-lg"
+                        style={{ backgroundColor: watchAccent + "20" }}
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">
+                            Campo 1
+                          </span>
+                          <span
+                            className="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium text-white"
+                            style={{ backgroundColor: watchAccent }}
+                          >
+                            Disponibile
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          Oggi 14:00 — 15:00
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

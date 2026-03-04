@@ -6,6 +6,7 @@ import { render } from "@react-email/components"
 import { BookingReceivedEmail } from "./templates/booking-received"
 import { BookingConfirmedEmail } from "./templates/booking-confirmed"
 import { BookingRejectedEmail } from "./templates/booking-rejected"
+import { AdminInviteEmail } from "./templates/admin-invite"
 
 async function getResend() {
   const apiKey = process.env.RESEND_API_KEY
@@ -127,6 +128,33 @@ export async function sendBookingRejectedEmail(params: {
     from: "SportBook <noreply@sportbook.it>",
     to: params.to,
     subject: `Prenotazione non disponibile — ${params.clubName}`,
+    html,
+  })
+}
+
+/** Invia invito admin circolo */
+export async function sendAdminInviteEmail(params: {
+  to: string
+  clubName: string
+  inviteUrl: string
+}) {
+  const resend = await getResend()
+  if (!resend) {
+    console.log("[EMAIL] AdminInvite →", params.to, params)
+    return
+  }
+
+  const html = await render(
+    AdminInviteEmail({
+      clubName: params.clubName,
+      inviteUrl: params.inviteUrl,
+    })
+  )
+
+  await resend.emails.send({
+    from: "SportBook <noreply@sportbook.it>",
+    to: params.to,
+    subject: `Sei stato invitato come admin di ${params.clubName} — SportBook`,
     html,
   })
 }
