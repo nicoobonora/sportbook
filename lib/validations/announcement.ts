@@ -12,7 +12,7 @@ export const announcementFormSchema = z.object({
     .string()
     .min(10, "Il contenuto deve avere almeno 10 caratteri")
     .max(10000, "Il contenuto è troppo lungo"),
-  is_pinned: z.boolean().default(false),
+  is_pinned: z.boolean(),
   expires_at: z
     .string()
     .optional()

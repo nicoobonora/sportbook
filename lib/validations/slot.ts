@@ -15,7 +15,7 @@ export const slotTemplateSchema = z.object({
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato orario non valido (HH:MM)"),
   price_cents: z.number().min(0, "Il prezzo non può essere negativo"),
   max_bookings: z.number().min(1, "Deve esserci almeno 1 prenotazione possibile"),
-  is_active: z.boolean().default(true),
+  is_active: z.boolean(),
 })
 
 export const slotManualSchema = z.object({
