@@ -127,7 +127,7 @@ export default async function SuperAdminDashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Circoli recenti</CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/clubs">
+              <Link href="/super-admin/clubs">
                 Vedi tutti
                 <ArrowRight className="ml-1 h-3 w-3" aria-hidden="true" />
               </Link>
@@ -143,7 +143,7 @@ export default async function SuperAdminDashboardPage() {
                   >
                     <div>
                       <Link
-                        href={`/clubs/${club.id}/edit`}
+                        href={`/super-admin/clubs/${club.id}/edit`}
                         className="font-medium hover:underline"
                       >
                         {club.name}

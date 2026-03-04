@@ -3,7 +3,7 @@
  * Stepper in 4 step: Struttura → Data → Orario → Dati
  */
 import type { Metadata } from "next"
-import { getClubFromHeaders } from "@/lib/hooks/use-club"
+import { getClubFromHeaders, getClubBasePath } from "@/lib/hooks/use-club"
 import { createClient } from "@/lib/supabase/server"
 import { BookingStepper } from "@/components/club-site/booking-stepper"
 
@@ -43,6 +43,7 @@ export default async function PrenotaPage() {
           <BookingStepper
             clubId={club.id}
             clubName={club.name}
+            basePath={getClubBasePath()}
             fields={fields || []}
           />
         </div>

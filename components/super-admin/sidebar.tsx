@@ -19,9 +19,9 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/clubs", label: "Circoli", icon: Building2 },
-  { href: "/clubs/new", label: "Nuovo Circolo", icon: Plus },
+  { href: "/super-admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/super-admin/clubs", label: "Circoli", icon: Building2 },
+  { href: "/super-admin/clubs/new", label: "Nuovo Circolo", icon: Plus },
 ]
 
 function NavContent({ pathname }: { pathname: string }) {
@@ -30,7 +30,7 @@ function NavContent({ pathname }: { pathname: string }) {
   async function handleLogout() {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push("/login")
+    router.push("/super-admin/login")
     router.refresh()
   }
 
@@ -38,7 +38,7 @@ function NavContent({ pathname }: { pathname: string }) {
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="border-b p-4">
-        <Link href="/dashboard" className="flex items-center gap-2">
+        <Link href="/super-admin/dashboard" className="flex items-center gap-2">
           <span className="font-display text-xl font-bold uppercase tracking-tight">
             SportBook
           </span>

@@ -30,10 +30,11 @@ const STEPS = [
 type Props = {
   clubId: string
   clubName: string
+  basePath?: string
   fields: Field[]
 }
 
-export function BookingStepper({ clubId, clubName, fields }: Props) {
+export function BookingStepper({ clubId, clubName, basePath = "", fields }: Props) {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedField, setSelectedField] = useState<Field | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -79,6 +80,7 @@ export function BookingStepper({ clubId, clubName, fields }: Props) {
     return (
       <BookingSuccess
         clubName={clubName}
+        basePath={basePath}
         onNewBooking={handleReset}
       />
     )

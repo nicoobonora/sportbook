@@ -106,7 +106,7 @@ export function ClubForm({ club }: { club?: Club }) {
     }
 
     const result = await response.json()
-    router.push(`/clubs/${result.id}/edit`)
+    router.push(`/super-admin/clubs/${result.id}/edit`)
     router.refresh()
   }
 

@@ -5,7 +5,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
-import { getClubFromHeaders } from "@/lib/hooks/use-club"
+import { getClubFromHeaders, getClubBasePath } from "@/lib/hooks/use-club"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -136,7 +136,7 @@ export default async function AdminDashboardPage() {
             Prenotazioni recenti
           </h2>
           <Button variant="ghost" size="sm" asChild className="gap-1">
-            <Link href="/admin/prenotazioni">
+            <Link href={`${getClubBasePath()}/admin/prenotazioni`}>
               Vedi tutte
               <ArrowRight className="h-3 w-3" aria-hidden="true" />
             </Link>

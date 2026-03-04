@@ -3,7 +3,7 @@
  * Inietta il tema (colori) del circolo e mostra header/footer.
  * I circoli inattivi sono visibili in anteprima con un banner informativo.
  */
-import { getClubFromHeaders } from "@/lib/hooks/use-club"
+import { getClubFromHeaders, getClubBasePath } from "@/lib/hooks/use-club"
 import { getClubThemeStyles } from "@/lib/utils/colors"
 import { ClubHeader } from "@/components/club-site/header"
 import { ClubFooter } from "@/components/club-site/footer"
@@ -22,6 +22,7 @@ export default async function ClubSiteLayout({
   }
 
   const themeStyles = getClubThemeStyles(club.primary_color, club.accent_color)
+  const basePath = getClubBasePath()
 
   return (
     <div style={themeStyles}>
@@ -30,9 +31,9 @@ export default async function ClubSiteLayout({
           Anteprima — Questo circolo non è ancora attivo
         </div>
       )}
-      <ClubHeader club={club} />
+      <ClubHeader club={club} basePath={basePath} />
       {children}
-      <ClubFooter club={club} />
+      <ClubFooter club={club} basePath={basePath} />
       <CookieBanner />
     </div>
   )

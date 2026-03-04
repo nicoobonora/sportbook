@@ -28,7 +28,7 @@ export default async function PreviewPage({
     notFound()
   }
 
-  const previewUrl = `/?club=${club.slug}`
+  const previewUrl = `/club/${club.slug}`
 
   return (
     <>

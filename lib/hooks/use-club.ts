@@ -30,6 +30,23 @@ export async function getClubFromHeaders(): Promise<Club | null> {
 }
 
 /**
+ * Restituisce il prefisso del path per i link del club.
+ * Su localhost: "/club/slug" — In produzione: "" (il subdominio gestisce il contesto).
+ * Da usare nei Server Components per costruire link interni al club.
+ */
+export function getClubBasePath(): string {
+  const headersList = headers()
+  const host = headersList.get("host") || ""
+  const slug = headersList.get("x-sportbook-club-slug")
+  const isLocalhost = host.includes("localhost") || host.includes("127.0.0.1")
+
+  if (isLocalhost && slug) {
+    return `/club/${slug}`
+  }
+  return ""
+}
+
+/**
  * Recupera il club tramite slug (per uso diretto senza middleware).
  */
 export async function getClubBySlug(slug: string): Promise<Club | null> {

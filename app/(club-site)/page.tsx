@@ -4,7 +4,7 @@
  */
 import type { Metadata } from "next"
 import Link from "next/link"
-import { getClubFromHeaders } from "@/lib/hooks/use-club"
+import { getClubFromHeaders, getClubBasePath } from "@/lib/hooks/use-club"
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -38,12 +38,14 @@ export default async function ClubHomePage() {
             Piattaforma per circoli sportivi italiani
           </p>
           <Button asChild>
-            <Link href="/login">Accedi come admin</Link>
+            <Link href="/super-admin/login">Accedi come admin</Link>
           </Button>
         </div>
       </main>
     )
   }
+
+  const basePath = getClubBasePath()
 
   // Recupera annunci in evidenza
   const supabase = createClient()
@@ -86,7 +88,7 @@ export default async function ClubHomePage() {
               size="lg"
               className="touch-target text-base font-semibold"
             >
-              <Link href="/prenota">
+              <Link href={`${basePath}/prenota`}>
                 Prenota ora
                 <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
               </Link>
@@ -125,7 +127,7 @@ export default async function ClubHomePage() {
                 Annunci
               </h2>
               <Link
-                href="/annunci"
+                href={`${basePath}/annunci`}
                 className="text-sm font-medium text-primary hover:underline"
               >
                 Vedi tutti
@@ -173,7 +175,7 @@ export default async function ClubHomePage() {
               {club.about_text}
             </p>
             <Link
-              href="/contatti"
+              href={`${basePath}/contatti`}
               className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
             >
               Scopri di più &rarr;

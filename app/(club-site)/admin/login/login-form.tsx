@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 
-export function LoginForm() {
+export function LoginForm({ redirectTo = "/admin/dashboard" }: { redirectTo?: string }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
 
@@ -42,7 +42,7 @@ export function LoginForm() {
       return
     }
 
-    router.push("/admin/dashboard")
+    router.push(redirectTo)
     router.refresh()
   }
 

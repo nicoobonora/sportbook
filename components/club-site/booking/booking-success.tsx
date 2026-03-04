@@ -7,10 +7,11 @@ import Link from "next/link"
 
 type Props = {
   clubName: string
+  basePath?: string
   onNewBooking: () => void
 }
 
-export function BookingSuccess({ clubName, onNewBooking }: Props) {
+export function BookingSuccess({ clubName, basePath = "", onNewBooking }: Props) {
   return (
     <div
       className="flex flex-col items-center gap-4 py-16 text-center"
@@ -35,7 +36,7 @@ export function BookingSuccess({ clubName, onNewBooking }: Props) {
           Nuova prenotazione
         </Button>
         <Button variant="outline" asChild>
-          <Link href="/">Torna alla home</Link>
+          <Link href={`${basePath}/`}>Torna alla home</Link>
         </Button>
       </div>
     </div>

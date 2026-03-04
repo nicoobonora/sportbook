@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Phone, Mail, MapPin } from "lucide-react"
 import type { Club } from "@/lib/types/database"
 
-export function ClubFooter({ club }: { club: Club }) {
+export function ClubFooter({ club, basePath = "" }: { club: Club; basePath?: string }) {
   return (
     <footer className="border-t bg-card" role="contentinfo">
       <div className="container-sportbook py-8">
@@ -52,13 +52,13 @@ export function ClubFooter({ club }: { club: Club }) {
           <div className="space-y-2">
             <p className="text-sm font-semibold">Link utili</p>
             <nav className="flex flex-col gap-1" aria-label="Link footer">
-              <Link href="/prenota" className="text-sm text-muted-foreground hover:underline">
+              <Link href={`${basePath}/prenota`} className="text-sm text-muted-foreground hover:underline">
                 Prenotazioni
               </Link>
-              <Link href="/annunci" className="text-sm text-muted-foreground hover:underline">
+              <Link href={`${basePath}/annunci`} className="text-sm text-muted-foreground hover:underline">
                 Annunci
               </Link>
-              <Link href="/contatti" className="text-sm text-muted-foreground hover:underline">
+              <Link href={`${basePath}/contatti`} className="text-sm text-muted-foreground hover:underline">
                 Contatti
               </Link>
             </nav>

@@ -80,7 +80,7 @@ export default async function ManageClubPage({
       <div className="flex items-start justify-between gap-4">
         <div>
           <Button variant="ghost" size="sm" className="mb-2 -ml-2" asChild>
-            <Link href="/clubs">
+            <Link href="/super-admin/clubs">
               <ArrowLeft className="mr-1 h-3 w-3" aria-hidden="true" />
               Circoli
             </Link>
@@ -95,13 +95,13 @@ export default async function ManageClubPage({
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/clubs/${club.id}/edit`}>
+            <Link href={`/super-admin/clubs/${club.id}/edit`}>
               <Settings className="mr-1 h-3 w-3" aria-hidden="true" />
               Modifica
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <Link href={`/preview/${club.slug}`}>
+            <Link href={`/super-admin/preview/${club.slug}`}>
               <ExternalLink className="mr-1 h-3 w-3" aria-hidden="true" />
               Anteprima
             </Link>

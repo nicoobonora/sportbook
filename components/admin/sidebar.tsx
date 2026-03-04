@@ -21,17 +21,19 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 const NAV_ITEMS = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/prenotazioni", label: "Prenotazioni", icon: CalendarCheck },
-  { href: "/admin/slot", label: "Slot & Orari", icon: Clock },
-  { href: "/admin/annunci", label: "Annunci", icon: Megaphone },
-  { href: "/admin/impostazioni", label: "Impostazioni", icon: Settings },
+  { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/admin/prenotazioni", label: "Prenotazioni", icon: CalendarCheck },
+  { path: "/admin/slot", label: "Slot & Orari", icon: Clock },
+  { path: "/admin/annunci", label: "Annunci", icon: Megaphone },
+  { path: "/admin/impostazioni", label: "Impostazioni", icon: Settings },
 ]
 
 function NavContent({
+  basePath,
   pathname,
   clubName,
 }: {
+  basePath: string
   pathname: string
   clubName: string
 }) {
@@ -40,7 +42,7 @@ function NavContent({
   async function handleLogout() {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push("/admin/login")
+    router.push(`${basePath}/admin/login`)
     router.refresh()
   }
 
@@ -48,7 +50,7 @@ function NavContent({
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="border-b p-4">
-        <Link href="/admin/dashboard" className="block">
+        <Link href={`${basePath}/admin/dashboard`} className="block">
           <span className="font-display text-lg font-bold uppercase tracking-tight">
             {clubName}
           </span>
@@ -59,12 +61,13 @@ function NavContent({
       {/* Navigazione */}
       <nav className="flex-1 space-y-1 p-4" aria-label="Menu admin">
         {NAV_ITEMS.map((item) => {
+          const href = `${basePath}${item.path}`
           const isActive =
-            pathname === item.href || pathname.startsWith(item.href + "/")
+            pathname === href || pathname.startsWith(href + "/")
           return (
             <Link
-              key={item.href}
-              href={item.href}
+              key={item.path}
+              href={href}
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors touch-target",
                 isActive
@@ -83,7 +86,7 @@ function NavContent({
       {/* Link al sito pubblico + Logout */}
       <div className="border-t p-4 space-y-1">
         <Link
-          href="/"
+          href={`${basePath}/`}
           className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground touch-target"
         >
           Vai al sito pubblico
@@ -101,7 +104,7 @@ function NavContent({
   )
 }
 
-export function AdminSidebar({ clubName }: { clubName: string }) {
+export function AdminSidebar({ clubName, basePath = "" }: { clubName: string; basePath?: string }) {
   const pathname = usePathname()
 
   return (
@@ -111,7 +114,7 @@ export function AdminSidebar({ clubName }: { clubName: string }) {
         className="hidden w-64 shrink-0 border-r bg-card lg:block"
         aria-label="Menu laterale admin"
       >
-        <NavContent pathname={pathname} clubName={clubName} />
+        <NavContent basePath={basePath} pathname={pathname} clubName={clubName} />
       </aside>
 
       {/* Barra mobile */}
@@ -128,7 +131,7 @@ export function AdminSidebar({ clubName }: { clubName: string }) {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0">
-            <NavContent pathname={pathname} clubName={clubName} />
+            <NavContent basePath={basePath} pathname={pathname} clubName={clubName} />
           </SheetContent>
         </Sheet>
         <span className="ml-3 font-display text-lg font-bold uppercase tracking-tight">

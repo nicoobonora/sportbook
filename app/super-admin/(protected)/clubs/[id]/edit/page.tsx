@@ -43,13 +43,13 @@ export default async function EditClubPage({
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/clubs/${club.id}/manage`}>
+            <Link href={`/super-admin/clubs/${club.id}/manage`}>
               <Users className="mr-1 h-3 w-3" aria-hidden="true" />
               Gestisci
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <Link href={`/preview/${club.slug}`}>
+            <Link href={`/super-admin/preview/${club.slug}`}>
               <ExternalLink className="mr-1 h-3 w-3" aria-hidden="true" />
               Anteprima
             </Link>

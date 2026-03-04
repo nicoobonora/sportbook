@@ -3,6 +3,7 @@
  * Path: [slug].sportbook.it/admin/login
  */
 import type { Metadata } from "next"
+import { getClubBasePath } from "@/lib/hooks/use-club"
 import { LoginForm } from "./login-form"
 
 export const metadata: Metadata = {
@@ -11,6 +12,8 @@ export const metadata: Metadata = {
 }
 
 export default function AdminLoginPage() {
+  const basePath = getClubBasePath()
+
   return (
     <main
       id="main-content"
@@ -25,7 +28,7 @@ export default function AdminLoginPage() {
             Accedi per gestire il tuo circolo
           </p>
         </div>
-        <LoginForm />
+        <LoginForm redirectTo={`${basePath}/admin/dashboard`} />
       </div>
     </main>
   )

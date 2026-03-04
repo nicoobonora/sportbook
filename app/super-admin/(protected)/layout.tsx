@@ -15,7 +15,7 @@ export default async function SuperAdminLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect("/login")
+    redirect("/super-admin/login")
   }
 
   // Verifica email nella allowlist super-admin

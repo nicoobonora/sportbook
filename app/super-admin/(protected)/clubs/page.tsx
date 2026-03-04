@@ -74,7 +74,7 @@ export default async function ClubsListPage({
           </p>
         </div>
         <Button asChild>
-          <Link href="/clubs/new">
+          <Link href="/super-admin/clubs/new">
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
             Nuovo circolo
           </Link>
@@ -83,7 +83,7 @@ export default async function ClubsListPage({
 
       {/* Filtri */}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <form className="flex-1" action="/clubs" method="get">
+        <form className="flex-1" action="/super-admin/clubs" method="get">
           {searchParams.status && (
             <input type="hidden" name="status" value={searchParams.status} />
           )}
@@ -110,7 +110,7 @@ export default async function ClubsListPage({
               asChild
             >
               <Link
-                href={`/clubs?${new URLSearchParams({
+                href={`/super-admin/clubs?${new URLSearchParams({
                   ...(searchParams.q ? { q: searchParams.q } : {}),
                   ...(filter.value !== "all" ? { status: filter.value } : {}),
                 }).toString()}`}
@@ -174,19 +174,19 @@ export default async function ClubsListPage({
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" asChild>
-                  <Link href={`/clubs/${club.id}/edit`}>
+                  <Link href={`/super-admin/clubs/${club.id}/edit`}>
                     <Settings className="mr-1 h-3 w-3" aria-hidden="true" />
                     Modifica
                   </Link>
                 </Button>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link href={`/clubs/${club.id}/manage`}>
+                  <Link href={`/super-admin/clubs/${club.id}/manage`}>
                     <Users className="mr-1 h-3 w-3" aria-hidden="true" />
                     Gestisci
                   </Link>
                 </Button>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link href={`/preview/${club.slug}`}>
+                  <Link href={`/super-admin/preview/${club.slug}`}>
                     <ExternalLink className="mr-1 h-3 w-3" aria-hidden="true" />
                     Anteprima
                   </Link>
@@ -201,7 +201,7 @@ export default async function ClubsListPage({
             <CardContent className="py-12 text-center text-muted-foreground">
               <p>Nessun circolo trovato.</p>
               <Button className="mt-4" asChild>
-                <Link href="/clubs/new">
+                <Link href="/super-admin/clubs/new">
                   <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
                   Crea il primo circolo
                 </Link>

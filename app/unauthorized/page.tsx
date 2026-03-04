@@ -19,7 +19,7 @@ export default function UnauthorizedPage() {
           Non hai i permessi per accedere a questa sezione.
         </p>
         <Button asChild>
-          <Link href="/login">Torna al login</Link>
+          <Link href="/super-admin/login">Torna al login</Link>
         </Button>
       </div>
     </main>

@@ -1,6 +1,6 @@
 /**
  * Pagina di login per il super-admin.
- * Path: app.sportbook.it/login
+ * Path: app.sportbook.it/super-admin/login
  */
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
@@ -18,7 +18,7 @@ export default async function SuperAdminLoginPage() {
 
   // Se già autenticato, redirect alla dashboard
   if (user) {
-    redirect("/dashboard")
+    redirect("/super-admin/dashboard")
   }
 
   return (
@@ -35,7 +35,7 @@ export default async function SuperAdminLoginPage() {
             Pannello di gestione
           </p>
         </div>
-        <LoginForm />
+        <LoginForm redirectTo="/super-admin/dashboard" />
       </div>
     </main>
   )

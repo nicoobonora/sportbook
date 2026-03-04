@@ -59,7 +59,7 @@ export function PreviewFrame({
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-t-lg border bg-card px-4 py-3">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/clubs">
+            <Link href="/super-admin/clubs">
               <ArrowLeft className="mr-1 h-3 w-3" aria-hidden="true" />
               Circoli
             </Link>
