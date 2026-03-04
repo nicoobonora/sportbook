@@ -28,6 +28,7 @@ export function StepIndicator({ steps, currentStep }: Props) {
               key={step.id}
               className="flex flex-1 items-center"
               aria-current={isActive ? "step" : undefined}
+              aria-label={`Passo ${step.id}: ${step.label}${isComplete ? " - completato" : isActive ? " - corrente" : ""}`}
             >
               <div className="flex w-full flex-col items-center gap-1">
                 {/* Cerchio numerato */}

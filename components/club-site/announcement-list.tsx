@@ -103,7 +103,7 @@ function AnnouncementCard({ announcement }: { announcement: Announcement }) {
           <div className="relative aspect-video w-full shrink-0 sm:aspect-square sm:w-48">
             <Image
               src={announcement.image_url}
-              alt=""
+              alt={announcement.title}
               fill
               className="rounded-t-lg object-cover sm:rounded-l-lg sm:rounded-tr-none"
               sizes="(max-width: 640px) 100vw, 192px"

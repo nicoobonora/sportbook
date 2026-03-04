@@ -145,7 +145,7 @@ export function StepSlot({ clubId, fieldId, date, onSelect, onBack }: Props) {
 
                       <div className="text-right">
                         {isFull ? (
-                          <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-error">
+                          <span className="rounded-full bg-red-200 px-2.5 py-1 text-xs font-medium text-red-900">
                             Esaurito
                           </span>
                         ) : (

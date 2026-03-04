@@ -24,8 +24,24 @@ const jetbrains = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "SportBook",
-  description: "Piattaforma per circoli sportivi italiani",
+  title: {
+    default: "SportBook — Piattaforma per Circoli Sportivi",
+    template: "%s | SportBook",
+  },
+  description:
+    "Gestisci prenotazioni, orari e comunicazioni del tuo circolo sportivo. Piattaforma italiana pensata per padel, tennis, calcetto e molto altro.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+  ),
+  openGraph: {
+    type: "website",
+    locale: "it_IT",
+    siteName: "SportBook",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({

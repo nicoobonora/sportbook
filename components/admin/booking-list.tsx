@@ -268,6 +268,7 @@ function BookingCard({ booking }: { booking: any }) {
           className="flex w-full items-center justify-between text-left touch-target"
           onClick={() => setExpanded(!expanded)}
           aria-expanded={expanded}
+          aria-label={`Dettagli prenotazione di ${booking.user_name}`}
         >
           <div className="min-w-0 flex-1">
             <p className="truncate font-medium">{booking.user_name}</p>

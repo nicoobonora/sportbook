@@ -120,7 +120,7 @@ export function StepDate({ selectedDate, onSelect, onBack }: Props) {
                   role="gridcell"
                   disabled={isPast}
                   aria-selected={isSelected || undefined}
-                  aria-label={format(day, "EEEE d MMMM yyyy", { locale: it })}
+                  aria-label={`${format(day, "EEEE d MMMM yyyy", { locale: it })}${isPast ? " - non disponibile" : ""}`}
                   onClick={() => onSelect(dateStr)}
                   className={cn(
                     "mx-auto flex h-10 w-10 items-center justify-center rounded-full text-sm transition-colors",
