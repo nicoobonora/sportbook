@@ -129,6 +129,7 @@ export function ClubForm({ club }: { club?: Club }) {
                 <Input
                   id="name"
                   placeholder="Circolo Sportivo Roma Nord"
+                  aria-invalid={!!errors.name}
                   aria-describedby={errors.name ? "name-error" : undefined}
                   {...register("name", { onChange: handleNameChange })}
                 />
@@ -145,6 +146,7 @@ export function ClubForm({ club }: { club?: Club }) {
                   <Input
                     id="slug"
                     placeholder="circolo-roma-nord"
+                    aria-invalid={!!errors.slug}
                     aria-describedby={errors.slug ? "slug-error" : "slug-hint"}
                     {...register("slug")}
                   />
@@ -185,6 +187,9 @@ export function ClubForm({ club }: { club?: Club }) {
                       type="button"
                       onClick={() => toggleSport(sport)}
                       className="touch-target"
+                      role="checkbox"
+                      aria-checked={selectedSports.includes(sport)}
+                      aria-label={`Sport: ${sport}`}
                     >
                       <Badge
                         variant={selectedSports.includes(sport) ? "default" : "outline"}

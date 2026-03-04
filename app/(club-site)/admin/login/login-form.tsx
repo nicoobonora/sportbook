@@ -57,6 +57,7 @@ export function LoginForm() {
               type="email"
               placeholder="admin@circolo.it"
               autoComplete="email"
+              aria-invalid={!!errors.email}
               aria-describedby={errors.email ? "email-error" : undefined}
               {...register("email")}
             />
@@ -74,6 +75,7 @@ export function LoginForm() {
               type="password"
               placeholder="••••••••"
               autoComplete="current-password"
+              aria-invalid={!!errors.password}
               aria-describedby={errors.password ? "password-error" : undefined}
               {...register("password")}
             />

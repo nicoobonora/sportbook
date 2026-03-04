@@ -7,6 +7,7 @@ import { getClubFromHeaders } from "@/lib/hooks/use-club"
 import { getClubThemeStyles } from "@/lib/utils/colors"
 import { ClubHeader } from "@/components/club-site/header"
 import { ClubFooter } from "@/components/club-site/footer"
+import { CookieBanner } from "@/components/club-site/cookie-banner"
 
 export default async function ClubSiteLayout({
   children,
@@ -31,6 +32,7 @@ export default async function ClubSiteLayout({
       <ClubHeader club={club} />
       {children}
       <ClubFooter club={club} />
+      <CookieBanner />
     </div>
   )
 }
