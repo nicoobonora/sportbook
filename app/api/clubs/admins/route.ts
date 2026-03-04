@@ -2,9 +2,11 @@
  * API Route per gestione admin dei circoli.
  * POST: Invita/aggiungi admin tramite email.
  * DELETE: Rimuovi admin dal circolo.
+ * Usa il client admin (service role) per bypassare RLS.
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { clubAdminInviteSchema } from "@/lib/validations/club"
 import { sendAdminInviteEmail } from "@/lib/email/send"
 
@@ -15,23 +17,24 @@ async function verifySuperAdmin() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: "Non autenticato", status: 401, supabase, user: null }
+    return { error: "Non autenticato", status: 401, admin: null }
   }
 
   const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || "")
     .split(",")
     .map((e) => e.trim())
   if (!superAdminEmails.includes(user.email || "")) {
-    return { error: "Non autorizzato", status: 403, supabase, user: null }
+    return { error: "Non autorizzato", status: 403, admin: null }
   }
 
-  return { error: null, status: 200, supabase, user }
+  const admin = createAdminClient()
+  return { error: null, status: 200, admin }
 }
 
 /** POST /api/clubs/admins — Invita admin tramite email */
 export async function POST(request: NextRequest) {
-  const { error, status, supabase } = await verifySuperAdmin()
-  if (error) {
+  const { error, status, admin } = await verifySuperAdmin()
+  if (error || !admin) {
     return NextResponse.json({ error }, { status })
   }
 
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
   const { email, club_id } = validation.data
 
   // Verifica che il circolo esista
-  const { data: club } = await supabase
+  const { data: club } = await admin
     .from("clubs")
     .select("id, name")
     .eq("id", club_id)
@@ -61,49 +64,20 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Cerca l'utente per email nella tabella auth.users via RPC o admin API
-  // In Supabase, non possiamo cercare direttamente auth.users dal client.
-  // Usiamo un approccio: proviamo con il service role se disponibile,
-  // altrimenti inviamo un invito email.
-  const adminApiKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  // Cerca l'utente per email tramite admin API di Supabase Auth
+  const {
+    data: { users },
+  } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })
 
-  let userId: string | null = null
+  const found = users?.find((u) => u.email === email)
 
-  if (adminApiKey && supabaseUrl) {
-    // Cerca l'utente tramite Admin API
-    const response = await fetch(
-      `${supabaseUrl}/auth/v1/admin/users?page=1&per_page=1`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${adminApiKey}`,
-          apikey: adminApiKey,
-        },
-      }
-    )
-
-    if (response.ok) {
-      const { users } = await response.json()
-      // Cerca l'utente tra tutti (l'API non supporta filtro per email direttamente)
-      // Usiamo un approccio pragmatico: lista utenti e filtra
-      // Per liste grandi, andrebbe fatto con una DB function
-      const found = users?.find(
-        (u: { email: string }) => u.email === email
-      )
-      if (found) {
-        userId = found.id
-      }
-    }
-  }
-
-  if (userId) {
+  if (found) {
     // L'utente esiste: verifica che non sia già admin
-    const { data: existing } = await supabase
+    const { data: existing } = await admin
       .from("club_admins")
       .select("id")
       .eq("club_id", club_id)
-      .eq("user_id", userId)
+      .eq("user_id", found.id)
       .single()
 
     if (existing) {
@@ -114,11 +88,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Aggiungi direttamente come admin
-    const { error: insertError } = await supabase
+    const { error: insertError } = await admin
       .from("club_admins")
       .insert({
         club_id,
-        user_id: userId,
+        user_id: found.id,
       })
 
     if (insertError) {
@@ -143,8 +117,8 @@ export async function POST(request: NextRequest) {
 
 /** DELETE /api/clubs/admins?id=UUID&club_id=UUID — Rimuovi admin */
 export async function DELETE(request: NextRequest) {
-  const { error, status, supabase } = await verifySuperAdmin()
-  if (error) {
+  const { error, status, admin } = await verifySuperAdmin()
+  if (error || !admin) {
     return NextResponse.json({ error }, { status })
   }
 
@@ -158,7 +132,7 @@ export async function DELETE(request: NextRequest) {
     )
   }
 
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await admin
     .from("club_admins")
     .delete()
     .eq("id", adminId)

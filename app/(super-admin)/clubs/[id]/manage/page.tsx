@@ -5,7 +5,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -32,7 +32,7 @@ export default async function ManageClubPage({
 }: {
   params: { id: string }
 }) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
 
   // Fetch club + admin + statistiche in parallelo
   const [
@@ -101,11 +101,7 @@ export default async function ManageClubPage({
             </Link>
           </Button>
           <Button variant="ghost" size="sm" asChild>
-            <Link
-              href={`/?club=${club.slug}`}
-              target="_blank"
-              rel="noopener"
-            >
+            <Link href={`/preview/${club.slug}`}>
               <ExternalLink className="mr-1 h-3 w-3" aria-hidden="true" />
               Anteprima
             </Link>

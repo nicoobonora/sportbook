@@ -5,7 +5,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { ClubForm } from "@/components/super-admin/club-form"
 import { Button } from "@/components/ui/button"
 import { ExternalLink, Users } from "lucide-react"
@@ -19,7 +19,7 @@ export default async function EditClubPage({
 }: {
   params: { id: string }
 }) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data: club } = await supabase
     .from("clubs")
     .select("*")

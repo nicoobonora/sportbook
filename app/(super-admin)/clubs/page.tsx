@@ -4,7 +4,7 @@
  */
 import type { Metadata } from "next"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,7 +22,7 @@ export default async function ClubsListPage({
 }: {
   searchParams: { q?: string; status?: string }
 }) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
 
   let query = supabase
     .from("clubs")
@@ -186,11 +186,7 @@ export default async function ClubsListPage({
                   </Link>
                 </Button>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link
-                    href={`/?club=${club.slug}`}
-                    target="_blank"
-                    rel="noopener"
-                  >
+                  <Link href={`/preview/${club.slug}`}>
                     <ExternalLink className="mr-1 h-3 w-3" aria-hidden="true" />
                     Anteprima
                   </Link>

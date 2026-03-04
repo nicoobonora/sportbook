@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { createPreviewToken } from "@/lib/utils/preview-token"
 
 async function verifySuperAdmin() {
@@ -13,23 +14,24 @@ async function verifySuperAdmin() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: "Non autenticato", status: 401, supabase, user: null }
+    return { error: "Non autenticato", status: 401, admin: null }
   }
 
   const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || "")
     .split(",")
     .map((e) => e.trim())
   if (!superAdminEmails.includes(user.email || "")) {
-    return { error: "Non autorizzato", status: 403, supabase, user: null }
+    return { error: "Non autorizzato", status: 403, admin: null }
   }
 
-  return { error: null, status: 200, supabase, user }
+  const admin = createAdminClient()
+  return { error: null, status: 200, admin }
 }
 
 /** GET /api/clubs/preview?club_id=UUID — Genera URL di anteprima */
 export async function GET(request: NextRequest) {
-  const { error, status, supabase } = await verifySuperAdmin()
-  if (error) {
+  const { error, status, admin } = await verifySuperAdmin()
+  if (error || !admin) {
     return NextResponse.json({ error }, { status })
   }
 
@@ -41,7 +43,7 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const { data: club } = await supabase
+  const { data: club } = await admin
     .from("clubs")
     .select("id, slug")
     .eq("id", clubId)

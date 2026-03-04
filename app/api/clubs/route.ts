@@ -1,32 +1,36 @@
 /**
  * API Route per la gestione dei circoli sportivi.
  * Solo il super-admin può creare e modificare circoli.
+ * Usa il client admin (service role) per bypassare RLS dopo verifica identità.
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { clubFormSchema } from "@/lib/validations/club"
 
-/** Verifica che l'utente sia super-admin */
+/** Verifica che l'utente sia super-admin, restituisce admin client per le operazioni DB */
 async function verifySuperAdmin() {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: "Non autenticato", status: 401, supabase, user: null }
+    return { error: "Non autenticato", status: 401, admin: null }
   }
 
   const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || "").split(",").map(e => e.trim())
   if (!superAdminEmails.includes(user.email || "")) {
-    return { error: "Non autorizzato", status: 403, supabase, user: null }
+    return { error: "Non autorizzato", status: 403, admin: null }
   }
 
-  return { error: null, status: 200, supabase, user }
+  // Usa il client admin (service role) per bypassare RLS
+  const admin = createAdminClient()
+  return { error: null, status: 200, admin }
 }
 
 /** POST /api/clubs — Crea un nuovo circolo */
 export async function POST(request: NextRequest) {
-  const { error, status, supabase } = await verifySuperAdmin()
-  if (error) {
+  const { error, status, admin } = await verifySuperAdmin()
+  if (error || !admin) {
     return NextResponse.json({ error }, { status })
   }
 
@@ -43,7 +47,7 @@ export async function POST(request: NextRequest) {
   const data = validation.data
 
   // Verifica unicità slug
-  const { data: existingClub } = await supabase
+  const { data: existingClub } = await admin
     .from("clubs")
     .select("id")
     .eq("slug", data.slug)
@@ -56,7 +60,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { data: club, error: insertError } = await supabase
+  const { data: club, error: insertError } = await admin
     .from("clubs")
     .insert({
       name: data.name,
@@ -79,7 +83,7 @@ export async function POST(request: NextRequest) {
 
   if (insertError) {
     return NextResponse.json(
-      { error: "Errore durante la creazione del circolo" },
+      { error: `Errore durante la creazione del circolo: ${insertError.message}` },
       { status: 500 }
     )
   }
@@ -89,8 +93,8 @@ export async function POST(request: NextRequest) {
 
 /** PATCH /api/clubs?id=UUID — Aggiorna un circolo esistente */
 export async function PATCH(request: NextRequest) {
-  const { error, status, supabase } = await verifySuperAdmin()
-  if (error) {
+  const { error, status, admin } = await verifySuperAdmin()
+  if (error || !admin) {
     return NextResponse.json({ error }, { status })
   }
 
@@ -106,7 +110,7 @@ export async function PATCH(request: NextRequest) {
     Object.keys(body).length === 1 &&
     ("is_active" in body || "is_published" in body)
   ) {
-    const { data: club, error: toggleError } = await supabase
+    const { data: club, error: toggleError } = await admin
       .from("clubs")
       .update(body)
       .eq("id", clubId)
@@ -134,7 +138,7 @@ export async function PATCH(request: NextRequest) {
   const data = validation.data
 
   if (data.slug) {
-    const { data: existingClub } = await supabase
+    const { data: existingClub } = await admin
       .from("clubs")
       .select("id")
       .eq("slug", data.slug)
@@ -149,7 +153,7 @@ export async function PATCH(request: NextRequest) {
     }
   }
 
-  const { data: club, error: updateError } = await supabase
+  const { data: club, error: updateError } = await admin
     .from("clubs")
     .update({
       ...data,

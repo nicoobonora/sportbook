@@ -1,8 +1,8 @@
 /**
  * Layout del sito pubblico del circolo.
  * Inietta il tema (colori) del circolo e mostra header/footer.
+ * I circoli inattivi sono visibili in anteprima con un banner informativo.
  */
-import { notFound } from "next/navigation"
 import { getClubFromHeaders } from "@/lib/hooks/use-club"
 import { getClubThemeStyles } from "@/lib/utils/colors"
 import { ClubHeader } from "@/components/club-site/header"
@@ -21,14 +21,15 @@ export default async function ClubSiteLayout({
     return <>{children}</>
   }
 
-  if (!club.is_active) {
-    notFound()
-  }
-
   const themeStyles = getClubThemeStyles(club.primary_color, club.accent_color)
 
   return (
     <div style={themeStyles}>
+      {!club.is_active && (
+        <div className="bg-yellow-500 px-4 py-2 text-center text-sm font-medium text-yellow-950">
+          Anteprima — Questo circolo non è ancora attivo
+        </div>
+      )}
       <ClubHeader club={club} />
       {children}
       <ClubFooter club={club} />

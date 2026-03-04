@@ -4,7 +4,7 @@
  */
 import type { Metadata } from "next"
 import Link from "next/link"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 }
 
 export default async function SuperAdminDashboardPage() {
-  const supabase = createClient()
+  const supabase = createAdminClient()
 
   const [
     { count: totalClubs },

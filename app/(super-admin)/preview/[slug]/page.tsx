@@ -5,7 +5,7 @@
  */
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { PreviewFrame } from "@/components/super-admin/preview-frame"
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export default async function PreviewPage({
 }: {
   params: { slug: string }
 }) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data: club } = await supabase
     .from("clubs")
     .select("id, name, slug, is_active, is_published")
