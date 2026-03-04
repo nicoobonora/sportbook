@@ -2,22 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* ── Colori del circolo (customizzabili via DB) ── */
+    --color-primary: 217 91% 60%;       /* #1D4ED8 default blu sportivo */
+    --color-primary-dark: 224 76% 48%;
+    --color-accent: 38 92% 50%;         /* #F59E0B default ambra */
+
+    /* ── Colori di sistema ── */
+    --color-background: 210 20% 98%;    /* #F8F9FA */
+    --color-surface: 0 0% 100%;         /* #FFFFFF */
+    --color-text: 221 39% 11%;          /* #111827 */
+    --color-text-muted: 220 9% 46%;     /* #6B7280 */
+    --color-border: 220 13% 91%;        /* #E5E7EB */
+    --color-success: 142 72% 29%;       /* #16A34A */
+    --color-error: 0 84% 60%;           /* #DC2626 */
+    --color-warning: 32 95% 44%;        /* #D97706 */
+
+    /* ── shadcn/ui compatibility variables ── */
+    --background: var(--color-background);
+    --foreground: var(--color-text);
+    --card: var(--color-surface);
+    --card-foreground: var(--color-text);
+    --popover: var(--color-surface);
+    --popover-foreground: var(--color-text);
+    --primary: var(--color-primary);
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: var(--color-text);
+    --muted: 220 14% 96%;
+    --muted-foreground: var(--color-text-muted);
+    --accent: var(--color-accent);
+    --accent-foreground: var(--color-text);
+    --destructive: var(--color-error);
+    --destructive-foreground: 0 0% 100%;
+    --border: var(--color-border);
+    --input: var(--color-border);
+    --ring: var(--color-primary);
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* ── Focus ring globale per accessibilità ── */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary ring-0;
+  }
+
+  /* ── Skip link per accessibilità ── */
+  .skip-link {
+    @apply absolute -top-10 left-4 z-[9999] rounded bg-primary px-4 py-2 text-white transition-all;
+  }
+  .skip-link:focus {
+    @apply top-4;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* ── Container responsive ── */
+  .container-sportbook {
+    @apply mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ── Touch target minimo 44x44px ── */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
 }
 
 @layer utilities {
