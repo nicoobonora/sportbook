@@ -110,7 +110,6 @@ export function StepSlot({ clubId, fieldId, date, onSelect, onBack }: Props) {
           >
             {slots.map((slot) => {
               const isFull = slot.current_bookings >= slot.max_bookings
-              const spotsLeft = slot.max_bookings - slot.current_bookings
 
               return (
                 <button
@@ -146,11 +145,11 @@ export function StepSlot({ clubId, fieldId, date, onSelect, onBack }: Props) {
                       <div className="text-right">
                         {isFull ? (
                           <span className="rounded-full bg-red-200 px-2.5 py-1 text-xs font-medium text-red-900">
-                            Esaurito
+                            Prenotato
                           </span>
                         ) : (
                           <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-success">
-                            {spotsLeft} {spotsLeft === 1 ? "posto" : "posti"}
+                            Disponibile
                           </span>
                         )}
                       </div>

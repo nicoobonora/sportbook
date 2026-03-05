@@ -198,7 +198,6 @@ function TemplateCard({ template, clubId }: { template: any; clubId: string }) {
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {template.fields?.name || "—"} ({template.fields?.sport || "—"}) ·
-            Max {template.max_bookings} prenotazion{template.max_bookings === 1 ? "e" : "i"} ·
             {template.price_cents === 0
               ? " Gratuito"
               : ` ${(template.price_cents / 100).toFixed(2)}€`}
@@ -344,26 +343,15 @@ function AddTemplateDialog({ clubId, fields }: { clubId: string; fields: Field[]
             </div>
           </div>
 
-          {/* Prezzo e max prenotazioni */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="tpl-price">Prezzo (centesimi)</Label>
-              <Input
-                id="tpl-price"
-                type="number"
-                min={0}
-                {...register("price_cents", { valueAsNumber: true })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="tpl-max">Max prenotazioni</Label>
-              <Input
-                id="tpl-max"
-                type="number"
-                min={1}
-                {...register("max_bookings", { valueAsNumber: true })}
-              />
-            </div>
+          {/* Prezzo */}
+          <div className="space-y-1.5">
+            <Label htmlFor="tpl-price">Prezzo (centesimi)</Label>
+            <Input
+              id="tpl-price"
+              type="number"
+              min={0}
+              {...register("price_cents", { valueAsNumber: true })}
+            />
           </div>
 
           {error && (
