@@ -49,7 +49,7 @@ export async function sendBookingReceivedEmail(params: {
   )
 
   await resend.emails.send({
-    from: "SportBook <noreply@sportbook.it>",
+    from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
     to: params.to,
     subject: `Nuova prenotazione da ${params.userName} — ${params.clubName}`,
     html,
@@ -88,7 +88,7 @@ export async function sendBookingConfirmedEmail(params: {
   )
 
   await resend.emails.send({
-    from: "SportBook <noreply@sportbook.it>",
+    from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
     to: params.to,
     subject: `La tua prenotazione è confermata! — ${params.clubName}`,
     html,
@@ -125,7 +125,7 @@ export async function sendBookingRejectedEmail(params: {
   )
 
   await resend.emails.send({
-    from: "SportBook <noreply@sportbook.it>",
+    from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
     to: params.to,
     subject: `Prenotazione non disponibile — ${params.clubName}`,
     html,
@@ -152,7 +152,7 @@ export async function sendAdminInviteEmail(params: {
   )
 
   await resend.emails.send({
-    from: "SportBook <noreply@sportbook.it>",
+    from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
     to: params.to,
     subject: `Sei stato invitato come admin di ${params.clubName} — SportBook`,
     html,

@@ -149,7 +149,7 @@ export default async function SuperAdminDashboardPage() {
                         {club.name}
                       </Link>
                       <p className="text-xs text-muted-foreground">
-                        {club.slug}.sportbook.it · {formatDate(club.created_at)}
+                        {club.slug}.prenotauncampetto.it · {formatDate(club.created_at)}
                       </p>
                     </div>
                     {club.is_active ? (

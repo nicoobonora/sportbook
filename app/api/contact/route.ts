@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     const resend = new Resend(resendApiKey)
 
     await resend.emails.send({
-      from: "SportBook <noreply@sportbook.it>",
+      from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
       to: club.email,
       replyTo: email,
       subject: `Nuovo messaggio da ${name} — ${club.name}`,
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         message,
         "",
         "---",
-        "Questo messaggio è stato inviato tramite il form contatti di SportBook.",
+        "Questo messaggio è stato inviato tramite il form contatti di PrenotaUnCampetto.",
       ].join("\n"),
     })
 

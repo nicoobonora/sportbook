@@ -2,7 +2,7 @@
  * Middleware multi-tenant per SportBook.
  *
  * Logica di routing:
- * 1. hostname === APP_DOMAIN (es. app.sportbook.it) → super-admin
+ * 1. hostname === APP_DOMAIN (es. app.prenotauncampetto.it) → super-admin
  * 2. hostname === [slug].DOMAIN → sito pubblico del circolo
  * 3. [slug].DOMAIN/admin/* → pannello admin del circolo (richiede auth)
  * 4. In sviluppo locale: /club/[slug]/* → sito del circolo (rewrite interno)
@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
       clubSubpath = clubMatch[2] || "/"
     }
   } else if (!isAppDomain) {
-    // Produzione: estrai lo slug dal subdominio [slug].sportbook.it
+    // Produzione: estrai lo slug dal subdominio [slug].prenotauncampetto.it
     const subdomain = hostname.replace(`.${ROOT_DOMAIN}`, "")
     if (subdomain && subdomain !== hostname) {
       clubSlug = subdomain
@@ -52,7 +52,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // ── CLUB SITE: /club/[slug]/* (localhost) o [slug].sportbook.it/* (prod) ──
+  // ── CLUB SITE: /club/[slug]/* (localhost) o [slug].prenotauncampetto.it/* (prod) ──
   if (clubSlug) {
     // ── Admin del circolo: richiede autenticazione ──
     if (clubSubpath.startsWith("/admin") && clubSubpath !== "/admin/login") {
@@ -103,7 +103,7 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // ── SUPER-ADMIN: app.sportbook.it/* o localhost senza /club/ ──
+  // ── SUPER-ADMIN: app.prenotauncampetto.it/* o localhost senza /club/ ──
   if (isAppDomain || isLocalhost) {
     const isSuperAdminRoute =
       pathname.startsWith("/super-admin") && pathname !== "/super-admin/login"

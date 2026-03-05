@@ -193,7 +193,7 @@ async function sendBookingNotification(club: any, booking: any, slot: any) {
   const resend = new Resend(resendApiKey)
 
   await resend.emails.send({
-    from: "SportBook <noreply@sportbook.it>",
+    from: "SportBook <noreply@prenotauncampetto.it>",
     to: club.email,
     subject: `Nuova prenotazione da ${booking.user_name} — ${club.name}`,
     text: [
@@ -223,7 +223,7 @@ async function sendUserConfirmation(booking: any) {
   const resend = new Resend(resendApiKey)
 
   await resend.emails.send({
-    from: "SportBook <noreply@sportbook.it>",
+    from: "SportBook <noreply@prenotauncampetto.it>",
     to: booking.user_email,
     subject: "La tua prenotazione è confermata!",
     text: [
@@ -251,7 +251,7 @@ async function sendUserRejection(booking: any, reason: string | null) {
   const resend = new Resend(resendApiKey)
 
   await resend.emails.send({
-    from: "SportBook <noreply@sportbook.it>",
+    from: "SportBook <noreply@prenotauncampetto.it>",
     to: booking.user_email,
     subject: "Prenotazione non disponibile",
     text: [

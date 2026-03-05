@@ -1,6 +1,6 @@
 /**
  * Pagina di login per gli admin dei circoli.
- * Path: [slug].sportbook.it/admin/login
+ * Path: [slug].prenotauncampetto.it/admin/login
  */
 import type { Metadata } from "next"
 import { getClubBasePath } from "@/lib/hooks/use-club"

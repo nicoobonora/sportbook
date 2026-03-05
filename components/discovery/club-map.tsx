@@ -28,7 +28,7 @@ function getClubUrl(slug: string): string {
   ) {
     return `/club/${slug}`
   }
-  return `https://${slug}.sportbook.it`
+  return `https://${slug}.prenotauncampetto.it`
 }
 
 type ClubMapProps = {

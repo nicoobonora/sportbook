@@ -47,7 +47,7 @@ export async function searchAddress(query: string): Promise<NominatimResult[]> {
     `https://nominatim.openstreetmap.org/search?${params}`,
     {
       headers: {
-        "User-Agent": "SportBook/1.0 (sportbook.it)",
+        "User-Agent": "PrenotaUnCampetto/1.0 (prenotauncampetto.it)",
         Accept: "application/json",
       },
     }

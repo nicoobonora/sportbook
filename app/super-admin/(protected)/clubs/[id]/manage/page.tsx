@@ -89,7 +89,7 @@ export default async function ManageClubPage({
             {club.name}
           </h1>
           <p className="mt-1 text-muted-foreground">
-            {club.slug}.sportbook.it
+            {club.slug}.prenotauncampetto.it
             {club.city && <> · {club.city}</>}
           </p>
         </div>

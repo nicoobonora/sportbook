@@ -67,7 +67,7 @@ export function PreviewFrame({
           <div className="hidden sm:block">
             <p className="text-sm font-medium">{club.name}</p>
             <p className="text-xs text-muted-foreground">
-              {club.slug}.sportbook.it
+              {club.slug}.prenotauncampetto.it
             </p>
           </div>
           {club.is_active ? (

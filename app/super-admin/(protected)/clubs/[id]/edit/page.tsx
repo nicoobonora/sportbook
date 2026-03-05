@@ -38,7 +38,7 @@ export default async function EditClubPage({
             Modifica: {club.name}
           </h1>
           <p className="mt-1 text-muted-foreground">
-            {club.slug}.sportbook.it
+            {club.slug}.prenotauncampetto.it
           </p>
         </div>
         <div className="flex gap-2">

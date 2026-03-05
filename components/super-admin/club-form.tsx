@@ -170,7 +170,7 @@ export function ClubForm({ club }: { club?: Club }) {
                     {...register("slug")}
                   />
                   <span className="shrink-0 text-sm text-muted-foreground">
-                    .sportbook.it
+                    .prenotauncampetto.it
                   </span>
                 </div>
                 <p id="slug-hint" className="text-xs text-muted-foreground">

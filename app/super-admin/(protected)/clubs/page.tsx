@@ -137,7 +137,7 @@ export default async function ClubsListPage({
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {club.slug}.sportbook.it
+                    {club.slug}.prenotauncampetto.it
                     {club.city && <> · {club.city}</>}
                     {club.sports && club.sports.length > 0 && (
                       <> · {club.sports.join(", ")}</>

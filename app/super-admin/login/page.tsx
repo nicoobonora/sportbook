@@ -1,6 +1,6 @@
 /**
  * Pagina di login per il super-admin.
- * Path: app.sportbook.it/super-admin/login
+ * Path: app.prenotauncampetto.it/super-admin/login
  */
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
