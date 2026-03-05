@@ -3,6 +3,7 @@
  * Inietta il tema (colori) del circolo e mostra header/footer.
  * I circoli inattivi sono visibili in anteprima con un banner informativo.
  */
+import { headers } from "next/headers"
 import { getClubFromHeaders, getClubBasePath } from "@/lib/hooks/use-club"
 import { getClubThemeStyles } from "@/lib/utils/colors"
 import { ClubHeader } from "@/components/club-site/header"
@@ -21,7 +22,16 @@ export default async function ClubSiteLayout({
     return <>{children}</>
   }
 
+  // Admin pages hanno il loro layout (sidebar) — skip header/footer pubblico
+  const headersList = headers()
+  const isAdmin = headersList.get("x-sportbook-admin") === "true"
+
   const themeStyles = getClubThemeStyles(club.primary_color, club.accent_color)
+
+  if (isAdmin) {
+    return <div style={themeStyles}>{children}</div>
+  }
+
   const basePath = getClubBasePath()
 
   return (

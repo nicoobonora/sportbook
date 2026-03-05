@@ -106,6 +106,14 @@ function NavContent({
 
 export function AdminSidebar({ clubName, basePath = "" }: { clubName: string; basePath?: string }) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  async function handleMobileLogout() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push(`${basePath}/admin/login`)
+    router.refresh()
+  }
 
   return (
     <>
@@ -134,9 +142,18 @@ export function AdminSidebar({ clubName, basePath = "" }: { clubName: string; ba
             <NavContent basePath={basePath} pathname={pathname} clubName={clubName} />
           </SheetContent>
         </Sheet>
-        <span className="ml-3 font-display text-lg font-bold uppercase tracking-tight">
+        <span className="ml-3 flex-1 font-display text-lg font-bold uppercase tracking-tight">
           {clubName}
         </span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="touch-target text-muted-foreground"
+          onClick={handleMobileLogout}
+          aria-label="Esci"
+        >
+          <LogOut className="h-5 w-5" />
+        </Button>
       </div>
 
       {/* Spacer per la barra mobile */}

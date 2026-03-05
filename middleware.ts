@@ -70,6 +70,9 @@ export async function middleware(request: NextRequest) {
     const requestHeaders = new Headers(request.headers)
     requestHeaders.set("x-sportbook-context", "club")
     requestHeaders.set("x-sportbook-club-slug", clubSlug)
+    if (clubSubpath.startsWith("/admin")) {
+      requestHeaders.set("x-sportbook-admin", "true")
+    }
 
     if (isLocalhost) {
       // Rewrite: /club/[slug]/prenota → /prenota (il browser vede ancora /club/[slug]/prenota)

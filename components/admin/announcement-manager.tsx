@@ -113,9 +113,9 @@ function AnnouncementCard({
   return (
     <Card className={isExpired ? "opacity-60" : undefined}>
       <CardContent className="py-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
+        <div className="space-y-3">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
               <h3 className="truncate font-medium">{announcement.title}</h3>
               {announcement.is_pinned && (
                 <Badge variant="secondary" className="gap-1 shrink-0">
@@ -139,7 +139,7 @@ function AnnouncementCard({
           </div>
 
           {/* Azioni */}
-          <div className="flex shrink-0 gap-1">
+          <div className="flex gap-1">
             <Button
               variant="ghost"
               size="icon"
@@ -308,29 +308,27 @@ function AnnouncementDialog({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="ann-expires">Data scadenza</Label>
-              <Input
-                id="ann-expires"
-                type="date"
-                {...register("expires_at")}
-              />
-              <p className="text-xs text-muted-foreground">
-                Lascia vuoto per non farlo scadere
-              </p>
-            </div>
-            <div className="flex items-center gap-2 pt-7">
-              <input
-                type="checkbox"
-                id="ann-pinned"
-                className="h-4 w-4 rounded border-border"
-                {...register("is_pinned")}
-              />
-              <Label htmlFor="ann-pinned" className="text-sm">
-                Metti in evidenza
-              </Label>
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="ann-expires">Data scadenza</Label>
+            <Input
+              id="ann-expires"
+              type="date"
+              {...register("expires_at")}
+            />
+            <p className="text-xs text-muted-foreground">
+              Lascia vuoto per non farlo scadere
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="ann-pinned"
+              className="h-4 w-4 rounded border-border"
+              {...register("is_pinned")}
+            />
+            <Label htmlFor="ann-pinned" className="text-sm">
+              Metti in evidenza
+            </Label>
           </div>
 
           {error && (
