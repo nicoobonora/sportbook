@@ -1,6 +1,6 @@
 /**
  * Pagina gestione slot e template orari.
- * Due sezioni: Template settimanali e Slot specifici.
+ * Griglia calendario settimanale con template personalizzabili e blocchi.
  */
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
@@ -17,8 +17,8 @@ export default async function SlotPage() {
 
   const supabase = createClient()
 
-  // Recupera campi e template
-  const [{ data: fields }, { data: templates }] = await Promise.all([
+  // Recupera campi, template e blocchi
+  const [{ data: fields }, { data: templates }, { data: blocks }] = await Promise.all([
     supabase
       .from("fields")
       .select("*")
@@ -27,10 +27,15 @@ export default async function SlotPage() {
       .order("sort_order"),
     supabase
       .from("slot_templates")
-      .select("*, fields(name, sport)")
+      .select("*")
       .eq("club_id", club.id)
       .order("day_of_week")
       .order("start_time"),
+    supabase
+      .from("slot_blocks")
+      .select("*")
+      .eq("club_id", club.id)
+      .order("created_at", { ascending: false }),
   ])
 
   return (
@@ -47,6 +52,7 @@ export default async function SlotPage() {
           clubId={club.id}
           fields={fields || []}
           templates={templates || []}
+          blocks={blocks || []}
         />
       </div>
     </>

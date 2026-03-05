@@ -33,5 +33,29 @@ export const slotManualSchema = z.object({
   is_blocked: z.boolean().default(false),
 })
 
+export const slotBlockSchema = z.object({
+  club_id: z.string().uuid(),
+  field_id: z.string().uuid(),
+  block_type: z.enum(["single_date", "recurring"]),
+  block_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Formato data non valido (YYYY-MM-DD)")
+    .nullable()
+    .optional(),
+  day_of_week: z.number().min(0).max(6).nullable().optional(),
+  start_time: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato orario non valido (HH:MM)")
+    .nullable()
+    .optional(),
+  end_time: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato orario non valido (HH:MM)")
+    .nullable()
+    .optional(),
+  reason: z.string().max(200).optional(),
+})
+
 export type SlotTemplateValues = z.infer<typeof slotTemplateSchema>
 export type SlotManualValues = z.infer<typeof slotManualSchema>
+export type SlotBlockValues = z.infer<typeof slotBlockSchema>

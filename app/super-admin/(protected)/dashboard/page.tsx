@@ -156,8 +156,6 @@ export default async function SuperAdminDashboardPage() {
                       <Badge variant="default" className="bg-success">
                         Attivo
                       </Badge>
-                    ) : club.is_published ? (
-                      <Badge variant="secondary">Preview</Badge>
                     ) : (
                       <Badge variant="outline">Bozza</Badge>
                     )}

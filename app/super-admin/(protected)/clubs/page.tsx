@@ -31,10 +31,8 @@ export default async function ClubsListPage({
 
   if (searchParams.status === "active") {
     query = query.eq("is_active", true)
-  } else if (searchParams.status === "preview") {
-    query = query.eq("is_published", true).eq("is_active", false)
-  } else if (searchParams.status === "draft") {
-    query = query.eq("is_published", false).eq("is_active", false)
+  } else if (searchParams.status === "inactive") {
+    query = query.eq("is_active", false)
   }
 
   if (searchParams.q) {
@@ -100,8 +98,7 @@ export default async function ClubsListPage({
           {[
             { value: "all", label: "Tutti" },
             { value: "active", label: "Attivi" },
-            { value: "preview", label: "Preview" },
-            { value: "draft", label: "Bozze" },
+            { value: "inactive", label: "Bozze" },
           ].map((filter) => (
             <Button
               key={filter.value}
@@ -135,8 +132,6 @@ export default async function ClubsListPage({
                       <Badge variant="default" className="bg-success">
                         Attivo
                       </Badge>
-                    ) : club.is_published ? (
-                      <Badge variant="secondary">Preview</Badge>
                     ) : (
                       <Badge variant="outline">Bozza</Badge>
                     )}

@@ -113,8 +113,6 @@ export default async function ManageClubPage({
       <div className="mt-6 flex flex-wrap gap-2">
         {club.is_active ? (
           <Badge variant="default" className="bg-success">Attivo</Badge>
-        ) : club.is_published ? (
-          <Badge variant="secondary">Preview</Badge>
         ) : (
           <Badge variant="outline">Bozza</Badge>
         )}

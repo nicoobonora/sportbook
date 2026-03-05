@@ -313,6 +313,45 @@ export type Database = {
         }
         Relationships: []
       }
+      slot_blocks: {
+        Row: {
+          id: string
+          club_id: string
+          field_id: string
+          block_type: "single_date" | "recurring"
+          block_date: string | null
+          day_of_week: number | null
+          start_time: string | null
+          end_time: string | null
+          reason: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          club_id: string
+          field_id: string
+          block_type: "single_date" | "recurring"
+          block_date?: string | null
+          day_of_week?: number | null
+          start_time?: string | null
+          end_time?: string | null
+          reason?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          club_id?: string
+          field_id?: string
+          block_type?: "single_date" | "recurring"
+          block_date?: string | null
+          day_of_week?: number | null
+          start_time?: string | null
+          end_time?: string | null
+          reason?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       cookie_configs: {
         Row: {
           id: string
@@ -398,6 +437,9 @@ export type BookingStatus = "pending" | "confirmed" | "rejected" | "cancelled"
 
 export type Announcement = Database["public"]["Tables"]["announcements"]["Row"]
 export type AnnouncementInsert = Database["public"]["Tables"]["announcements"]["Insert"]
+
+export type SlotBlock = Database["public"]["Tables"]["slot_blocks"]["Row"]
+export type SlotBlockInsert = Database["public"]["Tables"]["slot_blocks"]["Insert"]
 
 export type CookieConfig = Database["public"]["Tables"]["cookie_configs"]["Row"]
 export type CookieConfigInsert = Database["public"]["Tables"]["cookie_configs"]["Insert"]
