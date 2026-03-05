@@ -1,76 +1,84 @@
 /**
  * Pagina gestione prenotazioni del pannello admin.
- * Lista con filtri per stato, data, struttura e ricerca.
+ * Vista calendario settimanale con prenotazioni colorate per stato.
  */
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
-import { getClubFromHeaders } from "@/lib/hooks/use-club"
-import { BookingList } from "@/components/admin/booking-list"
+import { getClubFromHeaders, getClubBasePath } from "@/lib/hooks/use-club"
+import { BookingCalendar } from "@/components/admin/booking-calendar"
 
 export const metadata: Metadata = {
   title: "Prenotazioni — Admin",
+}
+
+/** Calcola il lunedì (YYYY-MM-DD) della settimana che contiene la data fornita.
+ *  Usa T12:00:00Z per evitare drift di timezone (Europe/Rome = UTC+1/+2). */
+function getMondayStr(dateStr?: string): string {
+  const date = dateStr ? new Date(dateStr + "T12:00:00Z") : new Date()
+  const day = dateStr ? date.getUTCDay() : date.getDay()
+  const diff = (day + 6) % 7 // 0=lun, 6=dom
+  const monday = new Date(date)
+  if (dateStr) {
+    monday.setUTCDate(date.getUTCDate() - diff)
+  } else {
+    monday.setDate(date.getDate() - diff)
+  }
+  // Format as YYYY-MM-DD without timezone conversion
+  if (dateStr) {
+    return monday.toISOString().split("T")[0]
+  }
+  const y = monday.getFullYear()
+  const m = String(monday.getMonth() + 1).padStart(2, "0")
+  const d = String(monday.getDate()).padStart(2, "0")
+  return `${y}-${m}-${d}`
+}
+
+/** Aggiunge giorni a una data YYYY-MM-DD senza drift di timezone */
+function addDays(dateStr: string, days: number): string {
+  const d = new Date(dateStr + "T12:00:00Z")
+  d.setUTCDate(d.getUTCDate() + days)
+  return d.toISOString().split("T")[0]
 }
 
 export default async function PrenotazioniPage({
   searchParams,
 }: {
   searchParams: {
-    stato?: string
-    data?: string
+    settimana?: string
     campo?: string
-    cerca?: string
-    pagina?: string
   }
 }) {
   const club = await getClubFromHeaders()
   if (!club) return null
 
   const supabase = createClient()
-  const currentPage = Math.max(1, parseInt(searchParams.pagina || "1", 10) || 1)
-  const pageSize = 20
-  const offset = (currentPage - 1) * pageSize
 
-  // Costruisci la query con filtri
+  // Calcola range settimanale (Lunedì → Domenica)
+  const weekStart = getMondayStr(searchParams.settimana)
+  const weekEnd = addDays(weekStart, 6)
+
+  // Query prenotazioni per la settimana + lista campi in parallelo
   let query = supabase
     .from("bookings")
-    .select("*, slots(date, start_time, end_time), fields(id, name, sport)", {
-      count: "exact",
-    })
+    .select("*, slots!inner(date, start_time, end_time), fields(id, name, sport)")
     .eq("club_id", club.id)
+    .gte("slots.date", weekStart)
+    .lte("slots.date", weekEnd)
     .order("created_at", { ascending: false })
-    .range(offset, offset + pageSize - 1)
 
-  // Filtro per stato
-  if (searchParams.stato && ["pending", "confirmed", "rejected", "cancelled"].includes(searchParams.stato)) {
-    query = query.eq("status", searchParams.stato)
-  }
-
-  // Filtro per data (su slot)
-  if (searchParams.data) {
-    query = query.eq("slots.date", searchParams.data)
-  }
-
-  // Filtro per campo
   if (searchParams.campo) {
     query = query.eq("field_id", searchParams.campo)
   }
 
-  // Ricerca per nome o email
-  if (searchParams.cerca) {
-    const search = `%${searchParams.cerca}%`
-    query = query.or(`user_name.ilike.${search},user_email.ilike.${search}`)
-  }
-
-  const { data: bookings, count: totalCount } = await query
-  const totalPages = Math.ceil((totalCount || 0) / pageSize)
-
-  // Recupera lista campi per il filtro
-  const { data: fields } = await supabase
-    .from("fields")
-    .select("id, name, sport")
-    .eq("club_id", club.id)
-    .eq("is_active", true)
-    .order("sort_order")
+  const [{ data: bookings }, { data: fields }] = await Promise.all([
+    query,
+    supabase
+      .from("fields")
+      .select("id, name, sport")
+      .eq("club_id", club.id)
+      .eq("is_active", true)
+      .order("sort_order"),
+  ])
 
   return (
     <>
@@ -82,12 +90,13 @@ export default async function PrenotazioniPage({
       </p>
 
       <div className="mt-8">
-        <BookingList
+        <BookingCalendar
           bookings={bookings || []}
           fields={fields || []}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          filters={searchParams}
+          weekStart={weekStart}
+          weekEnd={weekEnd}
+          selectedFieldId={searchParams.campo || null}
+          basePath={getClubBasePath()}
         />
       </div>
     </>
