@@ -21,6 +21,11 @@ export type Database = {
           accent_color: string
           address: string | null
           city: string | null
+          postal_code: string | null
+          region: string | null
+          country: string | null
+          latitude: number | null
+          longitude: number | null
           phone: string | null
           email: string | null
           whatsapp: string | null
@@ -45,6 +50,11 @@ export type Database = {
           accent_color?: string
           address?: string | null
           city?: string | null
+          postal_code?: string | null
+          region?: string | null
+          country?: string | null
+          latitude?: number | null
+          longitude?: number | null
           phone?: string | null
           email?: string | null
           whatsapp?: string | null
@@ -69,6 +79,11 @@ export type Database = {
           accent_color?: string
           address?: string | null
           city?: string | null
+          postal_code?: string | null
+          region?: string | null
+          country?: string | null
+          latitude?: number | null
+          longitude?: number | null
           phone?: string | null
           email?: string | null
           whatsapp?: string | null

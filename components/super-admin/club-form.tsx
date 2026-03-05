@@ -8,13 +8,14 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2 } from "lucide-react"
+import { Loader2, MapPin } from "lucide-react"
 import {
   clubFormSchema,
   SPORTS_OPTIONS,
   type ClubFormValues,
 } from "@/lib/validations/club"
 import type { Club } from "@/lib/types/database"
+import type { ParsedAddress } from "@/lib/utils/nominatim"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -22,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete"
 
 function slugify(text: string): string {
   return text
@@ -59,6 +61,11 @@ export function ClubForm({ club }: { club?: Club }) {
       accent_color: club?.accent_color || "#F59E0B",
       address: club?.address || "",
       city: club?.city || "",
+      postal_code: club?.postal_code || "",
+      region: club?.region || "",
+      country: club?.country || "IT",
+      latitude: club?.latitude ?? null,
+      longitude: club?.longitude ?? null,
       phone: club?.phone || "",
       email: club?.email || "",
       whatsapp: club?.whatsapp || "",
@@ -70,6 +77,18 @@ export function ClubForm({ club }: { club?: Club }) {
   const watchName = watch("name")
   const watchPrimary = watch("primary_color")
   const watchAccent = watch("accent_color")
+  const watchLatitude = watch("latitude")
+  const watchLongitude = watch("longitude")
+
+  function handleAddressSelect(result: ParsedAddress) {
+    setValue("address", result.address)
+    setValue("city", result.city)
+    setValue("postal_code", result.postal_code)
+    setValue("region", result.region)
+    setValue("country", result.country)
+    setValue("latitude", result.latitude)
+    setValue("longitude", result.longitude)
+  }
 
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const name = e.target.value
@@ -355,16 +374,33 @@ export function ClubForm({ club }: { club?: Club }) {
         <TabsContent value="contacts">
           <Card>
             <CardContent className="space-y-4 pt-6">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="address">Indirizzo</Label>
-                  <Input id="address" placeholder="Via Roma 1" {...register("address")} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="city">Città</Label>
-                  <Input id="city" placeholder="Roma" {...register("city")} />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="sa-address">Indirizzo</Label>
+                <AddressAutocomplete
+                  id="sa-address"
+                  defaultValue={club?.address || ""}
+                  onSelect={handleAddressSelect}
+                  placeholder="Cerca indirizzo del circolo..."
+                />
               </div>
+
+              {(watchLatitude || watch("city")) && (
+                <div className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground space-y-0.5">
+                  {watch("city") && (
+                    <p>
+                      <span className="font-medium">Città:</span> {watch("city")}
+                      {watch("postal_code") && ` (${watch("postal_code")})`}
+                      {watch("region") && ` — ${watch("region")}`}
+                    </p>
+                  )}
+                  {watchLatitude && watchLongitude && (
+                    <p className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" aria-hidden="true" />
+                      Coordinate: {watchLatitude.toFixed(4)}, {watchLongitude.toFixed(4)}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">

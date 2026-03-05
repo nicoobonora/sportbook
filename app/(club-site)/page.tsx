@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
 import { formatDate } from "@/lib/utils/dates"
+import { DiscoveryPage } from "@/components/discovery/discovery-page"
 
 export async function generateMetadata(): Promise<Metadata> {
   const club = await getClubFromHeaders()
@@ -26,21 +27,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ClubHomePage() {
   const club = await getClubFromHeaders()
 
-  // Pagina di default quando non c'è un club (sviluppo locale senza ?club=)
+  // Pagina discovery quando non c'è un club (root del sito)
   if (!club) {
     return (
-      <main id="main-content" className="flex min-h-screen items-center justify-center">
-        <div className="text-center space-y-4">
-          <h1 className="font-display text-display-xl uppercase tracking-tight">
-            SportBook
-          </h1>
-          <p className="text-muted-foreground">
-            Piattaforma per circoli sportivi italiani
-          </p>
-          <Button asChild>
-            <Link href="/super-admin/login">Accedi come admin</Link>
-          </Button>
-        </div>
+      <main id="main-content">
+        <DiscoveryPage />
       </main>
     )
   }

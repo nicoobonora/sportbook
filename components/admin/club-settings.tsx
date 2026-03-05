@@ -7,14 +7,16 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
-import { Loader2, Plus, Trash2 } from "lucide-react"
+import { Loader2, Plus, Trash2, MapPin } from "lucide-react"
 import type { Club, Field } from "@/lib/types/database"
+import type { ParsedAddress } from "@/lib/utils/nominatim"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { AddressAutocomplete } from "@/components/ui/address-autocomplete"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -58,19 +60,40 @@ function ClubInfoForm({ club }: { club: Club }) {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { isSubmitting },
   } = useForm({
     defaultValues: {
       about_text: club.about_text || "",
       address: club.address || "",
       city: club.city || "",
+      postal_code: club.postal_code || "",
+      region: club.region || "",
+      country: club.country || "IT",
+      latitude: club.latitude as number | null,
+      longitude: club.longitude as number | null,
       phone: club.phone || "",
       email: club.email || "",
       whatsapp: club.whatsapp || "",
     },
   })
 
-  async function onSubmit(data: Record<string, string>) {
+  const watchLatitude = watch("latitude")
+  const watchLongitude = watch("longitude")
+
+  function handleAddressSelect(result: ParsedAddress) {
+    setValue("address", result.address)
+    setValue("city", result.city)
+    setValue("postal_code", result.postal_code)
+    setValue("region", result.region)
+    setValue("country", result.country)
+    setValue("latitude", result.latitude)
+    setValue("longitude", result.longitude)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async function onSubmit(data: any) {
     setError(null)
     setSuccess(false)
     const supabase = createClient()
@@ -81,6 +104,11 @@ function ClubInfoForm({ club }: { club: Club }) {
         about_text: data.about_text || null,
         address: data.address || null,
         city: data.city || null,
+        postal_code: data.postal_code || null,
+        region: data.region || null,
+        country: data.country || null,
+        latitude: data.latitude || null,
+        longitude: data.longitude || null,
         phone: data.phone || null,
         email: data.email || null,
         whatsapp: data.whatsapp || null,
@@ -113,16 +141,33 @@ function ClubInfoForm({ club }: { club: Club }) {
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="settings-address">Indirizzo</Label>
-              <Input id="settings-address" {...register("address")} />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="settings-city">Città</Label>
-              <Input id="settings-city" {...register("city")} />
-            </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="settings-address">Indirizzo</Label>
+            <AddressAutocomplete
+              id="settings-address"
+              defaultValue={club.address || ""}
+              onSelect={handleAddressSelect}
+              placeholder="Cerca indirizzo del circolo..."
+            />
           </div>
+
+          {(watchLatitude || watch("city")) && (
+            <div className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground space-y-0.5">
+              {watch("city") && (
+                <p>
+                  <span className="font-medium">Città:</span> {watch("city")}
+                  {watch("postal_code") && ` (${watch("postal_code")})`}
+                  {watch("region") && ` — ${watch("region")}`}
+                </p>
+              )}
+              {watchLatitude && watchLongitude && (
+                <p className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" aria-hidden="true" />
+                  Coordinate: {watchLatitude.toFixed(4)}, {watchLongitude.toFixed(4)}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
