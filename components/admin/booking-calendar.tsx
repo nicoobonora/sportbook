@@ -130,8 +130,8 @@ export function BookingCalendar({
   const bookingsByDateAndTime = useMemo(() => {
     const map: Record<string, Record<string, BookingData[]>> = {}
     for (const b of filteredBookings) {
-      const date = b.slots?.date
-      const startTime = b.slots?.start_time?.substring(0, 5)
+      const date = b.date || b.slots?.date
+      const startTime = (b.start_time || b.slots?.start_time)?.substring(0, 5)
       if (!date || !startTime) continue
       if (!map[date]) map[date] = {}
       if (!map[date][startTime]) map[date][startTime] = []
@@ -376,7 +376,7 @@ export function BookingCalendar({
           day={weekDays[selectedDay ?? weekDays.findIndex((d) => d.isToday) ?? 0]}
           bookings={filteredBookings.filter(
             (b: BookingData) =>
-              b.slots?.date ===
+              (b.date || b.slots?.date) ===
               weekDays[selectedDay ?? weekDays.findIndex((d) => d.isToday) ?? 0]?.date
           )}
           onOpenDetail={openBookingDetail}
@@ -442,8 +442,8 @@ function MobileDayBookings({
 
   // Sort by time
   const sorted = [...bookings].sort((a, b) => {
-    const ta = a.slots?.start_time || ""
-    const tb = b.slots?.start_time || ""
+    const ta = a.start_time || a.slots?.start_time || ""
+    const tb = b.start_time || b.slots?.start_time || ""
     return ta.localeCompare(tb)
   })
 
@@ -458,7 +458,8 @@ function MobileDayBookings({
           const status =
             STATUS_COLORS[b.status as keyof typeof STATUS_COLORS] ||
             STATUS_COLORS.pending
-          const slot = b.slots as { start_time?: string; end_time?: string } | null
+          const startTime = b.start_time || b.slots?.start_time
+          const endTime = b.end_time || b.slots?.end_time
           const field = b.fields as { name?: string } | null
 
           return (
@@ -476,8 +477,8 @@ function MobileDayBookings({
                   </span>
                 </div>
                 <span className="font-mono text-xs text-muted-foreground shrink-0 ml-2">
-                  {slot?.start_time ? formatTime(slot.start_time) : ""}
-                  {slot?.end_time ? `–${formatTime(slot.end_time)}` : ""}
+                  {startTime ? formatTime(startTime) : ""}
+                  {endTime ? `–${formatTime(endTime)}` : ""}
                 </span>
               </div>
               {field?.name && (
@@ -513,7 +514,9 @@ function BookingDetailDialog({
   const status =
     STATUS_COLORS[booking.status as keyof typeof STATUS_COLORS] ||
     STATUS_COLORS.pending
-  const slot = booking.slots as { date?: string; start_time?: string; end_time?: string } | null
+  const bookingDate = booking.date || booking.slots?.date
+  const bookingStartTime = booking.start_time || booking.slots?.start_time
+  const bookingEndTime = booking.end_time || booking.slots?.end_time
   const field = booking.fields as { name?: string; sport?: string } | null
 
   async function handleAction(action: "confirm" | "reject") {
@@ -603,15 +606,15 @@ function BookingDetailDialog({
                 </span>
               </div>
             )}
-            {slot?.date && (
+            {bookingDate && (
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
                 <span>
-                  {formatDate(slot.date)}
-                  {slot.start_time && (
+                  {formatDate(bookingDate)}
+                  {bookingStartTime && (
                     <span className="font-mono ml-1">
-                      {formatTime(slot.start_time)}
-                      {slot.end_time && `–${formatTime(slot.end_time)}`}
+                      {formatTime(bookingStartTime)}
+                      {bookingEndTime && `–${formatTime(bookingEndTime)}`}
                     </span>
                   )}
                 </span>

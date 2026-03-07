@@ -239,8 +239,12 @@ export type Database = {
         Row: {
           id: string
           club_id: string
-          slot_id: string
+          slot_id: string | null
           field_id: string
+          date: string | null
+          start_time: string | null
+          end_time: string | null
+          price_cents: number
           user_name: string
           user_email: string
           user_phone: string
@@ -256,8 +260,12 @@ export type Database = {
         Insert: {
           id?: string
           club_id: string
-          slot_id: string
+          slot_id?: string | null
           field_id: string
+          date?: string | null
+          start_time?: string | null
+          end_time?: string | null
+          price_cents?: number
           user_name: string
           user_email: string
           user_phone: string
@@ -273,8 +281,12 @@ export type Database = {
         Update: {
           id?: string
           club_id?: string
-          slot_id?: string
+          slot_id?: string | null
           field_id?: string
+          date?: string | null
+          start_time?: string | null
+          end_time?: string | null
+          price_cents?: number
           user_name?: string
           user_email?: string
           user_phone?: string
@@ -363,6 +375,42 @@ export type Database = {
           start_time?: string | null
           end_time?: string | null
           reason?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      opening_hours: {
+        Row: {
+          id: string
+          club_id: string
+          field_id: string
+          day_of_week: number
+          start_time: string
+          end_time: string
+          price_per_hour_cents: number
+          is_active: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          club_id: string
+          field_id: string
+          day_of_week: number
+          start_time: string
+          end_time: string
+          price_per_hour_cents?: number
+          is_active?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          club_id?: string
+          field_id?: string
+          day_of_week?: number
+          start_time?: string
+          end_time?: string
+          price_per_hour_cents?: number
+          is_active?: boolean
           created_at?: string
         }
         Relationships: []
@@ -458,3 +506,6 @@ export type SlotBlockInsert = Database["public"]["Tables"]["slot_blocks"]["Inser
 
 export type CookieConfig = Database["public"]["Tables"]["cookie_configs"]["Row"]
 export type CookieConfigInsert = Database["public"]["Tables"]["cookie_configs"]["Insert"]
+
+export type OpeningHours = Database["public"]["Tables"]["opening_hours"]["Row"]
+export type OpeningHoursInsert = Database["public"]["Tables"]["opening_hours"]["Insert"]

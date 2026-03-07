@@ -1,14 +1,14 @@
 /**
- * Pagina gestione slot e template orari.
- * Griglia calendario settimanale con template personalizzabili e blocchi.
+ * Pagina gestione orari di apertura e blocchi.
+ * Griglia calendario settimanale con fasce orarie configurabili e blocchi.
  */
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
 import { getClubFromHeaders } from "@/lib/hooks/use-club"
-import { SlotManager } from "@/components/admin/slot-manager"
+import { OpeningHoursManager } from "@/components/admin/opening-hours-manager"
 
 export const metadata: Metadata = {
-  title: "Slot & Orari — Admin",
+  title: "Orari & Disponibilità — Admin",
 }
 
 export default async function SlotPage() {
@@ -17,8 +17,8 @@ export default async function SlotPage() {
 
   const supabase = createClient()
 
-  // Recupera campi, template e blocchi
-  const [{ data: fields }, { data: templates }, { data: blocks }] = await Promise.all([
+  // Recupera campi, fasce orarie e blocchi
+  const [{ data: fields }, { data: openingHours }, { data: blocks }] = await Promise.all([
     supabase
       .from("fields")
       .select("*")
@@ -26,7 +26,7 @@ export default async function SlotPage() {
       .eq("is_active", true)
       .order("sort_order"),
     supabase
-      .from("slot_templates")
+      .from("opening_hours")
       .select("*")
       .eq("club_id", club.id)
       .order("day_of_week")
@@ -41,17 +41,17 @@ export default async function SlotPage() {
   return (
     <>
       <h1 className="font-display text-display-lg uppercase tracking-tight">
-        Slot & Orari
+        Orari & Disponibilità
       </h1>
       <p className="mt-1 text-muted-foreground">
-        Configura gli orari disponibili per le prenotazioni
+        Configura le fasce orarie di apertura e i blocchi per le prenotazioni
       </p>
 
       <div className="mt-8">
-        <SlotManager
+        <OpeningHoursManager
           clubId={club.id}
           fields={fields || []}
-          templates={templates || []}
+          openingHours={openingHours || []}
           blocks={blocks || []}
         />
       </div>

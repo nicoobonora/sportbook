@@ -11,7 +11,8 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowLeft, Loader2, MapPin, Calendar, Clock } from "lucide-react"
-import type { Field, Slot } from "@/lib/types/database"
+import type { Field } from "@/lib/types/database"
+import type { BookingTimeSelection } from "./step-time"
 import {
   bookingFormSchema,
   type BookingFormValues,
@@ -28,12 +29,12 @@ type Props = {
   clubId: string
   field: Field
   date: string
-  slot: Slot
+  timeSelection: BookingTimeSelection
   onSuccess: () => void
   onBack: () => void
 }
 
-export function StepForm({ clubId, field, date, slot, onSuccess, onBack }: Props) {
+export function StepForm({ clubId, field, date, timeSelection, onSuccess, onBack }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   const {
@@ -53,15 +54,17 @@ export function StepForm({ clubId, field, date, slot, onSuccess, onBack }: Props
       body: JSON.stringify({
         ...data,
         club_id: clubId,
-        slot_id: slot.id,
         field_id: field.id,
+        date: timeSelection.date,
+        start_time: timeSelection.startTime,
+        end_time: timeSelection.endTime,
       }),
     })
 
     if (!response.ok) {
       const result = await response.json()
       if (response.status === 409) {
-        setError("Lo slot selezionato non è più disponibile. Torna indietro e scegli un altro orario.")
+        setError("L'orario selezionato non è più disponibile. Torna indietro e scegli un altro orario.")
       } else {
         setError(result.error || "Si è verificato un errore. Riprova.")
       }
@@ -113,17 +116,17 @@ export function StepForm({ clubId, field, date, slot, onSuccess, onBack }: Props
             <div className="flex items-start gap-3">
               <Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               <p className="font-mono text-sm">
-                {formatTime(slot.start_time)} — {formatTime(slot.end_time)}
+                {formatTime(timeSelection.startTime)} — {formatTime(timeSelection.endTime)}
               </p>
             </div>
 
-            {slot.price_cents > 0 && (
+            {timeSelection.priceCents > 0 && (
               <>
                 <Separator />
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Prezzo</span>
                   <span className="font-mono text-lg font-semibold text-primary">
-                    {formatPrice(slot.price_cents)}
+                    {formatPrice(timeSelection.priceCents)}
                   </span>
                 </div>
               </>

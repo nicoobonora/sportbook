@@ -3,7 +3,7 @@
  *
  * Step 1: Scegli struttura (campo/campetto)
  * Step 2: Scegli data (calendario mensile)
- * Step 3: Scegli orario (griglia slot)
+ * Step 3: Scegli orario e durata (selezione flessibile)
  * Step 4: Inserisci dati (form) + riepilogo + invio
  *
  * Ogni step è navigabile da tastiera con aria-current="step".
@@ -12,11 +12,12 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import type { Field, Slot } from "@/lib/types/database"
+import type { Field } from "@/lib/types/database"
+import type { BookingTimeSelection } from "./booking/step-time"
 import { StepIndicator } from "./booking/step-indicator"
 import { StepField } from "./booking/step-field"
 import { StepDate } from "./booking/step-date"
-import { StepSlot } from "./booking/step-slot"
+import { StepTime } from "./booking/step-time"
 import { StepForm } from "./booking/step-form"
 import { BookingSuccess } from "./booking/booking-success"
 
@@ -38,24 +39,24 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedField, setSelectedField] = useState<Field | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null)
+  const [selectedTime, setSelectedTime] = useState<BookingTimeSelection | null>(null)
   const [bookingComplete, setBookingComplete] = useState(false)
 
   const handleFieldSelect = useCallback((field: Field) => {
     setSelectedField(field)
     setSelectedDate(null)
-    setSelectedSlot(null)
+    setSelectedTime(null)
     setCurrentStep(2)
   }, [])
 
   const handleDateSelect = useCallback((date: string) => {
     setSelectedDate(date)
-    setSelectedSlot(null)
+    setSelectedTime(null)
     setCurrentStep(3)
   }, [])
 
-  const handleSlotSelect = useCallback((slot: Slot) => {
-    setSelectedSlot(slot)
+  const handleTimeSelect = useCallback((selection: BookingTimeSelection) => {
+    setSelectedTime(selection)
     setCurrentStep(4)
   }, [])
 
@@ -67,7 +68,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
     setCurrentStep(1)
     setSelectedField(null)
     setSelectedDate(null)
-    setSelectedSlot(null)
+    setSelectedTime(null)
     setBookingComplete(false)
   }, [])
 
@@ -126,21 +127,21 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
         )}
 
         {currentStep === 3 && selectedField && selectedDate && (
-          <StepSlot
+          <StepTime
             clubId={clubId}
             fieldId={selectedField.id}
             date={selectedDate}
-            onSelect={handleSlotSelect}
+            onSelect={handleTimeSelect}
             onBack={goBack}
           />
         )}
 
-        {currentStep === 4 && selectedField && selectedDate && selectedSlot && (
+        {currentStep === 4 && selectedField && selectedDate && selectedTime && (
           <StepForm
             clubId={clubId}
             field={selectedField}
             date={selectedDate}
-            slot={selectedSlot}
+            timeSelection={selectedTime}
             onSuccess={handleBookingSuccess}
             onBack={goBack}
           />

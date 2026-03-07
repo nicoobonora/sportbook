@@ -57,13 +57,13 @@ export default async function PrenotazioniPage({
   const weekStart = getMondayStr(searchParams.settimana)
   const weekEnd = addDays(weekStart, 6)
 
-  // Query prenotazioni per la settimana + lista campi in parallelo
+  // Query prenotazioni per la settimana usando le colonne dirette date/start_time/end_time
   let query = supabase
     .from("bookings")
-    .select("*, slots!inner(date, start_time, end_time), fields(id, name, sport)")
+    .select("*, fields(id, name, sport)")
     .eq("club_id", club.id)
-    .gte("slots.date", weekStart)
-    .lte("slots.date", weekEnd)
+    .gte("date", weekStart)
+    .lte("date", weekEnd)
     .order("created_at", { ascending: false })
 
   if (searchParams.campo) {

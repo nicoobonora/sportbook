@@ -56,6 +56,21 @@ export const slotBlockSchema = z.object({
   reason: z.string().max(200).optional(),
 })
 
+export const openingHoursSchema = z.object({
+  club_id: z.string().uuid(),
+  field_id: z.string().uuid(),
+  day_of_week: z.number().min(0).max(6),
+  start_time: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato orario non valido (HH:MM)"),
+  end_time: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Formato orario non valido (HH:MM)"),
+  price_per_hour_cents: z.number().min(0, "Il prezzo non può essere negativo"),
+  is_active: z.boolean(),
+})
+
 export type SlotTemplateValues = z.infer<typeof slotTemplateSchema>
 export type SlotManualValues = z.infer<typeof slotManualSchema>
 export type SlotBlockValues = z.infer<typeof slotBlockSchema>
+export type OpeningHoursValues = z.infer<typeof openingHoursSchema>
