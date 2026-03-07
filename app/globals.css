@@ -4,10 +4,10 @@
 
 @layer base {
   :root {
-    /* ── Colori del circolo (customizzabili via DB) ── */
-    --color-primary: 217 91% 60%;       /* #1D4ED8 default blu sportivo */
-    --color-primary-dark: 224 76% 48%;
-    --color-accent: 38 92% 50%;         /* #F59E0B default ambra */
+    /* ── Palette globale SportBook ── */
+    --color-primary: 217 91% 53%;       /* #2563EB — Bold Blue */
+    --color-primary-dark: 224 76% 48%;  /* #1D4ED8 — Deep Blue */
+    --color-accent: 25 95% 53%;         /* #F97316 — Vivid Orange */
 
     /* ── Colori di sistema ── */
     --color-background: 210 20% 98%;    /* #F8F9FA */

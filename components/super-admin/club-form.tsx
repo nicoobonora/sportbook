@@ -57,8 +57,6 @@ export function ClubForm({ club }: { club?: Club }) {
       tagline: club?.tagline || "",
       about_text: club?.about_text || "",
       sports: club?.sports || [],
-      primary_color: club?.primary_color || "#1D4ED8",
-      accent_color: club?.accent_color || "#F59E0B",
       address: club?.address || "",
       city: club?.city || "",
       postal_code: club?.postal_code || "",
@@ -75,8 +73,6 @@ export function ClubForm({ club }: { club?: Club }) {
   })
 
   const watchName = watch("name")
-  const watchPrimary = watch("primary_color")
-  const watchAccent = watch("accent_color")
   const watchLatitude = watch("latitude")
   const watchLongitude = watch("longitude")
 
@@ -132,10 +128,9 @@ export function ClubForm({ club }: { club?: Club }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Tabs defaultValue="identity" className="w-full">
-        <TabsList className="mb-6 grid w-full grid-cols-4">
+        <TabsList className="mb-6 grid w-full grid-cols-3">
           <TabsTrigger value="identity">Identità</TabsTrigger>
           <TabsTrigger value="about">About</TabsTrigger>
-          <TabsTrigger value="colors">Colori</TabsTrigger>
           <TabsTrigger value="contacts">Contatti</TabsTrigger>
         </TabsList>
 
@@ -254,123 +249,7 @@ export function ClubForm({ club }: { club?: Club }) {
           </Card>
         </TabsContent>
 
-        {/* ── Tab 3: Colori & Tema ── */}
-        <TabsContent value="colors">
-          <Card>
-            <CardContent className="space-y-6 pt-6">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="primary_color">Colore primario</Label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      id="primary_color"
-                      className="h-10 w-14 cursor-pointer rounded border"
-                      {...register("primary_color")}
-                    />
-                    <Input
-                      className="w-28 font-mono"
-                      {...register("primary_color")}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="accent_color">Colore accento</Label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="color"
-                      id="accent_color"
-                      className="h-10 w-14 cursor-pointer rounded border"
-                      {...register("accent_color")}
-                    />
-                    <Input
-                      className="w-28 font-mono"
-                      {...register("accent_color")}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Preview live */}
-              <div className="space-y-3">
-                <Label>Anteprima live</Label>
-                <div className="overflow-hidden rounded-lg border">
-                  {/* Header mockup */}
-                  <div
-                    className="px-4 py-3"
-                    style={{ backgroundColor: watchPrimary }}
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="font-display text-base font-bold uppercase text-white">
-                        {watchName || "Nome Circolo"}
-                      </p>
-                      <div className="flex gap-2">
-                        <span className="text-xs text-white/70">Home</span>
-                        <span className="text-xs text-white/70">Prenota</span>
-                        <span className="text-xs text-white/70">Contatti</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Hero mockup */}
-                  <div className="bg-gray-50 p-6 text-center">
-                    <p className="font-display text-xl font-bold uppercase text-gray-900">
-                      {watchName || "Nome Circolo"}
-                    </p>
-                    <p className="mt-1 text-sm text-gray-500">
-                      Il tuo circolo sportivo
-                    </p>
-                    <div className="mt-4 flex justify-center gap-2">
-                      <span
-                        className="inline-block rounded-md px-4 py-2 text-sm font-medium text-white"
-                        style={{ backgroundColor: watchPrimary }}
-                      >
-                        Prenota ora
-                      </span>
-                      <span
-                        className="inline-block rounded-md border px-4 py-2 text-sm font-medium"
-                        style={{
-                          borderColor: watchAccent,
-                          color: watchAccent,
-                        }}
-                      >
-                        Scopri di più
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Card mockup */}
-                  <div className="border-t bg-white p-4">
-                    <div className="flex gap-3">
-                      <div
-                        className="h-12 w-12 rounded-lg"
-                        style={{ backgroundColor: watchAccent + "20" }}
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">
-                            Campo 1
-                          </span>
-                          <span
-                            className="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium text-white"
-                            style={{ backgroundColor: watchAccent }}
-                          >
-                            Disponibile
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-500">
-                          Oggi 14:00 — 15:00
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ── Tab 4: Contatti ── */}
+        {/* ── Tab 3: Contatti ── */}
         <TabsContent value="contacts">
           <Card>
             <CardContent className="space-y-4 pt-6">

@@ -154,18 +154,6 @@ export default async function ClubsListPage({
                   </p>
                 </div>
 
-                <div className="flex shrink-0 gap-1.5">
-                  <div
-                    className="h-6 w-6 rounded-full border"
-                    style={{ backgroundColor: club.primary_color }}
-                    title={`Primario: ${club.primary_color}`}
-                  />
-                  <div
-                    className="h-6 w-6 rounded-full border"
-                    style={{ backgroundColor: club.accent_color }}
-                    title={`Accento: ${club.accent_color}`}
-                  />
-                </div>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
                 <Button variant="outline" size="sm" asChild>

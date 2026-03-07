@@ -1,11 +1,9 @@
 /**
  * Layout del sito pubblico del circolo.
- * Inietta il tema (colori) del circolo e mostra header/footer.
- * I circoli inattivi sono visibili in anteprima con un banner informativo.
+ * Mostra header/footer e banner anteprima per circoli inattivi.
  */
 import { headers } from "next/headers"
 import { getClubFromHeaders, getClubBasePath } from "@/lib/hooks/use-club"
-import { getClubThemeStyles } from "@/lib/utils/colors"
 import { ClubHeader } from "@/components/club-site/header"
 import { ClubFooter } from "@/components/club-site/footer"
 import { CookieBanner } from "@/components/club-site/cookie-banner"
@@ -26,16 +24,14 @@ export default async function ClubSiteLayout({
   const headersList = headers()
   const isAdmin = headersList.get("x-sportbook-admin") === "true"
 
-  const themeStyles = getClubThemeStyles(club.primary_color, club.accent_color)
-
   if (isAdmin) {
-    return <div style={themeStyles}>{children}</div>
+    return <div>{children}</div>
   }
 
   const basePath = getClubBasePath()
 
   return (
-    <div style={themeStyles}>
+    <div>
       {!club.is_active && (
         <div className="bg-yellow-500 px-4 py-2 text-center text-sm font-medium text-yellow-950">
           Anteprima — Questo circolo non è ancora attivo

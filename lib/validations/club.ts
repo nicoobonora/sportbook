@@ -42,12 +42,6 @@ export const clubFormSchema = z.object({
   sports: z
     .array(z.string())
     .min(1, "Seleziona almeno uno sport"),
-  primary_color: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Inserisci un colore esadecimale valido"),
-  accent_color: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, "Inserisci un colore esadecimale valido"),
   address: z.string().max(200).optional().or(z.literal("")),
   city: z.string().max(100).optional().or(z.literal("")),
   postal_code: z.string().max(10).optional().or(z.literal("")),

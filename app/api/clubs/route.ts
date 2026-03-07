@@ -68,8 +68,6 @@ export async function POST(request: NextRequest) {
       tagline: data.tagline || null,
       about_text: data.about_text || null,
       sports: data.sports,
-      primary_color: data.primary_color,
-      accent_color: data.accent_color,
       address: data.address || null,
       city: data.city || null,
       postal_code: data.postal_code || null,
