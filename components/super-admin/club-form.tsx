@@ -72,7 +72,6 @@ export function ClubForm({ club }: { club?: Club }) {
     },
   })
 
-  const watchName = watch("name")
   const watchLatitude = watch("latitude")
   const watchLongitude = watch("longitude")
 

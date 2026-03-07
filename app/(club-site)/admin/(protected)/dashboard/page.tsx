@@ -49,10 +49,10 @@ export default async function AdminDashboardPage() {
     // Confermate per oggi
     supabase
       .from("bookings")
-      .select("*, slots!inner(date)", { count: "exact", head: true })
+      .select("*", { count: "exact", head: true })
       .eq("club_id", club.id)
       .eq("status", "confirmed")
-      .eq("slots.date", today),
+      .eq("date", today),
     // Totale questo mese
     supabase
       .from("bookings")
@@ -151,6 +151,9 @@ export default async function AdminDashboardPage() {
               const slot = booking.slots as any
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const field = booking.fields as any
+              const bookingDate = booking.date || slot?.date
+              const startTime = booking.start_time || slot?.start_time
+              const endTime = booking.end_time || slot?.end_time
 
               return (
                 <Card key={booking.id}>
@@ -161,9 +164,9 @@ export default async function AdminDashboardPage() {
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {field?.name || "—"} ·{" "}
-                        {slot?.date ? formatDate(slot.date) : "—"} ·{" "}
-                        {slot?.start_time ? formatTime(slot.start_time) : "—"}
-                        {slot?.end_time ? `–${formatTime(slot.end_time)}` : ""}
+                        {bookingDate ? formatDate(bookingDate) : "—"} ·{" "}
+                        {startTime ? formatTime(startTime) : "—"}
+                        {endTime ? `–${formatTime(endTime)}` : ""}
                       </p>
                     </div>
                     <Badge variant={status.variant}>{status.label}</Badge>

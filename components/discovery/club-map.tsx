@@ -9,15 +9,29 @@ import MarkerClusterGroup from "react-leaflet-cluster"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { ITALY_CENTER, ITALY_DEFAULT_ZOOM, type MapClub } from "@/lib/types/map"
-import { Badge } from "@/components/ui/badge"
+import { MapPin, Navigation, ChevronRight } from "lucide-react"
 
-// Fix Leaflet default icon paths in Next.js
+/** Sport icon mapping */
+const SPORT_ICONS: Record<string, string> = {
+  calcetto: "\u26BD",
+  calcio: "\u26BD",
+  padel: "\uD83C\uDFBE",
+  tennis: "\uD83C\uDFBE",
+  basket: "\uD83C\uDFC0",
+  pallavolo: "\uD83C\uDFD0",
+  nuoto: "\uD83C\uDFCA",
+  "beach-volley": "\uD83C\uDFD0",
+  "ping-pong": "\uD83C\uDFD3",
+  badminton: "\uD83C\uDFF8",
+}
+
+// Custom marker icon
 const DefaultIcon = L.divIcon({
   className: "club-marker",
-  html: `<div style="background:#1D4ED8;width:28px;height:28px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
-  iconSize: [28, 28],
-  iconAnchor: [14, 14],
-  popupAnchor: [0, -14],
+  html: `<div class="club-marker-dot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>`,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -36],
 })
 
 function getClubUrl(slug: string): string {
@@ -31,8 +45,116 @@ function getClubUrl(slug: string): string {
   return `https://${slug}.prenotauncampetto.it`
 }
 
+function getDirectionsUrl(club: MapClub): string {
+  const q = club.address
+    ? encodeURIComponent(`${club.address}, ${club.city || ""}`)
+    : `${club.latitude},${club.longitude}`
+  return `https://www.google.com/maps/dir/?api=1&destination=${q}`
+}
+
 type ClubMapProps = {
   clubs: MapClub[]
+}
+
+function ClubPopupContent({ club }: { club: MapClub }) {
+  const coverSrc = club.cover_image_url || club.logo_url
+  const sportIcons = club.sports
+    .map((s) => SPORT_ICONS[s])
+    .filter(Boolean)
+    .slice(0, 3)
+
+  return (
+    <div className="club-popup-card">
+      {/* Cover image */}
+      {coverSrc ? (
+        <div className="club-popup-cover">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={coverSrc}
+            alt={club.name}
+            className="club-popup-cover-img"
+            loading="lazy"
+          />
+          {/* Sport icons overlay */}
+          {sportIcons.length > 0 && (
+            <div className="club-popup-sport-overlay">
+              {sportIcons.map((icon, i) => (
+                <span key={i} className="club-popup-sport-icon">{icon}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="club-popup-cover club-popup-cover--placeholder">
+          <div className="club-popup-cover-placeholder-content">
+            {sportIcons.length > 0 ? (
+              <span className="text-2xl">{sportIcons[0]}</span>
+            ) : (
+              <MapPin className="h-6 w-6 text-white/70" />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="club-popup-body">
+        {/* Header: name */}
+        <h3 className="club-popup-name">{club.name}</h3>
+
+        {/* Tagline */}
+        {club.tagline && (
+          <p className="club-popup-tagline">{club.tagline}</p>
+        )}
+
+        {/* Location */}
+        {(club.address || club.city) && (
+          <div className="club-popup-location">
+            <MapPin className="club-popup-location-icon" />
+            <span>
+              {club.address || club.city}
+              {club.address && club.city && `, ${club.city}`}
+            </span>
+          </div>
+        )}
+
+        {/* Sport chips */}
+        {club.sports.length > 0 && (
+          <div className="club-popup-chips">
+            {club.sports.map((sport) => (
+              <span key={sport} className="club-popup-chip">
+                {SPORT_ICONS[sport] && (
+                  <span className="club-popup-chip-icon">{SPORT_ICONS[sport]}</span>
+                )}
+                {sport}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="club-popup-actions">
+          <a
+            href={getClubUrl(club.slug)}
+            className="club-popup-cta"
+            style={{color: "white"}}
+          >
+            Vedi circolo
+            <ChevronRight className="h-4 w-4" />
+          </a>
+          <a
+            href={getDirectionsUrl(club)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="club-popup-secondary"
+            aria-label="Indicazioni stradali"
+          >
+            <Navigation className="h-3.5 w-3.5" />
+            Indicazioni
+          </a>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function ClubMap({ clubs }: ClubMapProps) {
@@ -61,32 +183,7 @@ export function ClubMap({ clubs }: ClubMapProps) {
             icon={DefaultIcon}
           >
             <Popup>
-              <div className="min-w-[200px] space-y-2">
-                <p className="font-display text-base font-bold uppercase tracking-tight">
-                  {club.name}
-                </p>
-                {club.city && (
-                  <p className="text-xs text-muted-foreground">
-                    {club.city}
-                    {club.region && `, ${club.region}`}
-                  </p>
-                )}
-                {club.sports.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {club.sports.map((sport) => (
-                      <Badge key={sport} variant="secondary" className="capitalize text-[10px] px-1.5 py-0">
-                        {sport}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                <a
-                  href={getClubUrl(club.slug)}
-                  className="mt-2 inline-block rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-primary/90"
-                >
-                  Apri circolo
-                </a>
-              </div>
+              <ClubPopupContent club={club} />
             </Popup>
           </Marker>
         ))}

@@ -11,8 +11,11 @@ export type MapClub = {
   latitude: number
   longitude: number
   logo_url: string | null
+  cover_image_url: string | null
   city: string | null
   region: string | null
+  address: string | null
+  tagline: string | null
 }
 
 /** Centro dell'Italia (approssimativo) */
