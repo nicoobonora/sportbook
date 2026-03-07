@@ -14,6 +14,12 @@ const SPORTS_OPTIONS = [
   "beach-volley",
   "ping-pong",
   "badminton",
+  "fitness",
+  "crossfit",
+  "yoga",
+  "golf",
+  "rugby",
+  "atletica",
 ] as const
 
 export const clubFormSchema = z.object({
