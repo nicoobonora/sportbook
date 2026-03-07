@@ -1,6 +1,7 @@
 /**
  * Mappa Leaflet con marker dei circoli sportivi.
  * Importare via next/dynamic con ssr: false.
+ * Marker differenziati per club claimed vs unclaimed.
  */
 "use client"
 
@@ -9,7 +10,7 @@ import MarkerClusterGroup from "react-leaflet-cluster"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { ITALY_CENTER, ITALY_DEFAULT_ZOOM, type MapClub } from "@/lib/types/map"
-import { MapPin, Navigation, ChevronRight } from "lucide-react"
+import { MapPin, Navigation, ChevronRight, AlertCircle } from "lucide-react"
 
 /** Sport icon mapping */
 const SPORT_ICONS: Record<string, string> = {
@@ -23,16 +24,35 @@ const SPORT_ICONS: Record<string, string> = {
   "beach-volley": "\uD83C\uDFD0",
   "ping-pong": "\uD83C\uDFD3",
   badminton: "\uD83C\uDFF8",
+  fitness: "\uD83D\uDCAA",
+  crossfit: "\uD83C\uDFCB\uFE0F",
+  yoga: "\uD83E\uDDD8",
+  golf: "\u26F3",
+  rugby: "\uD83C\uDFC9",
+  atletica: "\uD83C\uDFC3",
 }
 
-// Custom marker icon
-const DefaultIcon = L.divIcon({
+// Marker icon for claimed clubs (blue)
+const ClaimedIcon = L.divIcon({
   className: "club-marker",
   html: `<div class="club-marker-dot"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>`,
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -36],
 })
+
+// Marker icon for unclaimed clubs (gray, lower opacity)
+const UnclaimedIcon = L.divIcon({
+  className: "club-marker club-marker--unclaimed",
+  html: `<div class="club-marker-dot club-marker-dot--unclaimed"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>`,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -36],
+})
+
+function getMarkerIcon(club: MapClub): L.DivIcon {
+  return club.claim_status === "claimed" ? ClaimedIcon : UnclaimedIcon
+}
 
 function getClubUrl(slug: string): string {
   if (
@@ -62,6 +82,7 @@ function ClubPopupContent({ club }: { club: MapClub }) {
     .map((s) => SPORT_ICONS[s])
     .filter(Boolean)
     .slice(0, 3)
+  const isUnclaimed = club.claim_status !== "claimed"
 
   return (
     <div className="club-popup-card">
@@ -85,7 +106,7 @@ function ClubPopupContent({ club }: { club: MapClub }) {
           )}
         </div>
       ) : (
-        <div className="club-popup-cover club-popup-cover--placeholder">
+        <div className={`club-popup-cover club-popup-cover--placeholder${isUnclaimed ? " club-popup-cover--unclaimed" : ""}`}>
           <div className="club-popup-cover-placeholder-content">
             {sportIcons.length > 0 ? (
               <span className="text-2xl">{sportIcons[0]}</span>
@@ -98,8 +119,15 @@ function ClubPopupContent({ club }: { club: MapClub }) {
 
       {/* Content */}
       <div className="club-popup-body">
-        {/* Header: name */}
+        {/* Header: name + unclaimed badge */}
         <h3 className="club-popup-name">{club.name}</h3>
+
+        {isUnclaimed && (
+          <div className="club-popup-unclaimed-badge">
+            <AlertCircle className="h-3 w-3" />
+            <span>Non ancora verificato</span>
+          </div>
+        )}
 
         {/* Tagline */}
         {club.tagline && (
@@ -131,26 +159,43 @@ function ClubPopupContent({ club }: { club: MapClub }) {
           </div>
         )}
 
-        {/* Actions */}
+        {/* Actions — different for claimed vs unclaimed */}
         <div className="club-popup-actions">
-          <a
-            href={getClubUrl(club.slug)}
-            className="club-popup-cta"
-            style={{color: "white"}}
-          >
-            Vedi circolo
-            <ChevronRight className="h-4 w-4" />
-          </a>
-          <a
-            href={getDirectionsUrl(club)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="club-popup-secondary"
-            aria-label="Indicazioni stradali"
-          >
-            <Navigation className="h-3.5 w-3.5" />
-            Indicazioni
-          </a>
+          {isUnclaimed ? (
+            <>
+              <a
+                href={getDirectionsUrl(club)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="club-popup-cta"
+                style={{color: "white"}}
+              >
+                <Navigation className="h-4 w-4" />
+                Indicazioni
+              </a>
+            </>
+          ) : (
+            <>
+              <a
+                href={getClubUrl(club.slug)}
+                className="club-popup-cta"
+                style={{color: "white"}}
+              >
+                Vedi circolo
+                <ChevronRight className="h-4 w-4" />
+              </a>
+              <a
+                href={getDirectionsUrl(club)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="club-popup-secondary"
+                aria-label="Indicazioni stradali"
+              >
+                <Navigation className="h-3.5 w-3.5" />
+                Indicazioni
+              </a>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -180,7 +225,7 @@ export function ClubMap({ clubs }: ClubMapProps) {
           <Marker
             key={club.id}
             position={[club.latitude, club.longitude]}
-            icon={DefaultIcon}
+            icon={getMarkerIcon(club)}
           >
             <Popup>
               <ClubPopupContent club={club} />

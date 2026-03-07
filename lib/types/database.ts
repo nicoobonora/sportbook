@@ -34,6 +34,14 @@ export type Database = {
           sports: string[]
           is_active: boolean
           is_published: boolean
+          claim_status: "unclaimed" | "pending" | "claimed"
+          google_place_id: string | null
+          google_maps_url: string | null
+          website_url: string | null
+          google_rating: number | null
+          google_total_ratings: number | null
+          business_status: string | null
+          province: string | null
           created_at: string
           updated_at: string
         }
@@ -63,6 +71,14 @@ export type Database = {
           sports?: string[]
           is_active?: boolean
           is_published?: boolean
+          claim_status?: "unclaimed" | "pending" | "claimed"
+          google_place_id?: string | null
+          google_maps_url?: string | null
+          website_url?: string | null
+          google_rating?: number | null
+          google_total_ratings?: number | null
+          business_status?: string | null
+          province?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -92,6 +108,14 @@ export type Database = {
           sports?: string[]
           is_active?: boolean
           is_published?: boolean
+          claim_status?: "unclaimed" | "pending" | "claimed"
+          google_place_id?: string | null
+          google_maps_url?: string | null
+          website_url?: string | null
+          google_rating?: number | null
+          google_total_ratings?: number | null
+          business_status?: string | null
+          province?: string | null
           created_at?: string
           updated_at?: string
         }

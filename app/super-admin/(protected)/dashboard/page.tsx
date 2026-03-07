@@ -15,6 +15,7 @@ import {
   Clock,
   TrendingUp,
   ArrowRight,
+  AlertCircle,
 } from "lucide-react"
 import { formatDate } from "@/lib/utils/dates"
 
@@ -28,6 +29,7 @@ export default async function SuperAdminDashboardPage() {
   const [
     { count: totalClubs },
     { count: activeClubs },
+    { count: unclaimedClubs },
     { count: totalBookings },
     { count: pendingBookings },
     { count: totalFields },
@@ -39,6 +41,10 @@ export default async function SuperAdminDashboardPage() {
       .from("clubs")
       .select("*", { count: "exact", head: true })
       .eq("is_active", true),
+    supabase
+      .from("clubs")
+      .select("*", { count: "exact", head: true })
+      .eq("claim_status", "unclaimed"),
     supabase.from("bookings").select("*", { count: "exact", head: true }),
     supabase
       .from("bookings")
@@ -47,7 +53,7 @@ export default async function SuperAdminDashboardPage() {
     supabase.from("fields").select("*", { count: "exact", head: true }),
     supabase
       .from("clubs")
-      .select("id, name, slug, is_active, is_published, created_at")
+      .select("id, name, slug, is_active, is_published, claim_status, created_at")
       .order("created_at", { ascending: false })
       .limit(5),
     supabase
@@ -85,6 +91,12 @@ export default async function SuperAdminDashboardPage() {
       color: "text-amber-600",
     },
     {
+      label: "Non reclamati",
+      value: unclaimedClubs || 0,
+      icon: AlertCircle,
+      color: "text-amber-600",
+    },
+    {
       label: "Strutture",
       value: totalFields || 0,
       icon: TrendingUp,
@@ -102,7 +114,7 @@ export default async function SuperAdminDashboardPage() {
       </p>
 
       {/* KPI Cards */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">

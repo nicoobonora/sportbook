@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from("clubs")
-    .select("id, slug, name, sports, latitude, longitude, logo_url, cover_image_url, city, region, address, tagline")
+    .select("id, slug, name, sports, latitude, longitude, logo_url, cover_image_url, city, region, address, tagline, claim_status")
     .eq("is_active", true)
     .not("latitude", "is", null)
     .not("longitude", "is", null)

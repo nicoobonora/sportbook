@@ -60,6 +60,7 @@ export const clubFormSchema = z.object({
   whatsapp: z.string().max(20).optional().or(z.literal("")),
   instagram_url: z.string().url("URL non valido").optional().or(z.literal("")),
   facebook_url: z.string().url("URL non valido").optional().or(z.literal("")),
+  claim_status: z.enum(["unclaimed", "pending", "claimed"]).default("claimed").optional(),
 })
 
 export const clubAdminInviteSchema = z.object({

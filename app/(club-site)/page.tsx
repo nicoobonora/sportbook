@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, AlertCircle } from "lucide-react"
 import { formatDate } from "@/lib/utils/dates"
 import { DiscoveryPage } from "@/components/discovery/discovery-page"
 
@@ -74,16 +74,28 @@ export default async function ClubHomePage() {
             <p className="mt-3 text-lg opacity-90 sm:text-xl">{club.tagline}</p>
           )}
           <div className="mt-8">
-            <Button
-              asChild
-              size="lg"
-              className="touch-target text-base font-semibold"
-            >
-              <Link href={`${basePath}/prenota`}>
-                Prenota ora
-                <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
-              </Link>
-            </Button>
+            {club.claim_status === "claimed" ? (
+              <Button
+                asChild
+                size="lg"
+                className="touch-target text-base font-semibold"
+              >
+                <Link href={`${basePath}/prenota`}>
+                  Prenota ora
+                  <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+                </Link>
+              </Button>
+            ) : (
+              <div className="mx-auto max-w-md rounded-lg bg-white/10 px-6 py-4 backdrop-blur-sm">
+                <div className="flex items-center justify-center gap-2 text-white/90">
+                  <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+                  <p className="text-sm">
+                    Questa struttura non ha ancora attivato le prenotazioni online.
+                    Se conosci il proprietario, invitalo a registrarsi su prenotauncampetto.it
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
       whatsapp: data.whatsapp || null,
       instagram_url: data.instagram_url || null,
       facebook_url: data.facebook_url || null,
+      claim_status: data.claim_status || "claimed",
     })
     .select()
     .single()
@@ -108,10 +109,10 @@ export async function PATCH(request: NextRequest) {
 
   const body = await request.json()
 
-  // Toggle rapido di is_active / is_published (senza validazione form completa)
+  // Toggle rapido di is_active / is_published / claim_status (senza validazione form completa)
   if (
     Object.keys(body).length === 1 &&
-    ("is_active" in body || "is_published" in body)
+    ("is_active" in body || "is_published" in body || "claim_status" in body)
   ) {
     const { data: club, error: toggleError } = await admin
       .from("clubs")
@@ -174,6 +175,7 @@ export async function PATCH(request: NextRequest) {
       whatsapp: data.whatsapp || null,
       instagram_url: data.instagram_url || null,
       facebook_url: data.facebook_url || null,
+      ...(data.claim_status ? { claim_status: data.claim_status } : {}),
     })
     .eq("id", clubId)
     .select()

@@ -16,6 +16,7 @@ export type MapClub = {
   region: string | null
   address: string | null
   tagline: string | null
+  claim_status: "unclaimed" | "pending" | "claimed"
 }
 
 /** Centro dell'Italia (approssimativo) */

@@ -33,6 +33,12 @@ export default async function ClubsListPage({
     query = query.eq("is_active", true)
   } else if (searchParams.status === "inactive") {
     query = query.eq("is_active", false)
+  } else if (searchParams.status === "unclaimed") {
+    query = query.eq("claim_status", "unclaimed")
+  } else if (searchParams.status === "claimed") {
+    query = query.eq("claim_status", "claimed")
+  } else if (searchParams.status === "pending") {
+    query = query.eq("claim_status", "pending")
   }
 
   if (searchParams.q) {
@@ -99,6 +105,9 @@ export default async function ClubsListPage({
             { value: "all", label: "Tutti" },
             { value: "active", label: "Attivi" },
             { value: "inactive", label: "Bozze" },
+            { value: "claimed", label: "Verificati" },
+            { value: "unclaimed", label: "Non reclamati" },
+            { value: "pending", label: "In attesa" },
           ].map((filter) => (
             <Button
               key={filter.value}
@@ -134,6 +143,21 @@ export default async function ClubsListPage({
                       </Badge>
                     ) : (
                       <Badge variant="outline">Bozza</Badge>
+                    )}
+                    {club.claim_status === "unclaimed" && (
+                      <Badge variant="outline" className="border-amber-300 text-amber-600">
+                        Non reclamato
+                      </Badge>
+                    )}
+                    {club.claim_status === "pending" && (
+                      <Badge variant="secondary" className="bg-amber-100 text-amber-700">
+                        Claim in attesa
+                      </Badge>
+                    )}
+                    {club.claim_status === "claimed" && (
+                      <Badge variant="outline" className="border-green-300 text-green-600">
+                        Verificato
+                      </Badge>
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
