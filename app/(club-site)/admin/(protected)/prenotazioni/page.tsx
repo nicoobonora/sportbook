@@ -98,6 +98,7 @@ export default async function PrenotazioniPage({
           weekEnd={weekEnd}
           selectedFieldId={searchParams.campo || null}
           basePath={getClubBasePath()}
+          clubId={club.id}
         />
       </div>
     </>

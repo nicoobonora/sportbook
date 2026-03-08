@@ -190,6 +190,41 @@ export async function PATCH(request: NextRequest) {
     )
   }
 
+  // Cancellazione: ammessa su pending e confirmed
+  if (action === "cancel") {
+    if (booking.status !== "pending" && booking.status !== "confirmed") {
+      return NextResponse.json(
+        { error: "Solo prenotazioni in attesa o confermate possono essere cancellate" },
+        { status: 400 }
+      )
+    }
+
+    const adminClient = createAdminClient()
+    const { error: cancelError } = await adminClient
+      .from("bookings")
+      .update({ status: "cancelled" })
+      .eq("id", booking_id)
+
+    if (cancelError) {
+      return NextResponse.json(
+        { error: "Errore durante la cancellazione" },
+        { status: 500 }
+      )
+    }
+
+    // Invia email di cancellazione all'utente (se ha email)
+    if (booking.user_email) {
+      try {
+        await sendUserCancellation(booking)
+      } catch (err) {
+        console.error("[BOOKING] Errore invio email cancellazione:", err)
+      }
+    }
+
+    return NextResponse.json({ status: "cancelled" })
+  }
+
+  // Conferma/rifiuto: solo su pending
   if (booking.status !== "pending") {
     return NextResponse.json(
       { error: "La prenotazione non è in stato di attesa" },
@@ -415,6 +450,61 @@ async function sendUserRejection(booking: any, reason: string | null) {
       </td></tr>
     </table>` : ""}
     <p style="color:#333;font-size:15px;line-height:1.5;margin:0;">Ti invitiamo a provare con un altro orario.</p>
+  </td></tr>
+  <tr><td style="padding:16px 32px;border-top:1px solid #eee;">
+    <p style="color:#aaa;font-size:12px;margin:0;text-align:center;">PrenotaUnCampetto — Prenota il tuo campo sportivo</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`,
+  })
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function sendUserCancellation(booking: any) {
+  const resendApiKey = process.env.RESEND_API_KEY
+  if (!resendApiKey) {
+    console.log("[BOOKING] Email cancellazione utente:", booking.user_email)
+    return
+  }
+
+  const adminClient = createAdminClient()
+  const { data: club } = await adminClient
+    .from("clubs")
+    .select("name")
+    .eq("id", booking.club_id)
+    .single()
+
+  const clubName = club?.name || "il circolo"
+  const resend = new Resend(resendApiKey)
+
+  await resend.emails.send({
+    from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
+    to: booking.user_email,
+    subject: `Prenotazione cancellata — ${clubName}`,
+    html: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f6f6f6;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f6f6f6;padding:32px 0;">
+<tr><td align="center">
+<table width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;max-width:480px;width:100%;">
+  <tr><td style="background-color:#6b7280;padding:24px 32px;text-align:center;">
+    <h1 style="color:#ffffff;margin:0;font-size:20px;">PrenotaUnCampetto</h1>
+  </td></tr>
+  <tr><td style="padding:32px;">
+    <h2 style="color:#111;margin:0 0 16px 0;font-size:22px;">Prenotazione cancellata</h2>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0 0 8px 0;">Ciao <strong>${booking.user_name}</strong>,</p>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0 0 20px 0;">La tua prenotazione presso <strong>${clubName}</strong> è stata cancellata.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5;border-radius:8px;margin:0 0 24px 0;">
+      <tr><td style="padding:16px;">
+        <p style="margin:0 0 4px 0;font-size:14px;color:#333;"><strong>Data:</strong> ${booking.date}</p>
+        <p style="margin:0;font-size:14px;color:#333;"><strong>Orario:</strong> ${booking.start_time?.substring(0, 5)} - ${booking.end_time?.substring(0, 5)}</p>
+      </td></tr>
+    </table>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0;">Se desideri, puoi effettuare una nuova prenotazione.</p>
   </td></tr>
   <tr><td style="padding:16px 32px;border-top:1px solid #eee;">
     <p style="color:#aaa;font-size:12px;margin:0;text-align:center;">PrenotaUnCampetto — Prenota il tuo campo sportivo</p>

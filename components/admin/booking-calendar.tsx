@@ -14,6 +14,8 @@ import {
   Loader2,
   CheckCircle,
   XCircle,
+  Trash2,
+  Plus,
   Mail,
   Phone,
   User,
@@ -38,6 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { AddBookingDialog } from "@/components/admin/add-booking-dialog"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BookingData = any
@@ -51,6 +54,7 @@ type Props = {
   weekEnd: string   // YYYY-MM-DD (sunday)
   selectedFieldId: string | null
   basePath: string  // "/club/slug" on localhost, "" in prod
+  clubId: string
 }
 
 const STATUS_COLORS = {
@@ -91,10 +95,12 @@ export function BookingCalendar({
   weekEnd,
   selectedFieldId,
   basePath,
+  clubId,
 }: Props) {
   const router = useRouter()
   const [selectedBooking, setSelectedBooking] = useState<BookingData | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [addBookingOpen, setAddBookingOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
 
@@ -236,8 +242,18 @@ export function BookingCalendar({
           </span>
         </div>
 
-        {/* Filters */}
+        {/* Actions & Filters */}
         <div className="flex items-center gap-2">
+          {/* Add booking button */}
+          <Button
+            size="sm"
+            className="h-8 gap-1"
+            onClick={() => setAddBookingOpen(true)}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Nuova</span>
+          </Button>
+
           {/* Status filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[140px] h-8 text-xs" aria-label="Filtra per stato">
@@ -389,6 +405,14 @@ export function BookingCalendar({
         open={detailOpen}
         onOpenChange={setDetailOpen}
       />
+
+      {/* ── Add booking dialog ── */}
+      <AddBookingDialog
+        clubId={clubId}
+        fields={fields}
+        open={addBookingOpen}
+        onOpenChange={setAddBookingOpen}
+      />
     </div>
   )
 }
@@ -519,7 +543,7 @@ function BookingDetailDialog({
   const bookingEndTime = booking.end_time || booking.slots?.end_time
   const field = booking.fields as { name?: string; sport?: string } | null
 
-  async function handleAction(action: "confirm" | "reject") {
+  async function handleAction(action: "confirm" | "reject" | "cancel") {
     setActionLoading(action)
     setActionResult(null)
 
@@ -536,7 +560,8 @@ function BookingDetailDialog({
     setActionLoading(null)
 
     if (response.ok) {
-      setActionResult(action === "confirm" ? "Confermata!" : "Rifiutata.")
+      const labels = { confirm: "Confermata!", reject: "Rifiutata.", cancel: "Cancellata." }
+      setActionResult(labels[action])
       setTimeout(() => {
         onOpenChange(false)
         setActionResult(null)
@@ -694,6 +719,26 @@ function BookingDetailDialog({
                   onChange={(e) => setRejectionReason(e.target.value)}
                 />
               </div>
+            </div>
+          )}
+
+          {/* Cancel button for confirmed bookings */}
+          {booking.status === "confirmed" && !actionResult && (
+            <div className="border-t pt-3">
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full touch-target gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+                onClick={() => handleAction("cancel")}
+                disabled={!!actionLoading}
+              >
+                {actionLoading === "cancel" ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                )}
+                Cancella prenotazione
+              </Button>
             </div>
           )}
         </div>
