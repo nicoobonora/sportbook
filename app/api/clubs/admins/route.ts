@@ -5,31 +5,9 @@
  * Usa il client admin (service role) per bypassare RLS.
  */
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
-import { createAdminClient } from "@/lib/supabase/admin"
 import { clubAdminInviteSchema } from "@/lib/validations/club"
 import { sendAdminInviteEmail } from "@/lib/email/send"
-
-async function verifySuperAdmin() {
-  const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { error: "Non autenticato", status: 401, admin: null }
-  }
-
-  const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || "")
-    .split(",")
-    .map((e) => e.trim())
-  if (!superAdminEmails.includes(user.email || "")) {
-    return { error: "Non autorizzato", status: 403, admin: null }
-  }
-
-  const admin = createAdminClient()
-  return { error: null, status: 200, admin }
-}
+import { verifySuperAdmin } from "@/lib/auth/verify-super-admin"
 
 /** POST /api/clubs/admins — Invita admin tramite email */
 export async function POST(request: NextRequest) {

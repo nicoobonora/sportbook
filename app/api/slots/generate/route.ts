@@ -5,6 +5,7 @@
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { isSuperAdminEmail } from "@/lib/auth/verify-super-admin"
 import { z } from "zod"
 
 const bodySchema = z.object({
@@ -31,6 +32,18 @@ export async function POST(request: NextRequest) {
   }
 
   const { club_id, weeks } = validation.data
+
+  // Verifica che l'utente sia admin del club o super-admin
+  const { data: adminRecord } = await supabase
+    .from("club_admins")
+    .select("id")
+    .eq("club_id", club_id)
+    .eq("user_id", user.id)
+    .single()
+
+  if (!adminRecord && !isSuperAdminEmail(user.email)) {
+    return NextResponse.json({ error: "Non autorizzato" }, { status: 403 })
+  }
 
   // Chiama la funzione DB che genera gli slot
   const { data, error } = await supabase.rpc("generate_slots_from_templates", {

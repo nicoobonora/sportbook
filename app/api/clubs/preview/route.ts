@@ -3,30 +3,8 @@
  * GET /api/clubs/preview?club_id=UUID — Genera URL di anteprima (valido 24h).
  */
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
-import { createAdminClient } from "@/lib/supabase/admin"
 import { createPreviewToken } from "@/lib/utils/preview-token"
-
-async function verifySuperAdmin() {
-  const supabase = createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { error: "Non autenticato", status: 401, admin: null }
-  }
-
-  const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || "")
-    .split(",")
-    .map((e) => e.trim())
-  if (!superAdminEmails.includes(user.email || "")) {
-    return { error: "Non autorizzato", status: 403, admin: null }
-  }
-
-  const admin = createAdminClient()
-  return { error: null, status: 200, admin }
-}
+import { verifySuperAdmin } from "@/lib/auth/verify-super-admin"
 
 /** GET /api/clubs/preview?club_id=UUID — Genera URL di anteprima */
 export async function GET(request: NextRequest) {

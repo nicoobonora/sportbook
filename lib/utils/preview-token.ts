@@ -3,8 +3,13 @@
  * I token sono firmati con HMAC-SHA256 e scadono dopo 24 ore.
  */
 
-const getSecret = () =>
-  process.env.PREVIEW_TOKEN_SECRET || "sportbook-preview-secret"
+const getSecret = () => {
+  const secret = process.env.PREVIEW_TOKEN_SECRET
+  if (!secret) {
+    throw new Error("PREVIEW_TOKEN_SECRET environment variable is required")
+  }
+  return secret
+}
 
 /** Genera un token di anteprima per un circolo */
 export async function createPreviewToken(

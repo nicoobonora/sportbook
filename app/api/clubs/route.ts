@@ -4,28 +4,8 @@
  * Usa il client admin (service role) per bypassare RLS dopo verifica identità.
  */
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
-import { createAdminClient } from "@/lib/supabase/admin"
 import { clubFormSchema } from "@/lib/validations/club"
-
-/** Verifica che l'utente sia super-admin, restituisce admin client per le operazioni DB */
-async function verifySuperAdmin() {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { error: "Non autenticato", status: 401, admin: null }
-  }
-
-  const superAdminEmails = (process.env.SUPER_ADMIN_EMAILS || "").split(",").map(e => e.trim())
-  if (!superAdminEmails.includes(user.email || "")) {
-    return { error: "Non autorizzato", status: 403, admin: null }
-  }
-
-  // Usa il client admin (service role) per bypassare RLS
-  const admin = createAdminClient()
-  return { error: null, status: 200, admin }
-}
+import { verifySuperAdmin } from "@/lib/auth/verify-super-admin"
 
 /** POST /api/clubs — Crea un nuovo circolo */
 export async function POST(request: NextRequest) {
@@ -86,8 +66,9 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (insertError) {
+    console.error("[CLUBS] Insert error:", insertError)
     return NextResponse.json(
-      { error: `Errore durante la creazione del circolo: ${insertError.message}` },
+      { error: "Errore durante la creazione del circolo" },
       { status: 500 }
     )
   }

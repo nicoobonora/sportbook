@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
   if (!validation.success) {
     return NextResponse.json(
-      { error: "Dati non validi", details: validation.error.flatten() },
+      { error: "Dati non validi" },
       { status: 400 }
     )
   }

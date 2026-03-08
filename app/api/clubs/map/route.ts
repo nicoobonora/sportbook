@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     return NextResponse.json(
-      { error: `Errore nel recupero dei circoli: ${error.message}` },
+      { error: "Errore nel recupero dei circoli" },
       { status: 500 }
     )
   }

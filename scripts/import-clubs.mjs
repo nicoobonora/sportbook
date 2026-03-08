@@ -15,8 +15,13 @@ import { dirname, join } from "path"
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // ── Config ──
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://wdcvuyyrbmrzpjaksnpd.supabase.co"
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkY3Z1eXlyYm1yenBqYWtzbnBkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjU4NTIwMiwiZXhwIjoyMDg4MTYxMjAyfQ.30BR3g2A0x-QCwHQ6dmC4sp6DBgP7YkydPe1rc_3PNs"
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+  console.error("Error: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars are required")
+  process.exit(1)
+}
 const BATCH_SIZE = 100
 const DRY_RUN = process.argv.includes("--dry-run")
 
