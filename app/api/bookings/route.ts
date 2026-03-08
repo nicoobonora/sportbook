@@ -265,26 +265,46 @@ async function sendVerificationEmail(booking: any, clubName: string) {
     from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
     to: booking.user_email,
     subject: `Conferma la tua prenotazione — ${clubName}`,
-    html: [
-      `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">`,
-      `<h2 style="color: #111;">Conferma la tua prenotazione</h2>`,
-      `<p>Ciao <strong>${booking.user_name}</strong>,</p>`,
-      `<p>Hai richiesto una prenotazione presso <strong>${clubName}</strong>:</p>`,
-      `<div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">`,
-      `<p style="margin: 4px 0;"><strong>Data:</strong> ${booking.date}</p>`,
-      `<p style="margin: 4px 0;"><strong>Orario:</strong> ${booking.start_time?.substring(0, 5)} - ${booking.end_time?.substring(0, 5)}</p>`,
-      `</div>`,
-      `<p>Per completare la prenotazione, clicca il pulsante qui sotto:</p>`,
-      `<div style="text-align: center; margin: 24px 0;">`,
-      `<a href="${verifyUrl}" style="background: #16A34A; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">`,
-      `Conferma prenotazione`,
-      `</a>`,
-      `</div>`,
-      `<p style="color: #666; font-size: 13px;">Se non hai richiesto questa prenotazione, ignora questa email.</p>`,
-      `<hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />`,
-      `<p style="color: #999; font-size: 12px;">PrenotaUnCampetto — Prenota il tuo campo sportivo</p>`,
-      `</div>`,
-    ].join("\n"),
+    html: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f6f6f6;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f6f6f6;padding:32px 0;">
+<tr><td align="center">
+<table width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;max-width:480px;width:100%;">
+  <tr><td style="background-color:#16A34A;padding:24px 32px;text-align:center;">
+    <h1 style="color:#ffffff;margin:0;font-size:20px;">PrenotaUnCampetto</h1>
+  </td></tr>
+  <tr><td style="padding:32px;">
+    <h2 style="color:#111;margin:0 0 16px 0;font-size:22px;">Conferma la tua prenotazione</h2>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0 0 8px 0;">Ciao <strong>${booking.user_name}</strong>,</p>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0 0 20px 0;">Hai richiesto una prenotazione presso <strong>${clubName}</strong>:</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5;border-radius:8px;margin:0 0 24px 0;">
+      <tr><td style="padding:16px;">
+        <p style="margin:0 0 4px 0;font-size:14px;color:#333;"><strong>Data:</strong> ${booking.date}</p>
+        <p style="margin:0;font-size:14px;color:#333;"><strong>Orario:</strong> ${booking.start_time?.substring(0, 5)} - ${booking.end_time?.substring(0, 5)}</p>
+      </td></tr>
+    </table>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0 0 24px 0;">Clicca il pulsante qui sotto per confermare:</p>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr><td align="center">
+        <table cellpadding="0" cellspacing="0">
+          <tr><td align="center" bgcolor="#16A34A" style="border-radius:8px;">
+            <a href="${verifyUrl}" target="_blank" style="display:block;padding:14px 40px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:8px;">Conferma prenotazione</a>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+    <p style="color:#888;font-size:13px;line-height:1.5;margin:24px 0 0 0;">Se non hai richiesto questa prenotazione, ignora questa email.</p>
+  </td></tr>
+  <tr><td style="padding:16px 32px;border-top:1px solid #eee;">
+    <p style="color:#aaa;font-size:12px;margin:0;text-align:center;">PrenotaUnCampetto — Prenota il tuo campo sportivo</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`,
   })
 }
 

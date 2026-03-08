@@ -53,22 +53,24 @@ export default async function AdminDashboardPage() {
       .eq("club_id", club.id)
       .eq("status", "confirmed")
       .eq("date", today),
-    // Totale questo mese
+    // Totale questo mese (escluse unverified)
     supabase
       .from("bookings")
       .select("*", { count: "exact", head: true })
       .eq("club_id", club.id)
+      .neq("status", "unverified")
       .gte("created_at", `${today.substring(0, 7)}-01`),
     // Annunci attivi
     supabase
       .from("announcements")
       .select("*", { count: "exact", head: true })
       .eq("club_id", club.id),
-    // Ultime 10 prenotazioni
+    // Ultime 10 prenotazioni (escluse unverified)
     supabase
       .from("bookings")
       .select("*, slots(date, start_time, end_time), fields(name, sport)")
       .eq("club_id", club.id)
+      .neq("status", "unverified")
       .order("created_at", { ascending: false })
       .limit(10),
   ])

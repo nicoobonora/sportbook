@@ -64,6 +64,7 @@ export default async function PrenotazioniPage({
     .eq("club_id", club.id)
     .gte("date", weekStart)
     .lte("date", weekEnd)
+    .neq("status", "unverified")
     .order("created_at", { ascending: false })
 
   if (searchParams.campo) {
