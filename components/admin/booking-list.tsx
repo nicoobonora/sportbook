@@ -31,6 +31,7 @@ import {
 import Link from "next/link"
 
 const STATUS_CONFIG = {
+  unverified: { label: "Email non verificata", variant: "outline" as const },
   pending: { label: "In attesa", variant: "secondary" as const },
   confirmed: { label: "Confermata", variant: "default" as const },
   rejected: { label: "Rifiutata", variant: "destructive" as const },

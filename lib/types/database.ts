@@ -278,6 +278,8 @@ export type Database = {
           rejected_at: string | null
           rejection_reason: string | null
           email_sent_at: string | null
+          verification_token: string | null
+          email_verified_at: string | null
           created_at: string
           updated_at: string
         }
@@ -299,6 +301,8 @@ export type Database = {
           rejected_at?: string | null
           rejection_reason?: string | null
           email_sent_at?: string | null
+          verification_token?: string | null
+          email_verified_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -320,6 +324,8 @@ export type Database = {
           rejected_at?: string | null
           rejection_reason?: string | null
           email_sent_at?: string | null
+          verification_token?: string | null
+          email_verified_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -565,7 +571,7 @@ export type SlotInsert = Database["public"]["Tables"]["slots"]["Insert"]
 
 export type Booking = Database["public"]["Tables"]["bookings"]["Row"]
 export type BookingInsert = Database["public"]["Tables"]["bookings"]["Insert"]
-export type BookingStatus = "pending" | "confirmed" | "rejected" | "cancelled"
+export type BookingStatus = "unverified" | "pending" | "confirmed" | "rejected" | "cancelled"
 
 export type Announcement = Database["public"]["Tables"]["announcements"]["Row"]
 export type AnnouncementInsert = Database["public"]["Tables"]["announcements"]["Insert"]

@@ -30,7 +30,7 @@ type Props = {
   field: Field
   date: string
   timeSelection: BookingTimeSelection
-  onSuccess: () => void
+  onSuccess: (email?: string) => void
   onBack: () => void
 }
 
@@ -71,7 +71,7 @@ export function StepForm({ clubId, field, date, timeSelection, onSuccess, onBack
       return
     }
 
-    onSuccess()
+    onSuccess(data.user_email)
   }
 
   return (
@@ -232,12 +232,12 @@ export function StepForm({ clubId, field, date, timeSelection, onSuccess, onBack
                     Invio in corso...
                   </>
                 ) : (
-                  "Invia richiesta di prenotazione"
+                  "Prenota e verifica via email"
                 )}
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                Riceverai una conferma via email una volta approvata la prenotazione.
+                Riceverai un&apos;email di verifica. Clicca il link nell&apos;email per confermare la prenotazione.
               </p>
             </form>
           </CardContent>

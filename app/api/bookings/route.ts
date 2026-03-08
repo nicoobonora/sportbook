@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
   // Calcola il prezzo
   const priceCents = calculateBookingPrice(data.start_time, data.end_time, openingHours)
 
-  // Crea la prenotazione
+  // Crea la prenotazione come "unverified" — richiede conferma email
   const { data: booking, error: insertError } = await adminClient
     .from("bookings")
     .insert({
@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
       user_email: data.user_email,
       user_phone: data.user_phone,
       notes: data.notes || null,
-      status: "pending",
+      status: "unverified",
     })
     .select()
     .single()
@@ -138,9 +138,9 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Invia email di notifica al club-admin (asincrona, non blocca la risposta)
-  sendBookingNotification(club, booking).catch((err) =>
-    console.error("[BOOKING] Errore invio email admin:", err)
+  // Invia email di verifica all'utente (asincrona, non blocca la risposta)
+  sendVerificationEmail(booking, club.name).catch((err) =>
+    console.error("[BOOKING] Errore invio email verifica:", err)
   )
 
   return NextResponse.json(booking, { status: 201 })
@@ -236,10 +236,17 @@ export async function PATCH(request: NextRequest) {
 // ── Funzioni invio email ──
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function sendBookingNotification(club: any, booking: any) {
+async function sendVerificationEmail(booking: any, clubName: string) {
   const resendApiKey = process.env.RESEND_API_KEY
-  if (!resendApiKey || !club.email) {
-    console.log("[BOOKING] Email notifica admin:", { club: club.name, booking: booking.id })
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
+
+  const verifyUrl = `${baseUrl}/api/bookings/verify?token=${booking.verification_token}`
+
+  if (!resendApiKey) {
+    console.log("[BOOKING] Email verifica:", {
+      to: booking.user_email,
+      verifyUrl,
+    })
     return
   }
 
@@ -247,21 +254,29 @@ async function sendBookingNotification(club: any, booking: any) {
   const resend = new Resend(resendApiKey)
 
   await resend.emails.send({
-    from: "SportBook <noreply@prenotauncampetto.it>",
-    to: club.email,
-    subject: `Nuova prenotazione da ${booking.user_name} — ${club.name}`,
-    text: [
-      `Nuova richiesta di prenotazione per ${club.name}`,
-      "",
-      `Nome: ${booking.user_name}`,
-      `Email: ${booking.user_email}`,
-      `Telefono: ${booking.user_phone}`,
-      `Data: ${booking.date}`,
-      `Orario: ${booking.start_time?.substring(0, 5)} - ${booking.end_time?.substring(0, 5)}`,
-      booking.notes ? `Note: ${booking.notes}` : "",
-      "",
-      "Accedi al pannello admin per confermare o rifiutare.",
-    ].filter(Boolean).join("\n"),
+    from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
+    to: booking.user_email,
+    subject: `Conferma la tua prenotazione — ${clubName}`,
+    html: [
+      `<div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">`,
+      `<h2 style="color: #111;">Conferma la tua prenotazione</h2>`,
+      `<p>Ciao <strong>${booking.user_name}</strong>,</p>`,
+      `<p>Hai richiesto una prenotazione presso <strong>${clubName}</strong>:</p>`,
+      `<div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">`,
+      `<p style="margin: 4px 0;"><strong>Data:</strong> ${booking.date}</p>`,
+      `<p style="margin: 4px 0;"><strong>Orario:</strong> ${booking.start_time?.substring(0, 5)} - ${booking.end_time?.substring(0, 5)}</p>`,
+      `</div>`,
+      `<p>Per completare la prenotazione, clicca il pulsante qui sotto:</p>`,
+      `<div style="text-align: center; margin: 24px 0;">`,
+      `<a href="${verifyUrl}" style="background: #16A34A; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">`,
+      `Conferma prenotazione`,
+      `</a>`,
+      `</div>`,
+      `<p style="color: #666; font-size: 13px;">Se non hai richiesto questa prenotazione, ignora questa email.</p>`,
+      `<hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />`,
+      `<p style="color: #999; font-size: 12px;">PrenotaUnCampetto — Prenota il tuo campo sportivo</p>`,
+      `</div>`,
+    ].join("\n"),
   })
 }
 

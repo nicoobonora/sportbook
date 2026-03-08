@@ -41,6 +41,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<BookingTimeSelection | null>(null)
   const [bookingComplete, setBookingComplete] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
 
   const handleFieldSelect = useCallback((field: Field) => {
     setSelectedField(field)
@@ -60,7 +61,8 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
     setCurrentStep(4)
   }, [])
 
-  const handleBookingSuccess = useCallback(() => {
+  const handleBookingSuccess = useCallback((email?: string) => {
+    setUserEmail(email || null)
     setBookingComplete(true)
   }, [])
 
@@ -70,6 +72,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
     setSelectedDate(null)
     setSelectedTime(null)
     setBookingComplete(false)
+    setUserEmail(null)
   }, [])
 
   const goBack = useCallback(() => {
@@ -81,6 +84,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
     return (
       <BookingSuccess
         clubName={clubName}
+        userEmail={userEmail || undefined}
         basePath={basePath}
         onNewBooking={handleReset}
       />
