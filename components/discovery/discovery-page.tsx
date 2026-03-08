@@ -53,21 +53,24 @@ export function DiscoveryPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
-      {/* ── Header ── */}
-      <header className="shrink-0 border-b bg-card px-4 py-3">
-        <div className="mx-auto max-w-screen-2xl">
+    <div className="relative h-screen">
+      {/* ── Map (full screen) ── */}
+      <div className="absolute inset-0">
+        <ClubMap clubs={clubs} />
+      </div>
+
+      {/* ── Floating Header ── */}
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-[1000] p-3 sm:p-4">
+        <div className="pointer-events-auto mx-auto max-w-screen-2xl rounded-2xl border border-white/20 bg-white/80 px-4 py-3 shadow-lg backdrop-blur-xl">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="font-display text-display-md uppercase tracking-tight">
-                SportBook
-              </h1>
-              <p className="text-xs text-muted-foreground">
-                Scopri i circoli sportivi in Italia
-              </p>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" aria-hidden="true" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-prenotauncampetto.svg"
+              alt="prenotauncampetto"
+              className="h-7 sm:h-8"
+            />
+            <div className="flex items-center gap-1.5 rounded-full bg-black/5 px-3 py-1 text-xs font-medium text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
               <span>
                 {loading ? "..." : clubs.length} circol{clubs.length === 1 ? "o" : "i"}
               </span>
@@ -75,7 +78,7 @@ export function DiscoveryPage() {
           </div>
 
           {/* Sport filter */}
-          <div className="mt-3">
+          <div className="mt-2.5">
             <SportFilter
               selected={selectedSports}
               onChange={handleFilterChange}
@@ -83,11 +86,6 @@ export function DiscoveryPage() {
           </div>
         </div>
       </header>
-
-      {/* ── Map ── */}
-      <div className="relative flex-1">
-        <ClubMap clubs={clubs} />
-      </div>
     </div>
   )
 }
