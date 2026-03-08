@@ -3,6 +3,7 @@
  * POST /api/bookings — Crea una nuova prenotazione (pubblico)
  * PATCH /api/bookings?id=UUID — Conferma/Rifiuta prenotazione (admin)
  */
+import { randomUUID } from "crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
@@ -111,6 +112,9 @@ export async function POST(request: NextRequest) {
   // Calcola il prezzo
   const priceCents = calculateBookingPrice(data.start_time, data.end_time, openingHours)
 
+  // Genera token di verifica lato applicazione
+  const verificationToken = randomUUID()
+
   // Crea la prenotazione come "unverified" — richiede conferma email
   const { data: booking, error: insertError } = await adminClient
     .from("bookings")
@@ -126,6 +130,7 @@ export async function POST(request: NextRequest) {
       user_phone: data.user_phone,
       notes: data.notes || null,
       status: "unverified",
+      verification_token: verificationToken,
     })
     .select()
     .single()
