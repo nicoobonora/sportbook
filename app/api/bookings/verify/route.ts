@@ -66,10 +66,12 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  // Invia notifica al club-admin ora che l'email è verificata
-  sendBookingNotificationToClub(adminClient, booking).catch((err) =>
+  // Invia notifica al club-admin — await per evitare che Vercel termini la funzione
+  try {
+    await sendBookingNotificationToClub(adminClient, booking)
+  } catch (err) {
     console.error("[VERIFY] Errore invio email admin:", err)
-  )
+  }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
   return NextResponse.redirect(
