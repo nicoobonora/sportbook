@@ -439,6 +439,51 @@ export type Database = {
         }
         Relationships: []
       }
+      claim_requests: {
+        Row: {
+          id: string
+          club_id: string
+          contact_name: string
+          contact_email: string
+          contact_phone: string
+          role: string
+          message: string | null
+          status: "pending" | "approved" | "rejected"
+          reviewed_at: string | null
+          review_notes: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          club_id: string
+          contact_name: string
+          contact_email: string
+          contact_phone: string
+          role?: string
+          message?: string | null
+          status?: "pending" | "approved" | "rejected"
+          reviewed_at?: string | null
+          review_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          club_id?: string
+          contact_name?: string
+          contact_email?: string
+          contact_phone?: string
+          role?: string
+          message?: string | null
+          status?: "pending" | "approved" | "rejected"
+          reviewed_at?: string | null
+          review_notes?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cookie_configs: {
         Row: {
           id: string
@@ -527,6 +572,9 @@ export type AnnouncementInsert = Database["public"]["Tables"]["announcements"]["
 
 export type SlotBlock = Database["public"]["Tables"]["slot_blocks"]["Row"]
 export type SlotBlockInsert = Database["public"]["Tables"]["slot_blocks"]["Insert"]
+
+export type ClaimRequest = Database["public"]["Tables"]["claim_requests"]["Row"]
+export type ClaimRequestInsert = Database["public"]["Tables"]["claim_requests"]["Insert"]
 
 export type CookieConfig = Database["public"]["Tables"]["cookie_configs"]["Row"]
 export type CookieConfigInsert = Database["public"]["Tables"]["cookie_configs"]["Insert"]

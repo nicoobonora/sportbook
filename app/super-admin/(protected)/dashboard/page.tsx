@@ -16,6 +16,7 @@ import {
   TrendingUp,
   ArrowRight,
   AlertCircle,
+  ShieldQuestion,
 } from "lucide-react"
 import { formatDate } from "@/lib/utils/dates"
 
@@ -33,6 +34,7 @@ export default async function SuperAdminDashboardPage() {
     { count: totalBookings },
     { count: pendingBookings },
     { count: totalFields },
+    { count: pendingClaims },
     { data: recentClubs },
     { data: recentBookings },
   ] = await Promise.all([
@@ -51,6 +53,10 @@ export default async function SuperAdminDashboardPage() {
       .select("*", { count: "exact", head: true })
       .eq("status", "pending"),
     supabase.from("fields").select("*", { count: "exact", head: true }),
+    supabase
+      .from("claim_requests")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "pending" as const),
     supabase
       .from("clubs")
       .select("id, name, slug, is_active, is_published, claim_status, created_at")
@@ -97,6 +103,12 @@ export default async function SuperAdminDashboardPage() {
       color: "text-amber-600",
     },
     {
+      label: "Reclami pending",
+      value: pendingClaims || 0,
+      icon: ShieldQuestion,
+      color: "text-orange-600",
+    },
+    {
       label: "Strutture",
       value: totalFields || 0,
       icon: TrendingUp,
@@ -114,7 +126,7 @@ export default async function SuperAdminDashboardPage() {
       </p>
 
       {/* KPI Cards */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-7">
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">

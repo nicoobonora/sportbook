@@ -12,6 +12,7 @@ import {
   Plus,
   LogOut,
   Menu,
+  ShieldQuestion,
 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
@@ -21,6 +22,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 const NAV_ITEMS = [
   { href: "/super-admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/super-admin/clubs", label: "Circoli", icon: Building2 },
+  { href: "/super-admin/claims", label: "Richieste reclamo", icon: ShieldQuestion },
   { href: "/super-admin/clubs/new", label: "Nuovo Circolo", icon: Plus },
 ]
 

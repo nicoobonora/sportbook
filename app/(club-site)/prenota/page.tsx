@@ -58,12 +58,19 @@ export default async function PrenotaPage() {
                     </a>
                   </p>
                 )}
-                <Button variant="outline" asChild>
-                  <Link href={basePath || "/"}>
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Torna alla pagina del circolo
-                  </Link>
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button variant="default" asChild>
+                    <Link href={`${basePath}/reclama`}>
+                      Sei il gestore? Attiva le prenotazioni
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link href={basePath || "/"}>
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Torna alla pagina del circolo
+                    </Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
