@@ -210,10 +210,12 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Invio email conferma all'utente
-    sendUserConfirmation(booking).catch((err) =>
+    // Invio email conferma all'utente — await per evitare che Vercel termini la funzione
+    try {
+      await sendUserConfirmation(booking)
+    } catch (err) {
       console.error("[BOOKING] Errore invio email conferma:", err)
-    )
+    }
 
     return NextResponse.json({ status: "confirmed" })
   }
@@ -231,10 +233,12 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // Invio email rifiuto all'utente
-    sendUserRejection(booking, rejection_reason || null).catch((err) =>
+    // Invio email rifiuto all'utente — await per evitare che Vercel termini la funzione
+    try {
+      await sendUserRejection(booking, rejection_reason || null)
+    } catch (err) {
       console.error("[BOOKING] Errore invio email rifiuto:", err)
-    )
+    }
 
     return NextResponse.json({ status: "rejected" })
   }
@@ -316,22 +320,54 @@ async function sendUserConfirmation(booking: any) {
     return
   }
 
+  // Recupera nome club
+  const adminClient = createAdminClient()
+  const { data: club } = await adminClient
+    .from("clubs")
+    .select("name")
+    .eq("id", booking.club_id)
+    .single()
+
+  const clubName = club?.name || "il circolo"
+  const fieldInfo = booking.fields ? `Campo: ${booking.fields.name}` : ""
+
   const resend = new Resend(resendApiKey)
 
   await resend.emails.send({
-    from: "SportBook <noreply@prenotauncampetto.it>",
+    from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
     to: booking.user_email,
-    subject: "La tua prenotazione è confermata!",
-    text: [
-      `Ciao ${booking.user_name},`,
-      "",
-      "La tua prenotazione è stata confermata!",
-      "",
-      `Data: ${booking.date || ""}`,
-      `Orario: ${booking.start_time?.substring(0, 5) || ""} - ${booking.end_time?.substring(0, 5) || ""}`,
-      "",
-      "Ti aspettiamo!",
-    ].join("\n"),
+    subject: `Prenotazione confermata — ${clubName}`,
+    html: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f6f6f6;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f6f6f6;padding:32px 0;">
+<tr><td align="center">
+<table width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;max-width:480px;width:100%;">
+  <tr><td style="background-color:#16A34A;padding:24px 32px;text-align:center;">
+    <h1 style="color:#ffffff;margin:0;font-size:20px;">PrenotaUnCampetto</h1>
+  </td></tr>
+  <tr><td style="padding:32px;">
+    <h2 style="color:#111;margin:0 0 16px 0;font-size:22px;">Prenotazione confermata!</h2>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0 0 8px 0;">Ciao <strong>${booking.user_name}</strong>,</p>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0 0 20px 0;">La tua prenotazione presso <strong>${clubName}</strong> è stata confermata.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin:0 0 24px 0;">
+      <tr><td style="padding:16px;">
+        <p style="margin:0 0 4px 0;font-size:14px;color:#333;"><strong>Data:</strong> ${booking.date}</p>
+        <p style="margin:0 0 4px 0;font-size:14px;color:#333;"><strong>Orario:</strong> ${booking.start_time?.substring(0, 5)} - ${booking.end_time?.substring(0, 5)}</p>
+        ${fieldInfo ? `<p style="margin:0;font-size:14px;color:#333;"><strong>${fieldInfo}</strong></p>` : ""}
+      </td></tr>
+    </table>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0;">Ti aspettiamo!</p>
+  </td></tr>
+  <tr><td style="padding:16px 32px;border-top:1px solid #eee;">
+    <p style="color:#aaa;font-size:12px;margin:0;text-align:center;">PrenotaUnCampetto — Prenota il tuo campo sportivo</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`,
   })
 }
 
@@ -343,19 +379,50 @@ async function sendUserRejection(booking: any, reason: string | null) {
     return
   }
 
+  // Recupera nome club
+  const adminClient = createAdminClient()
+  const { data: club } = await adminClient
+    .from("clubs")
+    .select("name")
+    .eq("id", booking.club_id)
+    .single()
+
+  const clubName = club?.name || "il circolo"
+
   const resend = new Resend(resendApiKey)
 
   await resend.emails.send({
-    from: "SportBook <noreply@prenotauncampetto.it>",
+    from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
     to: booking.user_email,
-    subject: "Prenotazione non disponibile",
-    text: [
-      `Ciao ${booking.user_name},`,
-      "",
-      "Purtroppo la tua prenotazione non è stata accettata.",
-      reason ? `Motivo: ${reason}` : "",
-      "",
-      "Ti invitiamo a provare con un altro orario.",
-    ].filter(Boolean).join("\n"),
+    subject: `Prenotazione non disponibile — ${clubName}`,
+    html: `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f6f6f6;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f6f6f6;padding:32px 0;">
+<tr><td align="center">
+<table width="480" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:12px;overflow:hidden;max-width:480px;width:100%;">
+  <tr><td style="background-color:#dc2626;padding:24px 32px;text-align:center;">
+    <h1 style="color:#ffffff;margin:0;font-size:20px;">PrenotaUnCampetto</h1>
+  </td></tr>
+  <tr><td style="padding:32px;">
+    <h2 style="color:#111;margin:0 0 16px 0;font-size:22px;">Prenotazione non disponibile</h2>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0 0 8px 0;">Ciao <strong>${booking.user_name}</strong>,</p>
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0 0 20px 0;">Purtroppo la tua prenotazione presso <strong>${clubName}</strong> non è stata accettata.</p>
+    ${reason ? `<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin:0 0 24px 0;">
+      <tr><td style="padding:16px;">
+        <p style="margin:0;font-size:14px;color:#333;"><strong>Motivo:</strong> ${reason}</p>
+      </td></tr>
+    </table>` : ""}
+    <p style="color:#333;font-size:15px;line-height:1.5;margin:0;">Ti invitiamo a provare con un altro orario.</p>
+  </td></tr>
+  <tr><td style="padding:16px 32px;border-top:1px solid #eee;">
+    <p style="color:#aaa;font-size:12px;margin:0;text-align:center;">PrenotaUnCampetto — Prenota il tuo campo sportivo</p>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body>
+</html>`,
   })
 }

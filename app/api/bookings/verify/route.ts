@@ -4,6 +4,7 @@
  */
 import { NextRequest, NextResponse } from "next/server"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { Resend } from "resend"
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token")
@@ -100,7 +101,6 @@ async function sendBookingNotificationToClub(adminClient: any, booking: any) {
     .eq("id", booking.field_id)
     .single()
 
-  const { Resend } = await import("resend")
   const resend = new Resend(resendApiKey)
 
   await resend.emails.send({
