@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { bookingCreateSchema, bookingActionSchema } from "@/lib/validations/booking"
 import { computeAvailability, calculateBookingPrice } from "@/lib/scheduling/availability"
+import { Resend } from "resend"
 
 /** POST — Crea una nuova prenotazione (non richiede autenticazione) */
 export async function POST(request: NextRequest) {
@@ -143,10 +144,13 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Invia email di verifica all'utente (asincrona, non blocca la risposta)
-  sendVerificationEmail(booking, club.name).catch((err) =>
+  // Invia email di verifica all'utente — await per evitare che Vercel termini la funzione
+  try {
+    await sendVerificationEmail(booking, club.name)
+  } catch (err) {
     console.error("[BOOKING] Errore invio email verifica:", err)
-  )
+    // Non blocchiamo la prenotazione se l'email fallisce
+  }
 
   return NextResponse.json(booking, { status: 201 })
 }
@@ -255,7 +259,6 @@ async function sendVerificationEmail(booking: any, clubName: string) {
     return
   }
 
-  const { Resend } = await import("resend")
   const resend = new Resend(resendApiKey)
 
   await resend.emails.send({
@@ -293,7 +296,6 @@ async function sendUserConfirmation(booking: any) {
     return
   }
 
-  const { Resend } = await import("resend")
   const resend = new Resend(resendApiKey)
 
   await resend.emails.send({
@@ -321,7 +323,6 @@ async function sendUserRejection(booking: any, reason: string | null) {
     return
   }
 
-  const { Resend } = await import("resend")
   const resend = new Resend(resendApiKey)
 
   await resend.emails.send({
