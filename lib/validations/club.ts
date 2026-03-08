@@ -68,5 +68,25 @@ export const clubAdminInviteSchema = z.object({
   club_id: z.string().uuid(),
 })
 
-export { SPORTS_OPTIONS }
+/** Emoji icon per ogni sport */
+const SPORT_ICONS: Record<string, string> = {
+  calcetto: "\u26BD",
+  calcio: "\u26BD",
+  padel: "\uD83C\uDFBE",
+  tennis: "\uD83C\uDFBE",
+  basket: "\uD83C\uDFC0",
+  pallavolo: "\uD83C\uDFD0",
+  nuoto: "\uD83C\uDFCA",
+  "beach-volley": "\uD83C\uDFD0",
+  "ping-pong": "\uD83C\uDFD3",
+  badminton: "\uD83C\uDFF8",
+  fitness: "\uD83D\uDCAA",
+  crossfit: "\uD83C\uDFCB\uFE0F",
+  yoga: "\uD83E\uDDD8",
+  golf: "\u26F3",
+  rugby: "\uD83C\uDFC9",
+  atletica: "\uD83C\uDFC3",
+}
+
+export { SPORTS_OPTIONS, SPORT_ICONS }
 export type ClubFormValues = z.infer<typeof clubFormSchema>

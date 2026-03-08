@@ -3,7 +3,7 @@
  */
 "use client"
 
-import { SPORTS_OPTIONS } from "@/lib/validations/club"
+import { SPORTS_OPTIONS, SPORT_ICONS } from "@/lib/validations/club"
 import { Badge } from "@/components/ui/badge"
 
 type SportFilterProps = {
@@ -37,6 +37,7 @@ export function SportFilter({ selected, onChange }: SportFilterProps) {
               variant={isActive ? "default" : "outline"}
               className="cursor-pointer capitalize whitespace-nowrap"
             >
+              {SPORT_ICONS[sport] && <span className="mr-0.5">{SPORT_ICONS[sport]}</span>}
               {sport}
             </Badge>
           </button>

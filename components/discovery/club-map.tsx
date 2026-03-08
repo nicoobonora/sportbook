@@ -9,28 +9,11 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import MarkerClusterGroup from "react-leaflet-cluster"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
+import { useMap } from "react-leaflet"
 import { ITALY_CENTER, ITALY_DEFAULT_ZOOM, type MapClub } from "@/lib/types/map"
-import { MapPin, Navigation, ChevronRight, AlertCircle } from "lucide-react"
-
-/** Sport icon mapping */
-const SPORT_ICONS: Record<string, string> = {
-  calcetto: "\u26BD",
-  calcio: "\u26BD",
-  padel: "\uD83C\uDFBE",
-  tennis: "\uD83C\uDFBE",
-  basket: "\uD83C\uDFC0",
-  pallavolo: "\uD83C\uDFD0",
-  nuoto: "\uD83C\uDFCA",
-  "beach-volley": "\uD83C\uDFD0",
-  "ping-pong": "\uD83C\uDFD3",
-  badminton: "\uD83C\uDFF8",
-  fitness: "\uD83D\uDCAA",
-  crossfit: "\uD83C\uDFCB\uFE0F",
-  yoga: "\uD83E\uDDD8",
-  golf: "\u26F3",
-  rugby: "\uD83C\uDFC9",
-  atletica: "\uD83C\uDFC3",
-}
+import { SPORT_ICONS } from "@/lib/validations/club"
+import { MapPin, Navigation, ChevronRight, AlertCircle, LocateFixed } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
 
 // Marker icon for claimed clubs (blue)
 const ClaimedIcon = L.divIcon({
@@ -202,6 +185,70 @@ function ClubPopupContent({ club }: { club: MapClub }) {
   )
 }
 
+// User position marker (pulsing blue dot)
+const UserPositionIcon = L.divIcon({
+  className: "user-position-marker",
+  html: `<div class="user-position-dot"><div class="user-position-pulse"></div></div>`,
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+})
+
+const USER_ZOOM = 12
+
+/** Handles geolocation: auto-locates on mount, provides a re-center button */
+function LocateUser() {
+  const map = useMap()
+  const [userPos, setUserPos] = useState<[number, number] | null>(null)
+  const [locating, setLocating] = useState(false)
+
+  const locate = useCallback(() => {
+    if (!navigator.geolocation) return
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const latlng: [number, number] = [pos.coords.latitude, pos.coords.longitude]
+        setUserPos(latlng)
+        map.flyTo(latlng, USER_ZOOM, { duration: 1.2 })
+        setLocating(false)
+      },
+      () => {
+        // Silently fail — user denied or unavailable
+        setLocating(false)
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+    )
+  }, [map])
+
+  // Auto-locate on mount
+  useEffect(() => {
+    locate()
+  }, [locate])
+
+  return (
+    <>
+      {/* User position marker */}
+      {userPos && (
+        <Marker position={userPos} icon={UserPositionIcon} interactive={false} />
+      )}
+
+      {/* Locate button */}
+      <div className="leaflet-top leaflet-right" style={{ pointerEvents: "auto" }}>
+        <div className="leaflet-control">
+          <button
+            type="button"
+            onClick={locate}
+            className="locate-btn"
+            aria-label="Centra sulla mia posizione"
+            disabled={locating}
+          >
+            <LocateFixed className={`h-5 w-5 ${locating ? "animate-pulse" : ""}`} />
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
+
 export function ClubMap({ clubs }: ClubMapProps) {
   return (
     <MapContainer
@@ -215,6 +262,8 @@ export function ClubMap({ clubs }: ClubMapProps) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+
+      <LocateUser />
 
       <MarkerClusterGroup
         chunkedLoading

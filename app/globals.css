@@ -172,6 +172,57 @@
     opacity: 0.9;
   }
 
+  /* ── User position marker ── */
+  .user-position-marker {
+    background: transparent !important;
+    border: none !important;
+  }
+  .user-position-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: hsl(var(--color-primary));
+    border: 3px solid white;
+    box-shadow: 0 1px 6px rgba(37, 99, 235, 0.4);
+    position: relative;
+  }
+  .user-position-pulse {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: hsl(var(--color-primary) / 0.2);
+    animation: user-pulse 2s ease-out infinite;
+  }
+  @keyframes user-pulse {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(2); opacity: 0; }
+  }
+
+  /* ── Locate button ── */
+  .locate-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: hsl(var(--card));
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    color: hsl(var(--color-text));
+    cursor: pointer;
+    margin: 10px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .locate-btn:hover {
+    background: hsl(var(--color-primary));
+    color: white;
+  }
+  .locate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
   /* ── Club popup card ── */
   .club-popup-card {
     display: flex;
