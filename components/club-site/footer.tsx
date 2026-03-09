@@ -68,13 +68,15 @@ export function ClubFooter({ club, basePath = "" }: { club: Club; basePath?: str
                 <Lock className="h-3 w-3" aria-hidden="true" />
                 Area Riservata
               </Link>
-              <Link
-                href={`${basePath}/privacy`}
+              <a
+                href="https://prenotauncampetto.it/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:underline"
               >
                 <Shield className="h-3 w-3" aria-hidden="true" />
                 Privacy Policy
-              </Link>
+              </a>
             </nav>
           </div>
         </div>
