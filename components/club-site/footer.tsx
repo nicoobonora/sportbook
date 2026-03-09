@@ -3,7 +3,7 @@
  * Contatti rapidi, link social e legali.
  */
 import Link from "next/link"
-import { Phone, Mail, MapPin, Lock } from "lucide-react"
+import { Phone, Mail, MapPin, Lock, Shield } from "lucide-react"
 import type { Club } from "@/lib/types/database"
 
 export function ClubFooter({ club, basePath = "" }: { club: Club; basePath?: string }) {
@@ -67,6 +67,13 @@ export function ClubFooter({ club, basePath = "" }: { club: Club; basePath?: str
               >
                 <Lock className="h-3 w-3" aria-hidden="true" />
                 Area Riservata
+              </Link>
+              <Link
+                href={`${basePath}/privacy`}
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:underline"
+              >
+                <Shield className="h-3 w-3" aria-hidden="true" />
+                Privacy Policy
               </Link>
             </nav>
           </div>

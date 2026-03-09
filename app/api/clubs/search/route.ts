@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
   const { data: clubs } = await adminClient
     .from("clubs")
-    .select("id, slug, name, city, logo_url")
+    .select("id, slug, name, city, province, logo_url, sports, google_rating, google_total_ratings, address")
     .eq("is_active", true)
     .ilike("name", `%${q}%`)
     .order("name")
