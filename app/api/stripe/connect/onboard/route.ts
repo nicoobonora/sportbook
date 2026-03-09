@@ -9,6 +9,19 @@ const onboardSchema = z.object({
 })
 
 /**
+ * Ricava l'origin (schema + host) dalla request.
+ */
+function getOrigin(req: NextRequest): string {
+  const origin = req.headers.get("origin")
+  if (origin) return origin
+  const referer = req.headers.get("referer")
+  if (referer) {
+    try { return new URL(referer).origin } catch {}
+  }
+  return process.env.NEXT_PUBLIC_BASE_URL || "https://prenotauncampetto.it"
+}
+
+/**
  * POST /api/stripe/connect/onboard
  * Crea un account Stripe Connect Express e genera il link di onboarding.
  */
@@ -92,12 +105,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Genera AccountLink per l'onboarding
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://prenotauncampetto.it"
+    const origin = getOrigin(req)
 
     const accountLink = await stripe.accountLinks.create({
       account: stripeAccountId,
-      refresh_url: `${baseUrl}/api/stripe/connect/refresh?clubId=${clubId}`,
-      return_url: `${baseUrl}/admin/impostazioni?tab=pagamenti&connect=success`,
+      refresh_url: `${origin}/api/stripe/connect/refresh?clubId=${clubId}`,
+      return_url: `${origin}/admin/impostazioni?tab=pagamenti&connect=success`,
       type: "account_onboarding",
     })
 

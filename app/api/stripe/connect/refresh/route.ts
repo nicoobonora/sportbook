@@ -6,6 +6,9 @@ import { createAdminClient } from "@/lib/supabase/admin"
  * GET /api/stripe/connect/refresh?clubId=xxx
  * Rigenera il link di onboarding Connect (quando il link originale scade).
  * Redirect automatico al nuovo link.
+ *
+ * Nota: questo endpoint è chiamato direttamente da Stripe (redirect),
+ * quindi usiamo req.url per ricostruire l'origin corretto.
  */
 export async function GET(req: NextRequest) {
   try {
@@ -25,12 +28,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/admin/impostazioni?tab=pagamenti&error=no_account", req.url))
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://prenotauncampetto.it"
+    // Usa l'origin dalla request URL (è già sul subdominio giusto)
+    const origin = req.nextUrl.origin
 
     const accountLink = await stripe.accountLinks.create({
       account: connectAccount.stripe_account_id,
-      refresh_url: `${baseUrl}/api/stripe/connect/refresh?clubId=${clubId}`,
-      return_url: `${baseUrl}/admin/impostazioni?tab=pagamenti&connect=success`,
+      refresh_url: `${origin}/api/stripe/connect/refresh?clubId=${clubId}`,
+      return_url: `${origin}/admin/impostazioni?tab=pagamenti&connect=success`,
       type: "account_onboarding",
     })
 

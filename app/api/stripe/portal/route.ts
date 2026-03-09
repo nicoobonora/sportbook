@@ -9,6 +9,19 @@ const portalSchema = z.object({
 })
 
 /**
+ * Ricava l'origin (schema + host) dalla request.
+ */
+function getOrigin(req: NextRequest): string {
+  const origin = req.headers.get("origin")
+  if (origin) return origin
+  const referer = req.headers.get("referer")
+  if (referer) {
+    try { return new URL(referer).origin } catch {}
+  }
+  return process.env.NEXT_PUBLIC_BASE_URL || "https://prenotauncampetto.it"
+}
+
+/**
  * POST /api/stripe/portal
  * Genera un link al Stripe Customer Portal per gestire l'abbonamento.
  */
@@ -49,11 +62,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://prenotauncampetto.it"
+    const origin = getOrigin(req)
 
     const session = await stripe.billingPortal.sessions.create({
       customer: club.stripe_customer_id,
-      return_url: `${baseUrl}/admin/impostazioni?tab=abbonamento`,
+      return_url: `${origin}/admin/impostazioni?tab=abbonamento`,
     })
 
     return NextResponse.json({ url: session.url })

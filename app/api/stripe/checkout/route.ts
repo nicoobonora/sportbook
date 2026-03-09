@@ -11,6 +11,20 @@ const checkoutSchema = z.object({
 })
 
 /**
+ * Ricava l'origin (schema + host) dalla request.
+ * Es: "https://circolo-di-prova-bologna.prenotauncampetto.it"
+ */
+function getOrigin(req: NextRequest): string {
+  const origin = req.headers.get("origin")
+  if (origin) return origin
+  const referer = req.headers.get("referer")
+  if (referer) {
+    try { return new URL(referer).origin } catch {}
+  }
+  return process.env.NEXT_PUBLIC_BASE_URL || "https://prenotauncampetto.it"
+}
+
+/**
  * POST /api/stripe/checkout
  * Crea una Stripe Checkout Session per sottoscrivere un piano.
  * Richiede autenticazione come admin del circolo.
@@ -45,7 +59,7 @@ export async function POST(req: NextRequest) {
     const adminClient = createAdminClient()
     const { data: club } = await adminClient
       .from("clubs")
-      .select("id, name, email, stripe_customer_id")
+      .select("id, name, slug, email, stripe_customer_id")
       .eq("id", clubId)
       .single()
 
@@ -70,15 +84,16 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Crea Checkout Session
+    // Usa origin della request per redirect corretto sul subdominio del club
+    const origin = getOrigin(req)
     const plan = PLANS[planType as Exclude<PlanType, "none">]
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://prenotauncampetto.it"
 
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       mode: "subscription",
       line_items: [{ price: plan.stripePriceId, quantity: 1 }],
-      success_url: `${baseUrl}/admin/impostazioni?tab=abbonamento&checkout=success`,
-      cancel_url: `${baseUrl}/admin/impostazioni?tab=abbonamento&checkout=cancel`,
+      success_url: `${origin}/admin/impostazioni?tab=abbonamento&checkout=success`,
+      cancel_url: `${origin}/admin/impostazioni?tab=abbonamento&checkout=cancel`,
       metadata: {
         club_id: clubId,
         plan_type: planType,

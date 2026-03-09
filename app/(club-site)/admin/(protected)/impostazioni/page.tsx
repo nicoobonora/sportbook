@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: "Impostazioni — Admin",
 }
 
+// Disabilita cache — i dati abbonamento devono essere sempre freschi
+export const dynamic = "force-dynamic"
+
 export default async function ImpostazioniPage({
   searchParams,
 }: {
