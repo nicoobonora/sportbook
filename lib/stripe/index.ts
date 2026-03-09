@@ -4,10 +4,7 @@ import Stripe from "stripe"
  * Server-side Stripe SDK instance.
  * Da usare SOLO in API routes e server actions — mai nel client.
  */
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-03-31.basil",
-  typescript: true,
-})
+export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 /**
  * Chiave pubblica Stripe per il client (Stripe Elements).

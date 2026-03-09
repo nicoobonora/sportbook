@@ -5,6 +5,16 @@ import { PLANS } from "@/lib/stripe/plans"
 import type Stripe from "stripe"
 
 /**
+ * Helper: estrae un ID stringa da un campo Stripe che può essere
+ * string | Object | null (es. subscription.customer, charge.payment_intent).
+ */
+function extractId(field: string | { id: string } | null | undefined): string | null {
+  if (!field) return null
+  if (typeof field === "string") return field
+  return field.id
+}
+
+/**
  * POST /api/stripe/webhooks/subscriptions
  * Gestisce eventi webhook Stripe relativi agli abbonamenti.
  *
@@ -53,13 +63,16 @@ export async function POST(req: NextRequest) {
           ? new Date(firstItem.current_period_end * 1000).toISOString()
           : null
 
+        // customer può essere string | Customer | DeletedCustomer
+        const customerId = extractId(subscription.customer as string | { id: string } | null)
+
         // Upsert stripe_subscriptions
         await adminClient
           .from("stripe_subscriptions")
           .upsert(
             {
               club_id: clubId,
-              stripe_customer_id: subscription.customer as string,
+              stripe_customer_id: customerId || "",
               stripe_subscription_id: subscription.id,
               plan_type: planType || "starter",
               status: subscription.status as "active" | "past_due" | "canceled" | "trialing" | "incomplete" | "incomplete_expired",
@@ -115,7 +128,10 @@ export async function POST(req: NextRequest) {
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice
-        const subscriptionId = invoice.parent?.subscription_details?.subscription
+        // Stripe API 2025-03-31+: subscription ID è in parent.subscription_details.subscription
+        // Il campo può essere string | Subscription | null
+        const rawSubId = invoice.parent?.subscription_details?.subscription
+        const subscriptionId = extractId(rawSubId as string | { id: string } | null)
         if (!subscriptionId) break
 
         await adminClient

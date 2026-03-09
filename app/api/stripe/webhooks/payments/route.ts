@@ -4,6 +4,16 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import type Stripe from "stripe"
 
 /**
+ * Helper: estrae un ID stringa da un campo Stripe che può essere
+ * string | Object | null (es. charge.payment_intent).
+ */
+function extractId(field: string | { id: string } | null | undefined): string | null {
+  if (!field) return null
+  if (typeof field === "string") return field
+  return field.id
+}
+
+/**
  * POST /api/stripe/webhooks/payments
  * Gestisce eventi webhook Stripe relativi ai pagamenti delle prenotazioni.
  */
@@ -88,7 +98,8 @@ export async function POST(req: NextRequest) {
 
       case "charge.refunded": {
         const charge = event.data.object as Stripe.Charge
-        const paymentIntentId = charge.payment_intent as string
+        // payment_intent può essere string | PaymentIntent | null
+        const paymentIntentId = extractId(charge.payment_intent as string | { id: string } | null)
 
         if (!paymentIntentId) break
 
