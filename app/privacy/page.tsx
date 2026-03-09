@@ -58,10 +58,10 @@ export default function PrivacyPage() {
               Per qualsiasi richiesta relativa al trattamento dei dati personali,
               è possibile scrivere a:{" "}
               <a
-                href="mailto:privacy@prenotauncampetto.it"
+                href="mailto:nicobonoraaa@gmail.com"
                 className="font-medium text-emerald-700 hover:underline"
               >
-                privacy@prenotauncampetto.it
+                nicobonoraaa@gmail.com
               </a>
             </p>
           </Section>
@@ -253,10 +253,10 @@ export default function PrivacyPage() {
             <p>
               Per esercitare i propri diritti, scrivere a:{" "}
               <a
-                href="mailto:privacy@prenotauncampetto.it"
+                href="mailto:nicobonoraaa@gmail.com"
                 className="font-medium text-emerald-700 hover:underline"
               >
-                privacy@prenotauncampetto.it
+                nicobonoraaa@gmail.com
               </a>
             </p>
             <p>
@@ -332,10 +332,10 @@ export default function PrivacyPage() {
               <p className="text-sm">
                 <strong>Email:</strong>{" "}
                 <a
-                  href="mailto:privacy@prenotauncampetto.it"
+                  href="mailto:nicobonoraaa@gmail.com"
                   className="text-emerald-700 hover:underline"
                 >
-                  privacy@prenotauncampetto.it
+                  nicobonoraaa@gmail.com
                 </a>
               </p>
               <p className="text-sm">
