@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     const { data: booking } = await adminClient
       .from("bookings")
-      .select("*, clubs(name)")
+      .select("*")
       .eq("id", bookingId)
       .single()
 
@@ -41,7 +41,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Token di verifica mancante" }, { status: 400 })
     }
 
-    const clubName = (booking.clubs as { name: string } | null)?.name || "il circolo"
+    const { data: club } = await adminClient
+      .from("clubs")
+      .select("name")
+      .eq("id", booking.club_id)
+      .single()
+
+    const clubName = club?.name || "il circolo"
     const resendApiKey = process.env.RESEND_API_KEY
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
     const verifyUrl = `${baseUrl}/api/bookings/verify?token=${booking.verification_token}`
