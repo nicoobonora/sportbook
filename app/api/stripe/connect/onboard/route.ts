@@ -115,10 +115,11 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ url: accountLink.url })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Connect Onboard] Errore:", error)
+    const message = error instanceof Error ? error.message : "Errore sconosciuto"
     return NextResponse.json(
-      { error: "Errore nell'avvio dell'onboarding" },
+      { error: `Errore nell'avvio dell'onboarding: ${message}` },
       { status: 500 }
     )
   }

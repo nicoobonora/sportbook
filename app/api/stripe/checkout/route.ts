@@ -107,10 +107,11 @@ export async function POST(req: NextRequest) {
     })
 
     return NextResponse.json({ url: session.url })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[Stripe Checkout] Errore:", error)
+    const message = error instanceof Error ? error.message : "Errore sconosciuto"
     return NextResponse.json(
-      { error: "Errore nella creazione della sessione di checkout" },
+      { error: `Errore nella creazione della sessione di checkout: ${message}` },
       { status: 500 }
     )
   }
