@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice
-        const subscriptionId = invoice.subscription as string
+        const subscriptionId = invoice.parent?.subscription_details?.subscription
         if (!subscriptionId) break
 
         await adminClient
