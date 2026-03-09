@@ -30,7 +30,7 @@ type Props = {
   field: Field
   date: string
   timeSelection: BookingTimeSelection
-  onSuccess: (email?: string) => void
+  onSuccess: (email?: string, bookingId?: string) => void
   onBack: () => void
 }
 
@@ -71,7 +71,8 @@ export function StepForm({ clubId, field, date, timeSelection, onSuccess, onBack
       return
     }
 
-    onSuccess(data.user_email)
+    const result = await response.json()
+    onSuccess(data.user_email, result.id)
   }
 
   return (

@@ -8,7 +8,10 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { Loader2, Plus, Trash2, MapPin } from "lucide-react"
-import type { Club, Field } from "@/lib/types/database"
+import type { Club, Field, StripeSubscription } from "@/lib/types/database"
+import type { PlanType } from "@/lib/stripe/plans"
+import { SubscriptionManagement } from "@/components/admin/subscription-management"
+import { ConnectOnboarding } from "@/components/admin/connect-onboarding"
 import type { ParsedAddress } from "@/lib/utils/nominatim"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -30,14 +33,18 @@ import {
 type Props = {
   club: Club
   fields: Field[]
+  subscription?: StripeSubscription | null
+  defaultTab?: string
 }
 
-export function ClubSettings({ club, fields }: Props) {
+export function ClubSettings({ club, fields, subscription, defaultTab }: Props) {
   return (
-    <Tabs defaultValue="info">
-      <TabsList className="mb-6 grid w-full grid-cols-2">
+    <Tabs defaultValue={defaultTab || "info"}>
+      <TabsList className="mb-6 grid w-full grid-cols-4">
         <TabsTrigger value="info">Info circolo</TabsTrigger>
         <TabsTrigger value="fields">Strutture</TabsTrigger>
+        <TabsTrigger value="abbonamento">Abbonamento</TabsTrigger>
+        <TabsTrigger value="pagamenti">Pagamenti</TabsTrigger>
       </TabsList>
 
       <TabsContent value="info">
@@ -46,6 +53,25 @@ export function ClubSettings({ club, fields }: Props) {
 
       <TabsContent value="fields">
         <FieldsManager clubId={club.id} fields={fields} />
+      </TabsContent>
+
+      <TabsContent value="abbonamento">
+        <SubscriptionManagement
+          clubId={club.id}
+          currentPlan={(club.stripe_plan_type || "none") as PlanType}
+          subscription={subscription ? {
+            status: subscription.status,
+            current_period_end: subscription.current_period_end,
+            plan_type: subscription.plan_type,
+          } : null}
+        />
+      </TabsContent>
+
+      <TabsContent value="pagamenti">
+        <ConnectOnboarding
+          clubId={club.id}
+          planType={club.stripe_plan_type || "none"}
+        />
       </TabsContent>
     </Tabs>
   )

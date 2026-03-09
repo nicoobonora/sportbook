@@ -42,6 +42,9 @@ export type Database = {
           google_total_ratings: number | null
           business_status: string | null
           province: string | null
+          stripe_customer_id: string | null
+          stripe_plan_type: "none" | "starter" | "pro" | "business"
+          max_fields: number
           created_at: string
           updated_at: string
         }
@@ -79,6 +82,9 @@ export type Database = {
           google_total_ratings?: number | null
           business_status?: string | null
           province?: string | null
+          stripe_customer_id?: string | null
+          stripe_plan_type?: "none" | "starter" | "pro" | "business"
+          max_fields?: number
           created_at?: string
           updated_at?: string
         }
@@ -116,6 +122,9 @@ export type Database = {
           google_total_ratings?: number | null
           business_status?: string | null
           province?: string | null
+          stripe_customer_id?: string | null
+          stripe_plan_type?: "none" | "starter" | "pro" | "business"
+          max_fields?: number
           created_at?: string
           updated_at?: string
         }
@@ -280,6 +289,9 @@ export type Database = {
           email_sent_at: string | null
           verification_token: string | null
           email_verified_at: string | null
+          payment_status: "unpaid" | "pending" | "paid" | "refunded"
+          stripe_payment_intent_id: string | null
+          paid_at: string | null
           created_at: string
           updated_at: string
         }
@@ -303,6 +315,9 @@ export type Database = {
           email_sent_at?: string | null
           verification_token?: string | null
           email_verified_at?: string | null
+          payment_status?: "unpaid" | "pending" | "paid" | "refunded"
+          stripe_payment_intent_id?: string | null
+          paid_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -326,6 +341,9 @@ export type Database = {
           email_sent_at?: string | null
           verification_token?: string | null
           email_verified_at?: string | null
+          payment_status?: "unpaid" | "pending" | "paid" | "refunded"
+          stripe_payment_intent_id?: string | null
+          paid_at?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -517,6 +535,108 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_subscriptions: {
+        Row: {
+          id: string
+          club_id: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          plan_type: "starter" | "pro" | "business"
+          status: "active" | "past_due" | "canceled" | "trialing" | "incomplete" | "incomplete_expired"
+          current_period_end: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          club_id: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          plan_type?: "starter" | "pro" | "business"
+          status?: "active" | "past_due" | "canceled" | "trialing" | "incomplete" | "incomplete_expired"
+          current_period_end?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          club_id?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          plan_type?: "starter" | "pro" | "business"
+          status?: "active" | "past_due" | "canceled" | "trialing" | "incomplete" | "incomplete_expired"
+          current_period_end?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      stripe_connect_accounts: {
+        Row: {
+          id: string
+          club_id: string
+          stripe_account_id: string
+          charges_enabled: boolean
+          payouts_enabled: boolean
+          onboarding_complete: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          club_id: string
+          stripe_account_id: string
+          charges_enabled?: boolean
+          payouts_enabled?: boolean
+          onboarding_complete?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          club_id?: string
+          stripe_account_id?: string
+          charges_enabled?: boolean
+          payouts_enabled?: boolean
+          onboarding_complete?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      stripe_payments: {
+        Row: {
+          id: string
+          booking_id: string
+          club_id: string
+          stripe_payment_intent_id: string
+          amount_cents: number
+          application_fee_cents: number
+          status: "pending" | "succeeded" | "failed" | "refunded"
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          booking_id: string
+          club_id: string
+          stripe_payment_intent_id: string
+          amount_cents: number
+          application_fee_cents?: number
+          status?: "pending" | "succeeded" | "failed" | "refunded"
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          booking_id?: string
+          club_id?: string
+          stripe_payment_intent_id?: string
+          amount_cents?: number
+          application_fee_cents?: number
+          status?: "pending" | "succeeded" | "failed" | "refunded"
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -587,3 +707,14 @@ export type CookieConfigInsert = Database["public"]["Tables"]["cookie_configs"][
 
 export type OpeningHours = Database["public"]["Tables"]["opening_hours"]["Row"]
 export type OpeningHoursInsert = Database["public"]["Tables"]["opening_hours"]["Insert"]
+
+export type StripeSubscription = Database["public"]["Tables"]["stripe_subscriptions"]["Row"]
+export type StripeSubscriptionInsert = Database["public"]["Tables"]["stripe_subscriptions"]["Insert"]
+
+export type StripeConnectAccount = Database["public"]["Tables"]["stripe_connect_accounts"]["Row"]
+export type StripeConnectAccountInsert = Database["public"]["Tables"]["stripe_connect_accounts"]["Insert"]
+
+export type StripePayment = Database["public"]["Tables"]["stripe_payments"]["Row"]
+export type StripePaymentInsert = Database["public"]["Tables"]["stripe_payments"]["Insert"]
+
+export type PaymentStatus = "unpaid" | "pending" | "paid" | "refunded"

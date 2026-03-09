@@ -1,17 +1,18 @@
 /**
- * Stepper di prenotazione in 4 step.
+ * Stepper di prenotazione in 4 o 5 step.
  *
  * Step 1: Scegli struttura (campo/campetto)
  * Step 2: Scegli data (calendario mensile)
  * Step 3: Scegli orario e durata (selezione flessibile)
  * Step 4: Inserisci dati (form) + riepilogo + invio
+ * Step 5: Pagamento online (opzionale, solo se il circolo lo ha attivo)
  *
  * Ogni step è navigabile da tastiera con aria-current="step".
  * Nessuna registrazione richiesta per prenotare.
  */
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import type { Field } from "@/lib/types/database"
 import type { BookingTimeSelection } from "./booking/step-time"
 import { StepIndicator } from "./booking/step-indicator"
@@ -20,28 +21,37 @@ import { StepDate } from "./booking/step-date"
 import { StepTime } from "./booking/step-time"
 import { StepForm } from "./booking/step-form"
 import { BookingSuccess } from "./booking/booking-success"
-
-const STEPS = [
-  { id: 1, label: "Struttura" },
-  { id: 2, label: "Data" },
-  { id: 3, label: "Orario" },
-  { id: 4, label: "Dati" },
-] as const
+import { PaymentForm } from "@/components/booking/payment-form"
 
 type Props = {
   clubId: string
   clubName: string
   basePath?: string
   fields: Field[]
+  paymentEnabled?: boolean
 }
 
-export function BookingStepper({ clubId, clubName, basePath = "", fields }: Props) {
+export function BookingStepper({ clubId, clubName, basePath = "", fields, paymentEnabled = false }: Props) {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedField, setSelectedField] = useState<Field | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<BookingTimeSelection | null>(null)
   const [bookingComplete, setBookingComplete] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [bookingId, setBookingId] = useState<string | null>(null)
+
+  const steps = useMemo(() => {
+    const base = [
+      { id: 1, label: "Struttura" },
+      { id: 2, label: "Data" },
+      { id: 3, label: "Orario" },
+      { id: 4, label: "Dati" },
+    ]
+    if (paymentEnabled) {
+      base.push({ id: 5, label: "Pagamento" })
+    }
+    return base
+  }, [paymentEnabled])
 
   const handleFieldSelect = useCallback((field: Field) => {
     setSelectedField(field)
@@ -61,8 +71,24 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
     setCurrentStep(4)
   }, [])
 
-  const handleBookingSuccess = useCallback((email?: string) => {
+  const handleBookingSuccess = useCallback((email?: string, id?: string) => {
     setUserEmail(email || null)
+    setBookingId(id || null)
+
+    if (paymentEnabled && id) {
+      // Vai allo step pagamento
+      setCurrentStep(5)
+    } else {
+      // Nessun pagamento: prenotazione completata
+      setBookingComplete(true)
+    }
+  }, [paymentEnabled])
+
+  const handlePaymentSuccess = useCallback(() => {
+    setBookingComplete(true)
+  }, [])
+
+  const handleSkipPayment = useCallback(() => {
     setBookingComplete(true)
   }, [])
 
@@ -73,6 +99,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
     setSelectedTime(null)
     setBookingComplete(false)
     setUserEmail(null)
+    setBookingId(null)
   }, [])
 
   const goBack = useCallback(() => {
@@ -108,7 +135,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
   return (
     <div>
       {/* Indicatore step */}
-      <StepIndicator steps={STEPS} currentStep={currentStep} />
+      <StepIndicator steps={steps} currentStep={currentStep} />
 
       {/* Contenuto step */}
       <div className="mt-8">
@@ -148,6 +175,14 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields }: Prop
             timeSelection={selectedTime}
             onSuccess={handleBookingSuccess}
             onBack={goBack}
+          />
+        )}
+
+        {currentStep === 5 && paymentEnabled && bookingId && (
+          <PaymentForm
+            bookingId={bookingId}
+            onSuccess={handlePaymentSuccess}
+            onSkip={handleSkipPayment}
           />
         )}
       </div>

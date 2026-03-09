@@ -1,0 +1,102 @@
+import { NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
+import { stripe } from "@/lib/stripe"
+import { PLANS, type PlanType } from "@/lib/stripe/plans"
+import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
+
+const checkoutSchema = z.object({
+  planType: z.enum(["starter", "pro", "business"]),
+  clubId: z.string().uuid(),
+})
+
+/**
+ * POST /api/stripe/checkout
+ * Crea una Stripe Checkout Session per sottoscrivere un piano.
+ * Richiede autenticazione come admin del circolo.
+ */
+export async function POST(req: NextRequest) {
+  try {
+    // 1. Verifica autenticazione
+    const supabase = createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: "Non autenticato" }, { status: 401 })
+    }
+
+    // 2. Parse e valida body
+    const body = await req.json()
+    const parsed = checkoutSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Dati non validi", details: parsed.error.flatten() },
+        { status: 400 }
+      )
+    }
+    const { planType, clubId } = parsed.data
+
+    // 3. Verifica che l'utente sia admin del circolo
+    const { data: isAdmin } = await supabase.rpc("is_club_admin", { p_club_id: clubId })
+    if (!isAdmin) {
+      return NextResponse.json({ error: "Non autorizzato" }, { status: 403 })
+    }
+
+    // 4. Recupera o crea Stripe Customer
+    const adminClient = createAdminClient()
+    const { data: club } = await adminClient
+      .from("clubs")
+      .select("id, name, email, stripe_customer_id")
+      .eq("id", clubId)
+      .single()
+
+    if (!club) {
+      return NextResponse.json({ error: "Circolo non trovato" }, { status: 404 })
+    }
+
+    let stripeCustomerId = club.stripe_customer_id
+
+    if (!stripeCustomerId) {
+      const customer = await stripe.customers.create({
+        email: club.email || user.email || undefined,
+        name: club.name,
+        metadata: { club_id: clubId },
+      })
+      stripeCustomerId = customer.id
+
+      await adminClient
+        .from("clubs")
+        .update({ stripe_customer_id: stripeCustomerId })
+        .eq("id", clubId)
+    }
+
+    // 5. Crea Checkout Session
+    const plan = PLANS[planType as Exclude<PlanType, "none">]
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://prenotauncampetto.it"
+
+    const session = await stripe.checkout.sessions.create({
+      customer: stripeCustomerId,
+      mode: "subscription",
+      line_items: [{ price: plan.stripePriceId, quantity: 1 }],
+      success_url: `${baseUrl}/admin/impostazioni?tab=abbonamento&checkout=success`,
+      cancel_url: `${baseUrl}/admin/impostazioni?tab=abbonamento&checkout=cancel`,
+      metadata: {
+        club_id: clubId,
+        plan_type: planType,
+      },
+      subscription_data: {
+        metadata: {
+          club_id: clubId,
+          plan_type: planType,
+        },
+      },
+    })
+
+    return NextResponse.json({ url: session.url })
+  } catch (error) {
+    console.error("[Stripe Checkout] Errore:", error)
+    return NextResponse.json(
+      { error: "Errore nella creazione della sessione di checkout" },
+      { status: 500 }
+    )
+  }
+}
