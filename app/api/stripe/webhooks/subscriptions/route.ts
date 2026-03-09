@@ -47,6 +47,12 @@ export async function POST(req: NextRequest) {
           break
         }
 
+        // Ricava current_period_end dal primo item (Stripe API 2025-03-31+)
+        const firstItem = subscription.items?.data?.[0]
+        const periodEnd = firstItem?.current_period_end
+          ? new Date(firstItem.current_period_end * 1000).toISOString()
+          : null
+
         // Upsert stripe_subscriptions
         await adminClient
           .from("stripe_subscriptions")
@@ -57,7 +63,7 @@ export async function POST(req: NextRequest) {
               stripe_subscription_id: subscription.id,
               plan_type: planType || "starter",
               status: subscription.status as "active" | "past_due" | "canceled" | "trialing" | "incomplete" | "incomplete_expired",
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              current_period_end: periodEnd,
               updated_at: new Date().toISOString(),
             },
             { onConflict: "stripe_subscription_id" }
