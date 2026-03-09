@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   // Verifica che il club sia attivo
   const { data: club } = await adminClient
     .from("clubs")
-    .select("id, is_active, email, name")
+    .select("id, is_active, email, name, stripe_plan_type")
     .eq("id", data.club_id)
     .single()
 
@@ -144,15 +144,29 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Invia email di verifica all'utente — await per evitare che Vercel termini la funzione
-  try {
-    await sendVerificationEmail(booking, club.name)
-  } catch (err) {
-    console.error("[BOOKING] Errore invio email verifica:", err)
-    // Non blocchiamo la prenotazione se l'email fallisce
+  // Controlla se il club ha pagamenti online attivi
+  let clubHasPayment = false
+  if (["pro", "business"].includes(club.stripe_plan_type || "none")) {
+    const { data: connectAccount } = await adminClient
+      .from("stripe_connect_accounts")
+      .select("charges_enabled, onboarding_complete")
+      .eq("club_id", data.club_id)
+      .single()
+    clubHasPayment = !!(connectAccount?.charges_enabled && connectAccount?.onboarding_complete)
   }
 
-  return NextResponse.json(booking, { status: 201 })
+  // Se il club ha pagamenti online, NON inviamo l'email di verifica adesso.
+  // L'email verrà inviata quando l'utente sceglie "paga di persona"
+  // oppure la prenotazione viene auto-confermata dal pagamento online.
+  if (!clubHasPayment) {
+    try {
+      await sendVerificationEmail(booking, club.name)
+    } catch (err) {
+      console.error("[BOOKING] Errore invio email verifica:", err)
+    }
+  }
+
+  return NextResponse.json({ ...booking, payment_enabled: clubHasPayment }, { status: 201 })
 }
 
 /** PATCH — Conferma o rifiuta una prenotazione (richiede autenticazione admin) */

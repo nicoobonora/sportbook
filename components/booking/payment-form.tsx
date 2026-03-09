@@ -80,7 +80,7 @@ export function PaymentForm({ bookingId, onSuccess, onSkip }: PaymentFormProps) 
           </div>
           {onSkip && (
             <Button variant="outline" onClick={onSkip} className="w-full">
-              Continua senza pagare
+              Paga di persona
             </Button>
           )}
         </CardContent>
@@ -183,7 +183,7 @@ function CheckoutForm({
               onClick={onSkip}
               disabled={processing}
             >
-              Prenota senza pagare
+              Paga di persona
             </Button>
           )}
         </form>

@@ -88,9 +88,21 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields, paymen
     setBookingComplete(true)
   }, [])
 
-  const handleSkipPayment = useCallback(() => {
+  const handleSkipPayment = useCallback(async () => {
+    // L'utente ha scelto "paga di persona": invia l'email di verifica ora
+    if (bookingId) {
+      try {
+        await fetch("/api/bookings/send-verification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bookingId }),
+        })
+      } catch {
+        // Non blocchiamo il flusso se l'invio email fallisce
+      }
+    }
     setBookingComplete(true)
-  }, [])
+  }, [bookingId])
 
   const handleReset = useCallback(() => {
     setCurrentStep(1)
