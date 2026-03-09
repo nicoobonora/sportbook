@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { stripe, verifyWebhookSignature } from "@/lib/stripe"
+import { verifyWebhookSignature } from "@/lib/stripe"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { PLANS } from "@/lib/stripe/plans"
 import type Stripe from "stripe"
