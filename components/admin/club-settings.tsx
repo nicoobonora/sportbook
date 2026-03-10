@@ -8,10 +8,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { Loader2, Plus, Trash2, MapPin } from "lucide-react"
-import type { Club, Field, StripeSubscription } from "@/lib/types/database"
-import type { PlanType } from "@/lib/stripe/plans"
-import { SubscriptionManagement } from "@/components/admin/subscription-management"
-import { ConnectOnboarding } from "@/components/admin/connect-onboarding"
+import type { Club, Field } from "@/lib/types/database"
 import type { ParsedAddress } from "@/lib/utils/nominatim"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -33,20 +30,15 @@ import {
 type Props = {
   club: Club
   fields: Field[]
-  subscription?: StripeSubscription | null
   defaultTab?: string
 }
 
-export function ClubSettings({ club, fields, subscription, defaultTab }: Props) {
-  // Mantieni retrocompatibilità: "pagamenti" redirecta ad "abbonamento"
-  const resolvedTab = defaultTab === "pagamenti" ? "abbonamento" : defaultTab
-
+export function ClubSettings({ club, fields, defaultTab }: Props) {
   return (
-    <Tabs defaultValue={resolvedTab || "info"}>
-      <TabsList className="mb-6 grid w-full grid-cols-3">
+    <Tabs defaultValue={defaultTab || "info"}>
+      <TabsList className="mb-6 grid w-full grid-cols-2">
         <TabsTrigger value="info">Info circolo</TabsTrigger>
         <TabsTrigger value="fields">Strutture</TabsTrigger>
-        <TabsTrigger value="abbonamento">Abbonamento</TabsTrigger>
       </TabsList>
 
       <TabsContent value="info">
@@ -55,24 +47,6 @@ export function ClubSettings({ club, fields, subscription, defaultTab }: Props) 
 
       <TabsContent value="fields">
         <FieldsManager clubId={club.id} fields={fields} />
-      </TabsContent>
-
-      <TabsContent value="abbonamento">
-        <div className="space-y-8">
-          <SubscriptionManagement
-            clubId={club.id}
-            currentPlan={(club.stripe_plan_type || "none") as PlanType}
-            subscription={subscription ? {
-              status: subscription.status,
-              current_period_end: subscription.current_period_end,
-              plan_type: subscription.plan_type,
-            } : null}
-          />
-          <ConnectOnboarding
-            clubId={club.id}
-            planType={club.stripe_plan_type || "none"}
-          />
-        </div>
       </TabsContent>
     </Tabs>
   )

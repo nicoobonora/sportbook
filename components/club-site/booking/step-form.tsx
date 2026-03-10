@@ -30,12 +30,11 @@ type Props = {
   field: Field
   date: string
   timeSelection: BookingTimeSelection
-  onSuccess: (email?: string, bookingId?: string) => void
+  onSuccess: (email?: string) => void
   onBack: () => void
-  paymentEnabled?: boolean
 }
 
-export function StepForm({ clubId, field, date, timeSelection, onSuccess, onBack, paymentEnabled = false }: Props) {
+export function StepForm({ clubId, field, date, timeSelection, onSuccess, onBack }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   const {
@@ -72,8 +71,7 @@ export function StepForm({ clubId, field, date, timeSelection, onSuccess, onBack
       return
     }
 
-    const result = await response.json()
-    onSuccess(data.user_email, result.id)
+    onSuccess(data.user_email)
   }
 
   return (
@@ -233,17 +231,13 @@ export function StepForm({ clubId, field, date, timeSelection, onSuccess, onBack
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
                     Invio in corso...
                   </>
-                ) : paymentEnabled ? (
-                  "Continua al pagamento"
                 ) : (
                   "Prenota e verifica via email"
                 )}
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                {paymentEnabled
-                  ? "Nel prossimo step potrai pagare online o scegliere di pagare di persona."
-                  : "Riceverai un'email di verifica. Clicca il link nell'email per confermare la prenotazione."}
+                {"Riceverai un'email di verifica. Clicca il link nell'email per confermare la prenotazione."}
               </p>
             </form>
           </CardContent>

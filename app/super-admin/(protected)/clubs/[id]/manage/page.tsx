@@ -22,8 +22,6 @@ import { formatDate } from "@/lib/utils/dates"
 import { InviteAdminForm } from "@/components/super-admin/invite-admin-form"
 import { AdminList } from "@/components/super-admin/admin-list"
 import { GenerateSlotsButton } from "@/components/super-admin/generate-slots-button"
-import { StartTrialButton } from "@/components/super-admin/start-trial-button"
-import { CreditCard } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Gestione Circolo — SportBook Admin",
@@ -44,7 +42,6 @@ export default async function ManageClubPage({
     { count: bookingsCount },
     { count: templatesCount },
     { count: slotsCount },
-    { data: subscription },
   ] = await Promise.all([
     supabase.from("clubs").select("*").eq("id", params.id).single(),
     supabase
@@ -68,13 +65,6 @@ export default async function ManageClubPage({
       .from("slots")
       .select("*", { count: "exact", head: true })
       .eq("club_id", params.id),
-    supabase
-      .from("stripe_subscriptions")
-      .select("status, current_period_end")
-      .eq("club_id", params.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
   ])
 
   if (!club) {
@@ -201,23 +191,6 @@ export default async function ManageClubPage({
           <CardContent className="space-y-4">
             <AdminList admins={adminsWithEmail} clubId={club.id} />
             <InviteAdminForm clubId={club.id} />
-          </CardContent>
-        </Card>
-
-        {/* Abbonamento & Trial */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <CreditCard className="h-4 w-4" aria-hidden="true" />
-              Abbonamento
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <StartTrialButton
-              clubId={club.id}
-              currentPlan={club.stripe_plan_type || "none"}
-              subscription={subscription}
-            />
           </CardContent>
         </Card>
 

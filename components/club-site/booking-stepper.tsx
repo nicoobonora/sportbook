@@ -1,18 +1,17 @@
 /**
- * Stepper di prenotazione in 4 o 5 step.
+ * Stepper di prenotazione in 4 step.
  *
  * Step 1: Scegli struttura (campo/campetto)
  * Step 2: Scegli data (calendario mensile)
  * Step 3: Scegli orario e durata (selezione flessibile)
  * Step 4: Inserisci dati (form) + riepilogo + invio
- * Step 5: Pagamento online (opzionale, solo se il circolo lo ha attivo)
  *
  * Ogni step è navigabile da tastiera con aria-current="step".
  * Nessuna registrazione richiesta per prenotare.
  */
 "use client"
 
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback } from "react"
 import type { Field } from "@/lib/types/database"
 import type { BookingTimeSelection } from "./booking/step-time"
 import { StepIndicator } from "./booking/step-indicator"
@@ -21,38 +20,28 @@ import { StepDate } from "./booking/step-date"
 import { StepTime } from "./booking/step-time"
 import { StepForm } from "./booking/step-form"
 import { BookingSuccess } from "./booking/booking-success"
-import { PaymentForm } from "@/components/booking/payment-form"
 
 type Props = {
   clubId: string
   clubName: string
   basePath?: string
   fields: Field[]
-  paymentEnabled?: boolean
 }
 
-export function BookingStepper({ clubId, clubName, basePath = "", fields, paymentEnabled = false }: Props) {
+const steps = [
+  { id: 1, label: "Struttura" },
+  { id: 2, label: "Data" },
+  { id: 3, label: "Orario" },
+  { id: 4, label: "Dati" },
+]
+
+export function BookingStepper({ clubId, clubName, basePath = "", fields }: Props) {
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedField, setSelectedField] = useState<Field | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<BookingTimeSelection | null>(null)
   const [bookingComplete, setBookingComplete] = useState(false)
-  const [paidOnline, setPaidOnline] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [bookingId, setBookingId] = useState<string | null>(null)
-
-  const steps = useMemo(() => {
-    const base = [
-      { id: 1, label: "Struttura" },
-      { id: 2, label: "Data" },
-      { id: 3, label: "Orario" },
-      { id: 4, label: "Dati" },
-    ]
-    if (paymentEnabled) {
-      base.push({ id: 5, label: "Pagamento" })
-    }
-    return base
-  }, [paymentEnabled])
 
   const handleFieldSelect = useCallback((field: Field) => {
     setSelectedField(field)
@@ -72,39 +61,10 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields, paymen
     setCurrentStep(4)
   }, [])
 
-  const handleBookingSuccess = useCallback((email?: string, id?: string) => {
+  const handleBookingSuccess = useCallback((email?: string) => {
     setUserEmail(email || null)
-    setBookingId(id || null)
-
-    if (paymentEnabled && id) {
-      // Vai allo step pagamento
-      setCurrentStep(5)
-    } else {
-      // Nessun pagamento: prenotazione completata
-      setBookingComplete(true)
-    }
-  }, [paymentEnabled])
-
-  const handlePaymentSuccess = useCallback(() => {
-    setPaidOnline(true)
     setBookingComplete(true)
   }, [])
-
-  const handleSkipPayment = useCallback(async () => {
-    // L'utente ha scelto "paga di persona": invia l'email di verifica ora
-    if (bookingId) {
-      try {
-        await fetch("/api/bookings/send-verification", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ bookingId }),
-        })
-      } catch {
-        // Non blocchiamo il flusso se l'invio email fallisce
-      }
-    }
-    setBookingComplete(true)
-  }, [bookingId])
 
   const handleReset = useCallback(() => {
     setCurrentStep(1)
@@ -112,9 +72,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields, paymen
     setSelectedDate(null)
     setSelectedTime(null)
     setBookingComplete(false)
-    setPaidOnline(false)
     setUserEmail(null)
-    setBookingId(null)
   }, [])
 
   const goBack = useCallback(() => {
@@ -128,7 +86,6 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields, paymen
         clubName={clubName}
         userEmail={userEmail || undefined}
         basePath={basePath}
-        paidOnline={paidOnline}
         onNewBooking={handleReset}
       />
     )
@@ -191,15 +148,6 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields, paymen
             timeSelection={selectedTime}
             onSuccess={handleBookingSuccess}
             onBack={goBack}
-            paymentEnabled={paymentEnabled}
-          />
-        )}
-
-        {currentStep === 5 && paymentEnabled && bookingId && (
-          <PaymentForm
-            bookingId={bookingId}
-            onSuccess={handlePaymentSuccess}
-            onSkip={handleSkipPayment}
           />
         )}
       </div>

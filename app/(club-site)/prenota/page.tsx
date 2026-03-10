@@ -88,22 +88,6 @@ export default async function PrenotaPage() {
     .eq("is_active", true)
     .order("sort_order", { ascending: true })
 
-  // Verifica se il circolo accetta pagamenti online
-  const paymentEnabled =
-    club.stripe_plan_type === "pro"
-
-  let connectActive = false
-  if (paymentEnabled) {
-    const { createAdminClient } = await import("@/lib/supabase/admin")
-    const adminClient = createAdminClient()
-    const { data: connectAccount } = await adminClient
-      .from("stripe_connect_accounts")
-      .select("charges_enabled, onboarding_complete, payments_paused")
-      .eq("club_id", club.id)
-      .single()
-    connectActive = !!(connectAccount?.charges_enabled && connectAccount?.onboarding_complete && !connectAccount?.payments_paused)
-  }
-
   return (
     <main id="main-content" className="min-h-screen bg-background">
       <div className="container-sportbook py-8 sm:py-12">
@@ -120,7 +104,6 @@ export default async function PrenotaPage() {
             clubName={club.name}
             basePath={basePath}
             fields={fields || []}
-            paymentEnabled={connectActive}
           />
         </div>
       </div>
