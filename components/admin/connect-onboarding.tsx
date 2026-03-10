@@ -15,6 +15,7 @@ interface ConnectStatus {
   chargesEnabled: boolean
   payoutsEnabled: boolean
   onboardingComplete: boolean
+  paymentsPaused: boolean
   stripeAccountId?: string
 }
 
@@ -22,6 +23,7 @@ export function ConnectOnboarding({ clubId, planType }: ConnectOnboardingProps) 
   const [status, setStatus] = useState<ConnectStatus | null>(null)
   const [loading, setLoading] = useState(false)
   const [checking, setChecking] = useState(true)
+  const [togglingPause, setTogglingPause] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const isPlanEligible = planType === "pro"
@@ -70,6 +72,29 @@ export function ConnectOnboarding({ clubId, planType }: ConnectOnboardingProps) 
     }
   }
 
+  async function handleTogglePause() {
+    if (!status) return
+    setTogglingPause(true)
+    setError(null)
+    try {
+      const res = await fetch("/api/stripe/connect/pause", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ club_id: clubId, paused: !status.paymentsPaused }),
+      })
+      if (res.ok) {
+        setStatus({ ...status, paymentsPaused: !status.paymentsPaused })
+      } else {
+        const data = await res.json()
+        setError(data.error || "Errore durante l'aggiornamento")
+      }
+    } catch {
+      setError("Errore di connessione")
+    } finally {
+      setTogglingPause(false)
+    }
+  }
+
   if (!isPlanEligible) {
     return (
       <Card>
@@ -101,7 +126,11 @@ export function ConnectOnboarding({ clubId, planType }: ConnectOnboardingProps) 
           <CardTitle className="flex items-center gap-2">
             Pagamenti online
             {status?.onboardingComplete ? (
-              <Badge variant="default">Attivo</Badge>
+              status?.paymentsPaused ? (
+                <Badge variant="secondary">In pausa</Badge>
+              ) : (
+                <Badge variant="default">Attivo</Badge>
+              )
             ) : status?.hasAccount ? (
               <Badge variant="secondary">Configurazione in corso</Badge>
             ) : (
@@ -110,7 +139,9 @@ export function ConnectOnboarding({ clubId, planType }: ConnectOnboardingProps) 
           </CardTitle>
           <CardDescription>
             {status?.onboardingComplete
-              ? "I tuoi clienti possono pagare online le prenotazioni. La piattaforma trattiene una commissione del 2% su ogni transazione."
+              ? status?.paymentsPaused
+                ? "I pagamenti online sono temporaneamente sospesi. I tuoi clienti potranno prenotare solo con verifica via email."
+                : "I tuoi clienti possono pagare online le prenotazioni. La piattaforma trattiene una commissione del 2% su ogni transazione."
               : "Attiva i pagamenti online per permettere ai tuoi clienti di pagare direttamente quando prenotano un campo. Commissione piattaforma: 2%."}
           </CardDescription>
         </CardHeader>
@@ -122,7 +153,7 @@ export function ConnectOnboarding({ clubId, planType }: ConnectOnboardingProps) 
           )}
 
           {status?.onboardingComplete ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-green-600">✓</span>
                 <span>Pagamenti con carta abilitati</span>
@@ -131,6 +162,28 @@ export function ConnectOnboarding({ clubId, planType }: ConnectOnboardingProps) 
                 <span className="text-green-600">✓</span>
                 <span>Accrediti sul tuo conto attivi</span>
               </div>
+
+              {status.paymentsPaused && (
+                <div className="rounded-md bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+                  I pagamenti online sono in pausa. I clienti possono prenotare solo con verifica via email.
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 pt-1">
+                <Button
+                  variant={status.paymentsPaused ? "default" : "outline"}
+                  size="sm"
+                  onClick={handleTogglePause}
+                  disabled={togglingPause}
+                >
+                  {togglingPause
+                    ? "Aggiornamento..."
+                    : status.paymentsPaused
+                      ? "Riattiva pagamenti online"
+                      : "Metti in pausa i pagamenti"}
+                </Button>
+              </div>
+
               <p className="text-xs text-muted-foreground mt-2">
                 Gestisci il tuo account pagamenti dalla{" "}
                 <a

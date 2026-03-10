@@ -149,10 +149,10 @@ export async function POST(request: NextRequest) {
   if (club.stripe_plan_type === "pro") {
     const { data: connectAccount } = await adminClient
       .from("stripe_connect_accounts")
-      .select("charges_enabled, onboarding_complete")
+      .select("charges_enabled, onboarding_complete, payments_paused")
       .eq("club_id", data.club_id)
       .single()
-    clubHasPayment = !!(connectAccount?.charges_enabled && connectAccount?.onboarding_complete)
+    clubHasPayment = !!(connectAccount?.charges_enabled && connectAccount?.onboarding_complete && !connectAccount?.payments_paused)
   }
 
   // Se il club ha pagamenti online, NON inviamo l'email di verifica adesso.

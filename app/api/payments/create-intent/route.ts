@@ -58,13 +58,20 @@ export async function POST(req: NextRequest) {
     // 2. Recupera l'account Connect del circolo
     const { data: connectAccount } = await adminClient
       .from("stripe_connect_accounts")
-      .select("stripe_account_id, charges_enabled")
+      .select("stripe_account_id, charges_enabled, payments_paused")
       .eq("club_id", booking.club_id)
       .single()
 
     if (!connectAccount || !connectAccount.charges_enabled) {
       return NextResponse.json(
         { error: "Il circolo non ha attivato i pagamenti online" },
+        { status: 400 }
+      )
+    }
+
+    if (connectAccount.payments_paused) {
+      return NextResponse.json(
+        { error: "I pagamenti online sono temporaneamente sospesi per questo circolo" },
         { status: 400 }
       )
     }

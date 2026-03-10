@@ -70,6 +70,7 @@ export async function GET(req: NextRequest) {
       chargesEnabled,
       payoutsEnabled,
       onboardingComplete,
+      paymentsPaused: connectAccount.payments_paused ?? false,
       stripeAccountId: connectAccount.stripe_account_id,
     })
   } catch (error) {

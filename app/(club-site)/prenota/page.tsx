@@ -98,10 +98,10 @@ export default async function PrenotaPage() {
     const adminClient = createAdminClient()
     const { data: connectAccount } = await adminClient
       .from("stripe_connect_accounts")
-      .select("charges_enabled, onboarding_complete")
+      .select("charges_enabled, onboarding_complete, payments_paused")
       .eq("club_id", club.id)
       .single()
-    connectActive = !!(connectAccount?.charges_enabled && connectAccount?.onboarding_complete)
+    connectActive = !!(connectAccount?.charges_enabled && connectAccount?.onboarding_complete && !connectAccount?.payments_paused)
   }
 
   return (
