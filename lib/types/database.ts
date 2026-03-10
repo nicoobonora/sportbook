@@ -579,6 +579,7 @@ export type Database = {
           charges_enabled: boolean
           payouts_enabled: boolean
           onboarding_complete: boolean
+          payments_paused: boolean
           created_at: string
           updated_at: string
         }
@@ -589,6 +590,7 @@ export type Database = {
           charges_enabled?: boolean
           payouts_enabled?: boolean
           onboarding_complete?: boolean
+          payments_paused?: boolean
           created_at?: string
           updated_at?: string
         }
@@ -599,6 +601,7 @@ export type Database = {
           charges_enabled?: boolean
           payouts_enabled?: boolean
           onboarding_complete?: boolean
+          payments_paused?: boolean
           created_at?: string
           updated_at?: string
         }
