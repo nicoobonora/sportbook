@@ -81,8 +81,17 @@ export default async function ManageClubPage({
     notFound()
   }
 
-  // Recupera email degli admin tramite auth (via admin client non disponibile senza service role)
-  // Per ora mostriamo user_id e role
+  // Risolvi email degli admin tramite Supabase Auth admin API
+  const adminsWithEmail = await Promise.all(
+    (admins || []).map(async (a) => {
+      try {
+        const { data } = await supabase.auth.admin.getUserById(a.user_id)
+        return { ...a, email: data?.user?.email || undefined }
+      } catch {
+        return { ...a, email: undefined }
+      }
+    })
+  )
 
   return (
     <>
@@ -190,7 +199,7 @@ export default async function ManageClubPage({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <AdminList admins={admins || []} clubId={club.id} />
+            <AdminList admins={adminsWithEmail} clubId={club.id} />
             <InviteAdminForm clubId={club.id} />
           </CardContent>
         </Card>

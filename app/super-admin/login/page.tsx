@@ -1,11 +1,11 @@
 /**
- * Pagina di login per il super-admin.
+ * Pagina di login per il super-admin con magic link.
  * Path: app.prenotauncampetto.it/super-admin/login
  */
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { LoginForm } from "@/app/(club-site)/admin/login/login-form"
+import { SuperAdminLoginForm } from "./super-admin-login-form"
 
 export const metadata: Metadata = {
   title: "Accesso Super Admin — SportBook",
@@ -35,7 +35,7 @@ export default async function SuperAdminLoginPage() {
             Pannello di gestione
           </p>
         </div>
-        <LoginForm redirectTo="/super-admin/dashboard" />
+        <SuperAdminLoginForm />
       </div>
     </main>
   )

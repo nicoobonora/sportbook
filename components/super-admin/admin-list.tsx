@@ -1,5 +1,5 @@
 /**
- * Lista admin del circolo con azione di rimozione.
+ * Lista admin del circolo con email e azione di rimozione.
  */
 "use client"
 
@@ -13,6 +13,7 @@ import { formatDate } from "@/lib/utils/dates"
 type AdminRecord = {
   id: string
   user_id: string
+  email?: string
   created_at: string
 }
 
@@ -60,8 +61,12 @@ export function AdminList({
           className="flex items-center justify-between rounded-md border px-3 py-2"
         >
           <div>
-            <p className="text-sm font-medium font-mono">
-              {admin.user_id.substring(0, 8)}...
+            <p className="text-sm font-medium">
+              {admin.email || (
+                <span className="font-mono text-muted-foreground">
+                  {admin.user_id.substring(0, 8)}...
+                </span>
+              )}
             </p>
             <p className="text-xs text-muted-foreground">
               <Badge variant="outline" className="mr-1 text-[10px]">
