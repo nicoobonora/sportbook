@@ -170,7 +170,12 @@ export function SubscriptionManagement({
       {/* Link al portale per chi ha già un abbonamento */}
       {isActive && (
         <div className="text-center">
-          <Button variant="link" onClick={handlePortal} disabled={loading === "portal"}>
+          <Button
+            variant="link"
+            className="h-auto whitespace-normal text-center"
+            onClick={handlePortal}
+            disabled={loading === "portal"}
+          >
             Gestisci fatturazione, metodo di pagamento e fatture →
           </Button>
         </div>
