@@ -1,8 +1,11 @@
 /**
  * Messaggio di successo dopo l'invio della prenotazione.
- * L'utente deve controllare la propria email per confermare.
+ *
+ * Due modalità:
+ * - paidOnline = true  → Pagamento avvenuto, prenotazione auto-confermata
+ * - paidOnline = false → L'utente deve controllare la propria email per confermare
  */
-import { Mail } from "lucide-react"
+import { Mail, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -10,10 +13,50 @@ type Props = {
   clubName: string
   userEmail?: string
   basePath?: string
+  paidOnline?: boolean
   onNewBooking: () => void
 }
 
-export function BookingSuccess({ clubName, userEmail, basePath = "", onNewBooking }: Props) {
+export function BookingSuccess({ clubName, userEmail, basePath = "", paidOnline = false, onNewBooking }: Props) {
+  if (paidOnline) {
+    return (
+      <div
+        className="flex flex-col items-center gap-4 py-16 text-center"
+        role="status"
+        aria-live="polite"
+      >
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <CheckCircle2 className="h-8 w-8 text-green-600" aria-hidden="true" />
+        </div>
+
+        <h2 className="font-display text-display-md uppercase tracking-tight">
+          Prenotazione confermata!
+        </h2>
+
+        <div className="max-w-md space-y-2">
+          <p className="text-muted-foreground">
+            Il pagamento è andato a buon fine. La tua prenotazione
+            presso <strong>{clubName}</strong> è confermata.
+          </p>
+          {userEmail && (
+            <p className="text-muted-foreground">
+              Riceverai una conferma via email a <strong>{userEmail}</strong>.
+            </p>
+          )}
+        </div>
+
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <Button onClick={onNewBooking}>
+            Nuova prenotazione
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href={`${basePath}/`}>Torna alla home</Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       className="flex flex-col items-center gap-4 py-16 text-center"

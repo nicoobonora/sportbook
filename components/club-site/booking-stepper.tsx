@@ -37,6 +37,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields, paymen
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<BookingTimeSelection | null>(null)
   const [bookingComplete, setBookingComplete] = useState(false)
+  const [paidOnline, setPaidOnline] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [bookingId, setBookingId] = useState<string | null>(null)
 
@@ -85,6 +86,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields, paymen
   }, [paymentEnabled])
 
   const handlePaymentSuccess = useCallback(() => {
+    setPaidOnline(true)
     setBookingComplete(true)
   }, [])
 
@@ -110,6 +112,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields, paymen
     setSelectedDate(null)
     setSelectedTime(null)
     setBookingComplete(false)
+    setPaidOnline(false)
     setUserEmail(null)
     setBookingId(null)
   }, [])
@@ -125,6 +128,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields, paymen
         clubName={clubName}
         userEmail={userEmail || undefined}
         basePath={basePath}
+        paidOnline={paidOnline}
         onNewBooking={handleReset}
       />
     )
@@ -187,6 +191,7 @@ export function BookingStepper({ clubId, clubName, basePath = "", fields, paymen
             timeSelection={selectedTime}
             onSuccess={handleBookingSuccess}
             onBack={goBack}
+            paymentEnabled={paymentEnabled}
           />
         )}
 
