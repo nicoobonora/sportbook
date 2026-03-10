@@ -21,6 +21,7 @@ import {
   User,
   Clock,
   MapPin,
+  CreditCard,
 } from "lucide-react"
 import { formatTime, formatDate, formatDateShort } from "@/lib/utils/dates"
 import { Button } from "@/components/ui/button"
@@ -291,7 +292,7 @@ export function BookingCalendar({
       </div>
 
       {/* ── Status legend ── */}
-      <div className="flex gap-3 text-xs text-muted-foreground">
+      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
           In attesa
@@ -303,6 +304,10 @@ export function BookingCalendar({
         <span className="flex items-center gap-1">
           <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
           Rifiutata
+        </span>
+        <span className="flex items-center gap-1">
+          <CreditCard className="h-3 w-3 text-emerald-600" aria-hidden="true" />
+          Pagato online
         </span>
       </div>
 
@@ -430,18 +435,23 @@ function BookingChip({
     STATUS_COLORS.pending
   const field = booking.fields as { name?: string } | null
 
+  const isPaid = booking.payment_status === "paid"
+
   return (
     <button
       type="button"
       onClick={onClick}
       className={`w-full text-left rounded px-1.5 py-1 mb-0.5 border text-[11px] leading-tight transition-opacity hover:opacity-80 ${status.bg} ${status.border}`}
-      aria-label={`Prenotazione di ${booking.user_name} — ${status.label}`}
+      aria-label={`Prenotazione di ${booking.user_name} — ${status.label}${isPaid ? " — Pagato online" : ""}`}
     >
       <div className="flex items-center gap-1">
         <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${status.dot}`} />
         <span className={`truncate font-medium ${status.text}`}>
           {booking.user_name}
         </span>
+        {isPaid && (
+          <CreditCard className="h-2.5 w-2.5 shrink-0 text-emerald-600" aria-label="Pagato online" />
+        )}
       </div>
       {field?.name && (
         <p className="truncate text-[10px] text-muted-foreground mt-0.5">
@@ -486,6 +496,8 @@ function MobileDayBookings({
           const endTime = b.end_time || b.slots?.end_time
           const field = b.fields as { name?: string } | null
 
+          const isPaid = b.payment_status === "paid"
+
           return (
             <button
               key={b.id}
@@ -499,6 +511,12 @@ function MobileDayBookings({
                   <span className={`font-medium truncate ${status.text}`}>
                     {b.user_name}
                   </span>
+                  {isPaid && (
+                    <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                      <CreditCard className="h-2.5 w-2.5" aria-hidden="true" />
+                      Pagato
+                    </span>
+                  )}
                 </div>
                 <span className="font-mono text-xs text-muted-foreground shrink-0 ml-2">
                   {startTime ? formatTime(startTime) : ""}
@@ -646,6 +664,29 @@ function BookingDetailDialog({
               </div>
             )}
           </div>
+
+          {/* Payment status */}
+          {booking.payment_status === "paid" && (
+            <div className="flex items-center gap-2 rounded-md bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 px-3 py-2">
+              <CreditCard className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+              <div>
+                <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
+                  Pagato online
+                </p>
+                {booking.paid_at && (
+                  <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                    {new Date(booking.paid_at).toLocaleString("it-IT", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Note */}
           {booking.notes && (

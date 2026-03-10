@@ -13,6 +13,7 @@ import {
   Mail,
   Filter,
   Search,
+  CreditCard,
 } from "lucide-react"
 import { formatDate, formatTime } from "@/lib/utils/dates"
 import { Button } from "@/components/ui/button"
@@ -280,9 +281,17 @@ function BookingCard({ booking }: { booking: any }) {
               {slot?.end_time ? `–${formatTime(slot.end_time)}` : ""}
             </p>
           </div>
-          <Badge variant={status.variant} className="ml-2 shrink-0">
-            {status.label}
-          </Badge>
+          <div className="flex items-center gap-1.5 ml-2 shrink-0">
+            {booking.payment_status === "paid" && (
+              <Badge variant="outline" className="gap-0.5 border-emerald-300 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-700">
+                <CreditCard className="h-3 w-3" aria-hidden="true" />
+                Pagato
+              </Badge>
+            )}
+            <Badge variant={status.variant}>
+              {status.label}
+            </Badge>
+          </div>
         </button>
 
         {/* Dettagli espansi */}
@@ -303,6 +312,26 @@ function BookingCard({ booking }: { booking: any }) {
                 </a>
               </div>
             </div>
+
+            {/* Pagamento */}
+            {booking.payment_status === "paid" && (
+              <div className="flex items-center gap-2 rounded-md bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 px-3 py-2">
+                <CreditCard className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                  Pagato online
+                  {booking.paid_at && (
+                    <span className="ml-1 font-normal text-emerald-600 dark:text-emerald-400">
+                      — {new Date(booking.paid_at).toLocaleString("it-IT", {
+                        day: "2-digit",
+                        month: "short",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
 
             {/* Note */}
             {booking.notes && (
