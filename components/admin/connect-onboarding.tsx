@@ -76,7 +76,7 @@ export function ConnectOnboarding({ clubId, planType }: ConnectOnboardingProps) 
         <CardHeader>
           <CardTitle>Pagamenti online</CardTitle>
           <CardDescription>
-            Attiva l'abbonamento dalla tab Abbonamento per poter configurare i pagamenti online.
+            Attiva l&apos;abbonamento dalla tab Abbonamento per poter configurare i pagamenti online.
           </CardDescription>
         </CardHeader>
       </Card>
