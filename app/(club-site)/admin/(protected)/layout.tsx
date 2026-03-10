@@ -49,7 +49,7 @@ export default async function ClubAdminLayout({
   return (
     <div className="flex min-h-screen">
       <AdminSidebar clubName={club.name} basePath={basePath} />
-      <main id="main-content" className="min-w-0 flex-1 bg-background">
+      <main id="main-content" className="min-w-0 flex-1 bg-background pt-[60px] lg:pt-0">
         <div className="container-sportbook py-8">
           {children}
         </div>

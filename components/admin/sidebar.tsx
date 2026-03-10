@@ -156,8 +156,6 @@ export function AdminSidebar({ clubName, basePath = "" }: { clubName: string; ba
         </Button>
       </div>
 
-      {/* Spacer per la barra mobile fissa */}
-      <div className="h-[60px] lg:hidden" />
     </>
   )
 }
