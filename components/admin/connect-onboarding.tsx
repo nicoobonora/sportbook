@@ -24,7 +24,7 @@ export function ConnectOnboarding({ clubId, planType }: ConnectOnboardingProps) 
   const [checking, setChecking] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const isPlanEligible = ["pro", "business"].includes(planType)
+  const isPlanEligible = planType === "pro"
 
   const checkStatus = useCallback(async () => {
     try {
@@ -76,8 +76,7 @@ export function ConnectOnboarding({ clubId, planType }: ConnectOnboardingProps) 
         <CardHeader>
           <CardTitle>Pagamenti online</CardTitle>
           <CardDescription>
-            I pagamenti online sono disponibili con i piani Pro e Business.
-            Attiva un piano idoneo dalla tab Abbonamento per abilitare questa funzionalità.
+            Attiva l'abbonamento dalla tab Abbonamento per poter configurare i pagamenti online.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -111,8 +110,8 @@ export function ConnectOnboarding({ clubId, planType }: ConnectOnboardingProps) 
           </CardTitle>
           <CardDescription>
             {status?.onboardingComplete
-              ? "I tuoi clienti possono pagare online le prenotazioni. La piattaforma trattiene una commissione del 5% su ogni transazione."
-              : "Attiva i pagamenti online per permettere ai tuoi clienti di pagare direttamente quando prenotano un campo."}
+              ? "I tuoi clienti possono pagare online le prenotazioni. La piattaforma trattiene una commissione del 2% su ogni transazione."
+              : "Attiva i pagamenti online per permettere ai tuoi clienti di pagare direttamente quando prenotano un campo. Commissione piattaforma: 2%."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

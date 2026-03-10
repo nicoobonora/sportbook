@@ -15,10 +15,10 @@ export function getStripePublishableKey(): string {
 
 /**
  * Calcola la application fee della piattaforma.
- * Default: 5% dell'importo.
+ * Default: 2% dell'importo.
  */
 export function calculateApplicationFee(amountCents: number): number {
-  const feePercent = Number(process.env.STRIPE_PLATFORM_FEE_PERCENT || "5")
+  const feePercent = Number(process.env.STRIPE_PLATFORM_FEE_PERCENT || "2")
   return Math.round(amountCents * (feePercent / 100))
 }
 

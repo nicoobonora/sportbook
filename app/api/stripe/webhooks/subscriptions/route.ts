@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { verifyWebhookSignature } from "@/lib/stripe"
 import { createAdminClient } from "@/lib/supabase/admin"
-import { PLANS } from "@/lib/stripe/plans"
+import { PLAN } from "@/lib/stripe/plans"
 import type Stripe from "stripe"
 
 /**
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription
         const clubId = subscription.metadata.club_id
-        const planType = subscription.metadata.plan_type as "starter" | "pro" | "business"
+        const planType = (subscription.metadata.plan_type || "pro") as "pro"
 
         if (!clubId) {
           console.error("[Webhook Sub] club_id mancante nei metadata")
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
               club_id: clubId,
               stripe_customer_id: customerId || "",
               stripe_subscription_id: subscription.id,
-              plan_type: planType || "starter",
+              plan_type: planType,
               status: subscription.status as "active" | "past_due" | "canceled" | "trialing" | "incomplete" | "incomplete_expired",
               current_period_end: periodEnd,
               updated_at: new Date().toISOString(),
@@ -82,13 +82,12 @@ export async function POST(req: NextRequest) {
             { onConflict: "stripe_subscription_id" }
           )
 
-        // Aggiorna club con piano e limiti
-        const plan = PLANS[planType || "starter"]
+        // Aggiorna club con piano e limiti (piano unico, campi illimitati)
         await adminClient
           .from("clubs")
           .update({
-            stripe_plan_type: planType || "starter",
-            max_fields: plan?.maxFields === -1 ? 999 : (plan?.maxFields || 2),
+            stripe_plan_type: "pro",
+            max_fields: PLAN.maxFields === -1 ? 999 : PLAN.maxFields,
             updated_at: new Date().toISOString(),
           })
           .eq("id", clubId)

@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
 
   // Controlla se il club ha pagamenti online attivi
   let clubHasPayment = false
-  if (["pro", "business"].includes(club.stripe_plan_type || "none")) {
+  if (club.stripe_plan_type === "pro") {
     const { data: connectAccount } = await adminClient
       .from("stripe_connect_accounts")
       .select("charges_enabled, onboarding_complete")

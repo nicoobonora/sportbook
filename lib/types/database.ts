@@ -43,7 +43,7 @@ export type Database = {
           business_status: string | null
           province: string | null
           stripe_customer_id: string | null
-          stripe_plan_type: "none" | "starter" | "pro" | "business"
+          stripe_plan_type: "none" | "pro"
           max_fields: number
           created_at: string
           updated_at: string
@@ -83,7 +83,7 @@ export type Database = {
           business_status?: string | null
           province?: string | null
           stripe_customer_id?: string | null
-          stripe_plan_type?: "none" | "starter" | "pro" | "business"
+          stripe_plan_type?: "none" | "pro"
           max_fields?: number
           created_at?: string
           updated_at?: string
@@ -123,7 +123,7 @@ export type Database = {
           business_status?: string | null
           province?: string | null
           stripe_customer_id?: string | null
-          stripe_plan_type?: "none" | "starter" | "pro" | "business"
+          stripe_plan_type?: "none" | "pro"
           max_fields?: number
           created_at?: string
           updated_at?: string
@@ -541,7 +541,7 @@ export type Database = {
           club_id: string
           stripe_customer_id: string
           stripe_subscription_id: string
-          plan_type: "starter" | "pro" | "business"
+          plan_type: "pro"
           status: "active" | "past_due" | "canceled" | "trialing" | "incomplete" | "incomplete_expired"
           current_period_end: string | null
           created_at: string
@@ -552,7 +552,7 @@ export type Database = {
           club_id: string
           stripe_customer_id: string
           stripe_subscription_id: string
-          plan_type?: "starter" | "pro" | "business"
+          plan_type?: "pro"
           status?: "active" | "past_due" | "canceled" | "trialing" | "incomplete" | "incomplete_expired"
           current_period_end?: string | null
           created_at?: string
@@ -563,7 +563,7 @@ export type Database = {
           club_id?: string
           stripe_customer_id?: string
           stripe_subscription_id?: string
-          plan_type?: "starter" | "pro" | "business"
+          plan_type?: "pro"
           status?: "active" | "past_due" | "canceled" | "trialing" | "incomplete" | "incomplete_expired"
           current_period_end?: string | null
           created_at?: string

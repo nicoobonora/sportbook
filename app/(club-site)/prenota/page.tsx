@@ -90,7 +90,7 @@ export default async function PrenotaPage() {
 
   // Verifica se il circolo accetta pagamenti online
   const paymentEnabled =
-    ["pro", "business"].includes(club.stripe_plan_type || "none")
+    club.stripe_plan_type === "pro"
 
   let connectActive = false
   if (paymentEnabled) {

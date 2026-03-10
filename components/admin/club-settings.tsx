@@ -38,13 +38,15 @@ type Props = {
 }
 
 export function ClubSettings({ club, fields, subscription, defaultTab }: Props) {
+  // Mantieni retrocompatibilità: "pagamenti" redirecta ad "abbonamento"
+  const resolvedTab = defaultTab === "pagamenti" ? "abbonamento" : defaultTab
+
   return (
-    <Tabs defaultValue={defaultTab || "info"}>
-      <TabsList className="mb-6 grid w-full grid-cols-4">
+    <Tabs defaultValue={resolvedTab || "info"}>
+      <TabsList className="mb-6 grid w-full grid-cols-3">
         <TabsTrigger value="info">Info circolo</TabsTrigger>
         <TabsTrigger value="fields">Strutture</TabsTrigger>
         <TabsTrigger value="abbonamento">Abbonamento</TabsTrigger>
-        <TabsTrigger value="pagamenti">Pagamenti</TabsTrigger>
       </TabsList>
 
       <TabsContent value="info">
@@ -56,22 +58,21 @@ export function ClubSettings({ club, fields, subscription, defaultTab }: Props) 
       </TabsContent>
 
       <TabsContent value="abbonamento">
-        <SubscriptionManagement
-          clubId={club.id}
-          currentPlan={(club.stripe_plan_type || "none") as PlanType}
-          subscription={subscription ? {
-            status: subscription.status,
-            current_period_end: subscription.current_period_end,
-            plan_type: subscription.plan_type,
-          } : null}
-        />
-      </TabsContent>
-
-      <TabsContent value="pagamenti">
-        <ConnectOnboarding
-          clubId={club.id}
-          planType={club.stripe_plan_type || "none"}
-        />
+        <div className="space-y-8">
+          <SubscriptionManagement
+            clubId={club.id}
+            currentPlan={(club.stripe_plan_type || "none") as PlanType}
+            subscription={subscription ? {
+              status: subscription.status,
+              current_period_end: subscription.current_period_end,
+              plan_type: subscription.plan_type,
+            } : null}
+          />
+          <ConnectOnboarding
+            clubId={club.id}
+            planType={club.stripe_plan_type || "none"}
+          />
+        </div>
       </TabsContent>
     </Tabs>
   )

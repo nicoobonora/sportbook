@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { stripe } from "@/lib/stripe"
-import { PLANS, type PlanType } from "@/lib/stripe/plans"
+import { PLAN } from "@/lib/stripe/plans"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 
 const checkoutSchema = z.object({
-  planType: z.enum(["starter", "pro", "business"]),
+  planType: z.literal("pro"),
   clubId: z.string().uuid(),
 })
 
@@ -26,7 +26,7 @@ function getOrigin(req: NextRequest): string {
 
 /**
  * POST /api/stripe/checkout
- * Crea una Stripe Checkout Session per sottoscrivere un piano.
+ * Crea una Stripe Checkout Session per sottoscrivere il piano Pro.
  * Richiede autenticazione come admin del circolo.
  */
 export async function POST(req: NextRequest) {
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       )
     }
-    const { planType, clubId } = parsed.data
+    const { clubId } = parsed.data
 
     // 3. Verifica che l'utente sia admin del circolo
     const { data: isAdmin } = await supabase.rpc("is_club_admin", { p_club_id: clubId })
@@ -84,24 +84,22 @@ export async function POST(req: NextRequest) {
     }
 
     // 5. Crea Checkout Session
-    // Usa origin della request per redirect corretto sul subdominio del club
     const origin = getOrigin(req)
-    const plan = PLANS[planType as Exclude<PlanType, "none">]
 
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
       mode: "subscription",
-      line_items: [{ price: plan.stripePriceId, quantity: 1 }],
+      line_items: [{ price: PLAN.stripePriceId, quantity: 1 }],
       success_url: `${origin}/admin/impostazioni?tab=abbonamento&checkout=success`,
       cancel_url: `${origin}/admin/impostazioni?tab=abbonamento&checkout=cancel`,
       metadata: {
         club_id: clubId,
-        plan_type: planType,
+        plan_type: "pro",
       },
       subscription_data: {
         metadata: {
           club_id: clubId,
-          plan_type: planType,
+          plan_type: "pro",
         },
       },
     })

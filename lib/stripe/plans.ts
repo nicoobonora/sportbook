@@ -1,11 +1,14 @@
 /**
- * Configurazione piani di abbonamento PrenotaUnCampetto.
+ * Configurazione piano di abbonamento PrenotaUnCampetto.
  *
- * I price ID di Stripe vanno sostituiti con quelli reali
- * creati nella dashboard Stripe (Prodotti → Prezzi).
+ * Piano unico "Pro" a €14,99/mese con tutte le funzionalità incluse.
+ * I pagamenti online sono attivabili con commissione piattaforma del 2%.
+ *
+ * Il price ID di Stripe va sostituito con quello reale
+ * creato nella dashboard Stripe (Prodotti → Prezzi).
  */
 
-export type PlanType = "none" | "starter" | "pro" | "business"
+export type PlanType = "none" | "pro"
 
 export interface PlanConfig {
   name: string
@@ -13,65 +16,40 @@ export interface PlanConfig {
   stripePriceId: string         // da dashboard Stripe
   maxFields: number             // -1 = illimitati
   features: string[]
-  paymentEnabled: boolean       // se il circolo può accettare pagamenti online
+  paymentEnabled: boolean       // se il circolo può attivare i pagamenti online
   whatsappEnabled: boolean
   analyticsEnabled: boolean
   customDomainEnabled: boolean
 }
 
-export const PLANS: Record<Exclude<PlanType, "none">, PlanConfig> = {
-  starter: {
-    name: "Starter",
-    priceMonthly: 19,
-    stripePriceId: process.env.STRIPE_PRICE_STARTER || "price_starter_placeholder",
-    maxFields: 2,
-    features: [
-      "Fino a 2 campi",
-      "Pagina pubblica del circolo",
-      "Gestione prenotazioni",
-      "Notifiche email",
-      "Annunci e comunicazioni",
-    ],
-    paymentEnabled: false,
-    whatsappEnabled: false,
-    analyticsEnabled: false,
-    customDomainEnabled: false,
-  },
-  pro: {
-    name: "Pro",
-    priceMonthly: 39,
-    stripePriceId: process.env.STRIPE_PRICE_PRO || "price_pro_placeholder",
-    maxFields: 6,
-    features: [
-      "Fino a 6 campi",
-      "Tutto dello Starter",
-      "Pagamento online prenotazioni",
-      "Notifiche WhatsApp",
-      "Statistiche base",
-    ],
-    paymentEnabled: true,
-    whatsappEnabled: true,
-    analyticsEnabled: false,
-    customDomainEnabled: false,
-  },
-  business: {
-    name: "Business",
-    priceMonthly: 79,
-    stripePriceId: process.env.STRIPE_PRICE_BUSINESS || "price_business_placeholder",
-    maxFields: -1,
-    features: [
-      "Campi illimitati",
-      "Tutto del Pro",
-      "Analytics avanzate",
-      "Dominio personalizzato",
-      "Supporto prioritario",
-    ],
-    paymentEnabled: true,
-    whatsappEnabled: true,
-    analyticsEnabled: true,
-    customDomainEnabled: true,
-  },
+export const PLAN: PlanConfig = {
+  name: "Pro",
+  priceMonthly: 14.99,
+  stripePriceId: process.env.STRIPE_PRICE_PRO || "price_pro_placeholder",
+  maxFields: -1,
+  features: [
+    "Campi illimitati",
+    "Pagina pubblica del circolo",
+    "Gestione prenotazioni",
+    "Pagamenti online attivabili (commissione 2%)",
+    "Notifiche email e WhatsApp",
+    "Analytics e statistiche",
+    "Supporto prioritario",
+  ],
+  paymentEnabled: true,
+  whatsappEnabled: true,
+  analyticsEnabled: true,
+  customDomainEnabled: true,
 }
+
+/** Commissione piattaforma sui pagamenti online */
+export const PLATFORM_FEE_PERCENT = 2
+
+/**
+ * Alias retrocompatibile — il webhook e altri moduli usavano PLANS[planType].
+ * Ora c'è solo "pro".
+ */
+export const PLANS: Record<"pro", PlanConfig> = { pro: PLAN }
 
 /**
  * Restituisce i limiti per un dato piano, incluso "none".
@@ -86,13 +64,12 @@ export function getPlanLimits(planType: PlanType) {
       customDomainEnabled: false,
     }
   }
-  const plan = PLANS[planType]
   return {
-    maxFields: plan.maxFields,
-    paymentEnabled: plan.paymentEnabled,
-    whatsappEnabled: plan.whatsappEnabled,
-    analyticsEnabled: plan.analyticsEnabled,
-    customDomainEnabled: plan.customDomainEnabled,
+    maxFields: PLAN.maxFields,
+    paymentEnabled: PLAN.paymentEnabled,
+    whatsappEnabled: PLAN.whatsappEnabled,
+    analyticsEnabled: PLAN.analyticsEnabled,
+    customDomainEnabled: PLAN.customDomainEnabled,
   }
 }
 

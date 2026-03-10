@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
     const adminClient = createAdminClient()
 
-    // Verifica piano — solo Pro e Business possono attivare Connect
+    // Verifica piano — richiede abbonamento attivo
     const { data: club } = await adminClient
       .from("clubs")
       .select("id, name, email, stripe_plan_type")
@@ -61,9 +61,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Circolo non trovato" }, { status: 404 })
     }
 
-    if (!["pro", "business"].includes(club.stripe_plan_type || "none")) {
+    if (club.stripe_plan_type !== "pro") {
       return NextResponse.json(
-        { error: "I pagamenti online richiedono un piano Pro o Business" },
+        { error: "I pagamenti online richiedono un abbonamento attivo" },
         { status: 403 }
       )
     }
