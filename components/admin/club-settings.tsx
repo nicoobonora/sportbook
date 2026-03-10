@@ -7,7 +7,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
-import { Loader2, Plus, Trash2, MapPin } from "lucide-react"
+import { Loader2, Plus, Trash2, MapPin, LogOut } from "lucide-react"
 import type { Club, Field } from "@/lib/types/database"
 import type { ParsedAddress } from "@/lib/utils/nominatim"
 import { createClient } from "@/lib/supabase/client"
@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { AddressAutocomplete } from "@/components/ui/address-autocomplete"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Separator } from "@/components/ui/separator"
 import {
   Dialog,
   DialogContent,
@@ -31,24 +32,49 @@ type Props = {
   club: Club
   fields: Field[]
   defaultTab?: string
+  basePath?: string
 }
 
-export function ClubSettings({ club, fields, defaultTab }: Props) {
+export function ClubSettings({ club, fields, defaultTab, basePath = "" }: Props) {
+  const router = useRouter()
+
+  async function handleLogout() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push(`${basePath}/admin/login`)
+    router.refresh()
+  }
+
   return (
-    <Tabs defaultValue={defaultTab || "info"}>
-      <TabsList className="mb-6 grid w-full grid-cols-2">
-        <TabsTrigger value="info">Info circolo</TabsTrigger>
-        <TabsTrigger value="fields">Strutture</TabsTrigger>
-      </TabsList>
+    <>
+      <Tabs defaultValue={defaultTab || "info"}>
+        <TabsList className="mb-6 grid w-full grid-cols-2">
+          <TabsTrigger value="info">Info circolo</TabsTrigger>
+          <TabsTrigger value="fields">Strutture</TabsTrigger>
+        </TabsList>
 
-      <TabsContent value="info">
-        <ClubInfoForm club={club} />
-      </TabsContent>
+        <TabsContent value="info">
+          <ClubInfoForm club={club} />
+        </TabsContent>
 
-      <TabsContent value="fields">
-        <FieldsManager clubId={club.id} fields={fields} />
-      </TabsContent>
-    </Tabs>
+        <TabsContent value="fields">
+          <FieldsManager clubId={club.id} fields={fields} />
+        </TabsContent>
+      </Tabs>
+
+      {/* Logout — visibile solo su mobile (desktop ha il logout nella sidebar) */}
+      <div className="mt-8 lg:hidden">
+        <Separator />
+        <Button
+          variant="ghost"
+          className="mt-4 w-full justify-start gap-3 text-muted-foreground hover:text-error"
+          onClick={handleLogout}
+        >
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+          Esci dal pannello
+        </Button>
+      </div>
+    </>
   )
 }
 

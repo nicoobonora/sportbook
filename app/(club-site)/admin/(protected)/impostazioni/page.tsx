@@ -4,7 +4,7 @@
  */
 import type { Metadata } from "next"
 import { createClient } from "@/lib/supabase/server"
-import { getClubFromHeaders } from "@/lib/hooks/use-club"
+import { getClubFromHeaders, getClubBasePath } from "@/lib/hooks/use-club"
 import { ClubSettings } from "@/components/admin/club-settings"
 
 export const metadata: Metadata = {
@@ -19,6 +19,7 @@ export default async function ImpostazioniPage({
   const club = await getClubFromHeaders()
   if (!club) return null
 
+  const basePath = getClubBasePath()
   const supabase = createClient()
 
   // Fetch campi
@@ -42,6 +43,7 @@ export default async function ImpostazioniPage({
           club={club}
           fields={fields || []}
           defaultTab={searchParams?.tab}
+          basePath={basePath}
         />
       </div>
     </>
