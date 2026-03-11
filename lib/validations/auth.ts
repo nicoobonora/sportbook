@@ -18,10 +18,7 @@ export const loginOtpSchema = z.object({
 
 export type LoginOtpValues = z.infer<typeof loginOtpSchema>
 
-/**
- * @deprecated — Mantenuto per retrocompatibilità.
- * Usa loginEmailSchema + loginOtpSchema per il nuovo flow OTP.
- */
+/** Schema per il login admin con email + password */
 export const loginSchema = z.object({
   email: z.string().email("Inserisci un indirizzo email valido"),
   password: z.string().min(6, "La password deve avere almeno 6 caratteri"),

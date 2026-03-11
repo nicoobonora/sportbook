@@ -1,6 +1,6 @@
 /**
  * Template email: Invito admin circolo.
- * L'admin accede via OTP (codice email), non serve password.
+ * Include le credenziali (email + password) se l'utente è appena stato creato.
  */
 import {
   Body,
@@ -18,11 +18,15 @@ import {
 type Props = {
   clubName: string
   inviteUrl: string
+  email?: string
+  password?: string
 }
 
 export function AdminInviteEmail({
   clubName = "Circolo Sportivo",
   inviteUrl = "http://localhost:3000/admin/login",
+  email,
+  password,
 }: Props) {
   return (
     <Html>
@@ -50,9 +54,28 @@ export function AdminInviteEmail({
             <Text style={valueStyle}>Amministratore</Text>
           </Section>
 
+          {password && (
+            <>
+              <Text style={textStyle}>
+                Ecco le tue credenziali di accesso:
+              </Text>
+              <Section style={credentialsStyle}>
+                <Text style={labelStyle}>Email</Text>
+                <Text style={credentialValueStyle}>{email}</Text>
+
+                <Hr style={hrStyle} />
+
+                <Text style={labelStyle}>Password</Text>
+                <Text style={credentialValueStyle}>{password}</Text>
+              </Section>
+              <Text style={{ ...textStyle, fontSize: "13px", color: "#b45309" }}>
+                Conserva queste credenziali in un luogo sicuro.
+              </Text>
+            </>
+          )}
+
           <Text style={textStyle}>
-            Per accedere ti basterà inserire la tua email: riceverai un
-            codice di verifica a 6 cifre da inserire per il login.
+            Accedi al pannello admin cliccando il link qui sotto:
           </Text>
 
           <Section style={{ textAlign: "center" as const, margin: "24px 0" }}>
@@ -144,6 +167,22 @@ const buttonStyle = {
 const hrStyle = {
   borderColor: "#e5e7eb",
   margin: "12px 0" as const,
+}
+
+const credentialsStyle = {
+  backgroundColor: "#fffbeb",
+  border: "1px solid #fcd34d",
+  borderRadius: "8px",
+  padding: "20px",
+  margin: "16px 0" as const,
+}
+
+const credentialValueStyle = {
+  color: "#111827",
+  fontSize: "15px",
+  fontWeight: "700" as const,
+  fontFamily: "monospace",
+  margin: "0" as const,
 }
 
 const footerStyle = {

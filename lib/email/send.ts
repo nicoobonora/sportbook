@@ -133,11 +133,12 @@ export async function sendBookingRejectedEmail(params: {
   })
 }
 
-/** Invia invito admin circolo (login via OTP, senza password) */
+/** Invia invito admin circolo (con credenziali se nuovo utente) */
 export async function sendAdminInviteEmail(params: {
   to: string
   clubName: string
   inviteUrl: string
+  password?: string
 }) {
   const resend = await getResend()
   if (!resend) {
@@ -149,6 +150,8 @@ export async function sendAdminInviteEmail(params: {
     AdminInviteEmail({
       clubName: params.clubName,
       inviteUrl: params.inviteUrl,
+      email: params.to,
+      password: params.password,
     })
   )
 
