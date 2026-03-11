@@ -27,6 +27,10 @@ export function InviteAdminForm({ clubId }: { clubId: string }) {
     if (!email.trim()) return
 
     setLoading(true)
+    // Se c'era un risultato precedente con password, aggiorna la lista admin
+    if (result?.password) {
+      router.refresh()
+    }
     setResult(null)
     setCopied(false)
 
@@ -40,6 +44,7 @@ export function InviteAdminForm({ clubId }: { clubId: string }) {
     setLoading(false)
 
     if (response.ok) {
+      const hasPassword = !!data.generatedPassword
       setResult({
         type: "success",
         message: data.invited
@@ -48,7 +53,12 @@ export function InviteAdminForm({ clubId }: { clubId: string }) {
         password: data.generatedPassword || undefined,
       })
       setEmail("")
-      router.refresh()
+      // Se c'è una password da mostrare, NON fare refresh subito
+      // (il refresh resetterebbe lo state e la password sparirebbe).
+      // Il refresh verrà fatto quando l'utente crea il prossimo admin.
+      if (!hasPassword) {
+        router.refresh()
+      }
     } else {
       setResult({
         type: "error",

@@ -46,7 +46,7 @@ export default async function ManageClubPage({
     supabase.from("clubs").select("*").eq("id", params.id).single(),
     supabase
       .from("club_admins")
-      .select("id, user_id, created_at")
+      .select("id, user_id, plain_password, created_at")
       .eq("club_id", params.id)
       .order("created_at", { ascending: true }),
     supabase

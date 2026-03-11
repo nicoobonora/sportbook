@@ -110,12 +110,13 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Aggiungi come admin del circolo
+  // Aggiungi come admin del circolo (salva anche la password in chiaro per il super-admin)
   const { error: insertError } = await admin
     .from("club_admins")
     .insert({
       club_id,
       user_id: newUser.user.id,
+      plain_password: generatedPassword,
     })
 
   if (insertError) {
