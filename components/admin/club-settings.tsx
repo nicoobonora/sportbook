@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form"
 import { Loader2, Plus, Trash2, MapPin, LogOut } from "lucide-react"
 import type { Club, Field } from "@/lib/types/database"
 import type { ParsedAddress } from "@/lib/utils/nominatim"
+import { geocodeAddress } from "@/lib/utils/nominatim"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -123,6 +124,27 @@ function ClubInfoForm({ club }: { club: Club }) {
   async function onSubmit(data: any) {
     setError(null)
     setSuccess(false)
+
+    // Auto-geocoding: se c'è un indirizzo ma mancano le coordinate
+    if (data.address && !data.latitude && !data.longitude) {
+      try {
+        const geo = await geocodeAddress(data.address, data.city)
+        if (geo) {
+          data.latitude = geo.latitude
+          data.longitude = geo.longitude
+          if (!data.city) data.city = geo.city
+          if (!data.postal_code) data.postal_code = geo.postal_code
+          if (!data.region) data.region = geo.region
+          // Aggiorna anche il form per mostrare le coordinate
+          setValue("latitude", geo.latitude)
+          setValue("longitude", geo.longitude)
+          if (!data.city) setValue("city", geo.city)
+        }
+      } catch (e) {
+        console.error("[SETTINGS] Geocoding error:", e)
+      }
+    }
+
     const supabase = createClient()
 
     const { error: updateError } = await supabase

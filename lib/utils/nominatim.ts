@@ -57,6 +57,18 @@ export async function searchAddress(query: string): Promise<NominatimResult[]> {
   return res.json()
 }
 
+/**
+ * Geocodifica un indirizzo e ritorna le coordinate.
+ * Da usare server-side quando un indirizzo viene salvato senza lat/lng.
+ * Ritorna null se non trova risultati.
+ */
+export async function geocodeAddress(address: string, city?: string): Promise<ParsedAddress | null> {
+  const query = [address, city].filter(Boolean).join(", ")
+  const results = await searchAddress(query)
+  if (results.length === 0) return null
+  return parseNominatimResult(results[0])
+}
+
 /** Converte un risultato Nominatim in campi strutturati */
 export function parseNominatimResult(result: NominatimResult): ParsedAddress {
   const addr = result.address

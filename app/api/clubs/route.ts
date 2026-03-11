@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { clubFormSchema } from "@/lib/validations/club"
 import { verifySuperAdmin } from "@/lib/auth/verify-super-admin"
+import { geocodeAddress } from "@/lib/utils/nominatim"
 
 /** POST /api/clubs — Crea un nuovo circolo */
 export async function POST(request: NextRequest) {
@@ -25,6 +26,22 @@ export async function POST(request: NextRequest) {
   }
 
   const data = validation.data
+
+  // Auto-geocoding: se c'è un indirizzo ma mancano le coordinate, geocodifica
+  if (data.address && !data.latitude && !data.longitude) {
+    try {
+      const geo = await geocodeAddress(data.address, data.city)
+      if (geo) {
+        data.latitude = geo.latitude
+        data.longitude = geo.longitude
+        if (!data.city) data.city = geo.city
+        if (!data.postal_code) data.postal_code = geo.postal_code
+        if (!data.region) data.region = geo.region
+      }
+    } catch (e) {
+      console.error("[CLUBS] Geocoding error:", e)
+    }
+  }
 
   // Verifica unicità slug
   const { data: existingClub } = await admin
@@ -121,6 +138,22 @@ export async function PATCH(request: NextRequest) {
   }
 
   const data = validation.data
+
+  // Auto-geocoding: se c'è un indirizzo ma mancano le coordinate, geocodifica
+  if (data.address && !data.latitude && !data.longitude) {
+    try {
+      const geo = await geocodeAddress(data.address, data.city)
+      if (geo) {
+        data.latitude = geo.latitude
+        data.longitude = geo.longitude
+        if (!data.city) data.city = geo.city
+        if (!data.postal_code) data.postal_code = geo.postal_code
+        if (!data.region) data.region = geo.region
+      }
+    } catch (e) {
+      console.error("[CLUBS] Geocoding error:", e)
+    }
+  }
 
   if (data.slug) {
     const { data: existingClub } = await admin
