@@ -1,5 +1,6 @@
 /**
  * Template email: Invito admin circolo.
+ * L'admin accede via OTP (codice email), non serve password.
  */
 import {
   Body,
@@ -17,21 +18,17 @@ import {
 type Props = {
   clubName: string
   inviteUrl: string
-  email?: string
-  password?: string
 }
 
 export function AdminInviteEmail({
   clubName = "Circolo Sportivo",
   inviteUrl = "http://localhost:3000/admin/login",
-  email,
-  password,
 }: Props) {
   return (
     <Html>
       <Head />
       <Preview>
-        Sei stato invitato come admin di {clubName} su SportBook
+        Sei stato invitato come admin di {clubName} su PrenotaUnCampetto
       </Preview>
       <Body style={bodyStyle}>
         <Container style={containerStyle}>
@@ -40,7 +37,7 @@ export function AdminInviteEmail({
           <Text style={textStyle}>Ciao,</Text>
           <Text style={textStyle}>
             Sei stato invitato come amministratore del circolo{" "}
-            <strong>{clubName}</strong> sulla piattaforma SportBook.
+            <strong>{clubName}</strong> sulla piattaforma PrenotaUnCampetto.
           </Text>
 
           <Section style={detailsStyle}>
@@ -53,28 +50,9 @@ export function AdminInviteEmail({
             <Text style={valueStyle}>Amministratore</Text>
           </Section>
 
-          {password && (
-            <>
-              <Text style={textStyle}>
-                Ecco le tue credenziali di accesso:
-              </Text>
-              <Section style={credentialsStyle}>
-                <Text style={labelStyle}>Email</Text>
-                <Text style={credentialValueStyle}>{email}</Text>
-
-                <Hr style={hrStyle} />
-
-                <Text style={labelStyle}>Password</Text>
-                <Text style={credentialValueStyle}>{password}</Text>
-              </Section>
-              <Text style={{ ...textStyle, fontSize: "13px", color: "#b45309" }}>
-                Ti consigliamo di cambiare la password dopo il primo accesso.
-              </Text>
-            </>
-          )}
-
           <Text style={textStyle}>
-            Accedi al pannello admin cliccando il link qui sotto:
+            Per accedere ti basterà inserire la tua email: riceverai un
+            codice di verifica a 6 cifre da inserire per il login.
           </Text>
 
           <Section style={{ textAlign: "center" as const, margin: "24px 0" }}>
@@ -90,7 +68,7 @@ export function AdminInviteEmail({
           <Hr style={hrStyle} />
 
           <Text style={footerStyle}>
-            Questa email è stata inviata automaticamente da SportBook.
+            Questa email è stata inviata automaticamente da PrenotaUnCampetto.
           </Text>
         </Container>
       </Body>
@@ -166,22 +144,6 @@ const buttonStyle = {
 const hrStyle = {
   borderColor: "#e5e7eb",
   margin: "12px 0" as const,
-}
-
-const credentialsStyle = {
-  backgroundColor: "#fffbeb",
-  border: "1px solid #fcd34d",
-  borderRadius: "8px",
-  padding: "20px",
-  margin: "16px 0" as const,
-}
-
-const credentialValueStyle = {
-  color: "#111827",
-  fontSize: "15px",
-  fontWeight: "700" as const,
-  fontFamily: "monospace",
-  margin: "0" as const,
 }
 
 const footerStyle = {

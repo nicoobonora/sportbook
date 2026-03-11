@@ -132,12 +132,11 @@ export async function sendBookingRejectedEmail(params: {
   })
 }
 
-/** Invia invito admin circolo (con credenziali se nuovo utente) */
+/** Invia invito admin circolo (login via OTP, senza password) */
 export async function sendAdminInviteEmail(params: {
   to: string
   clubName: string
   inviteUrl: string
-  password?: string
 }) {
   const resend = await getResend()
   if (!resend) {
@@ -149,15 +148,13 @@ export async function sendAdminInviteEmail(params: {
     AdminInviteEmail({
       clubName: params.clubName,
       inviteUrl: params.inviteUrl,
-      email: params.to,
-      password: params.password,
     })
   )
 
   await resend.emails.send({
     from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
     to: params.to,
-    subject: `Sei stato invitato come admin di ${params.clubName} — SportBook`,
+    subject: `Sei stato invitato come admin di ${params.clubName} — PrenotaUnCampetto`,
     html,
   })
 }

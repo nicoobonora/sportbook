@@ -1,12 +1,12 @@
 /**
  * Form per creare un admin del circolo tramite email.
- * Genera automaticamente una password e la mostra nel pannello.
+ * L'admin accederà via OTP (codice email), non serve password.
  */
 "use client"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Check, Copy, Loader2, UserPlus } from "lucide-react"
+import { Loader2, UserPlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,11 +15,9 @@ export function InviteAdminForm({ clubId }: { clubId: string }) {
   const router = useRouter()
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
-  const [copied, setCopied] = useState(false)
   const [result, setResult] = useState<{
     type: "success" | "error"
     message: string
-    password?: string
   } | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -28,7 +26,6 @@ export function InviteAdminForm({ clubId }: { clubId: string }) {
 
     setLoading(true)
     setResult(null)
-    setCopied(false)
 
     const response = await fetch("/api/clubs/admins", {
       method: "POST",
@@ -45,7 +42,6 @@ export function InviteAdminForm({ clubId }: { clubId: string }) {
         message: data.invited
           ? `Account creato e invito inviato a ${email}`
           : `${email} aggiunto come admin`,
-        password: data.generatedPassword || undefined,
       })
       setEmail("")
       router.refresh()
@@ -54,17 +50,6 @@ export function InviteAdminForm({ clubId }: { clubId: string }) {
         type: "error",
         message: data.error || "Errore durante la creazione",
       })
-    }
-  }
-
-  async function handleCopy() {
-    if (!result?.password) return
-    try {
-      await navigator.clipboard.writeText(result.password)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // Fallback: noop
     }
   }
 
@@ -112,34 +97,10 @@ export function InviteAdminForm({ clubId }: { clubId: string }) {
         </p>
       )}
 
-      {result?.password && (
-        <div className="rounded-md border border-amber-300 bg-amber-50 p-3 space-y-2">
-          <p className="text-xs font-medium text-amber-800">
-            Password generata — visibile solo ora
-          </p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 rounded bg-white px-2 py-1 font-mono text-sm text-amber-900 border border-amber-200">
-              {result.password}
-            </code>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-8 gap-1 shrink-0"
-              onClick={handleCopy}
-            >
-              {copied ? (
-                <Check className="h-3 w-3 text-green-600" />
-              ) : (
-                <Copy className="h-3 w-3" />
-              )}
-              {copied ? "Copiata" : "Copia"}
-            </Button>
-          </div>
-          <p className="text-xs text-amber-700">
-            Comunica queste credenziali all&apos;admin. Potrà cambiare la password dopo il primo accesso.
-          </p>
-        </div>
+      {result?.type === "success" && (
+        <p className="text-xs text-muted-foreground">
+          L&apos;admin potrà accedere inserendo la propria email e ricevendo un codice di verifica.
+        </p>
       )}
     </form>
   )

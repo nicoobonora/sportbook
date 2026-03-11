@@ -1,24 +1,29 @@
 /**
- * Form di login super-admin con magic link via email.
- * Step 1: inserisci email → invia magic link
- * Step 2: attendi conferma (l'utente clicca il link nell'email)
+ * Form di login super-admin con codice OTP via email.
+ * Step 1: inserisci email → invia codice OTP
+ * Step 2: inserisci il codice a 6 cifre → verifica e accedi
  */
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-import { Loader2, Mail, CheckCircle2 } from "lucide-react"
+import { Loader2, Mail, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
+type Step = "email" | "otp"
+
 export function SuperAdminLoginForm() {
+  const router = useRouter()
+  const [step, setStep] = useState<Step>("email")
   const [email, setEmail] = useState("")
+  const [otp, setOtp] = useState("")
   const [loading, setLoading] = useState(false)
-  const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  async function handleSendLink(e: React.FormEvent) {
+  async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault()
     if (!email.trim()) return
 
@@ -31,14 +36,18 @@ export function SuperAdminLoginForm() {
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/super-admin/dashboard`,
+          shouldCreateUser: false,
         },
       })
 
       if (otpError) {
-        setError(otpError.message)
+        if (otpError.message.includes("Signups not allowed")) {
+          setError("Nessun account trovato con questa email.")
+        } else {
+          setError(otpError.message)
+        }
       } else {
-        setSent(true)
+        setStep("otp")
       }
     } catch {
       setError("Errore di connessione")
@@ -47,35 +56,114 @@ export function SuperAdminLoginForm() {
     }
   }
 
-  if (sent) {
+  async function handleVerifyOtp(e: React.FormEvent) {
+    e.preventDefault()
+    if (!otp.trim()) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const supabase = createClient()
+
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: "email",
+      })
+
+      if (verifyError) {
+        setError("Codice non valido o scaduto. Riprova.")
+      } else {
+        router.push("/super-admin/dashboard")
+        router.refresh()
+      }
+    } catch {
+      setError("Errore di connessione")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleBack() {
+    setStep("email")
+    setOtp("")
+    setError(null)
+  }
+
+  if (step === "otp") {
     return (
-      <div className="space-y-4 rounded-lg border p-6 text-center">
-        <CheckCircle2 className="mx-auto h-12 w-12 text-green-500" />
-        <h2 className="text-lg font-semibold">Controlla la tua email</h2>
-        <p className="text-sm text-muted-foreground">
-          Abbiamo inviato un link di accesso a{" "}
-          <strong className="text-foreground">{email}</strong>.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          Clicca il link nell&apos;email per accedere al pannello super-admin.
-        </p>
+      <form onSubmit={handleVerifyOtp} className="space-y-4 rounded-lg border p-6">
+        <div className="space-y-1">
+          <p className="text-sm text-muted-foreground">
+            Abbiamo inviato un codice a{" "}
+            <strong className="text-foreground">{email}</strong>
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="super-admin-otp">Codice di verifica</Label>
+          <Input
+            id="super-admin-otp"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={6}
+            placeholder="000000"
+            autoFocus
+            autoComplete="one-time-code"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+            required
+            className="text-center text-lg font-mono tracking-widest"
+          />
+        </div>
+
+        {error && (
+          <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
+
         <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            setSent(false)
-            setError(null)
-          }}
-          className="mt-2"
+          type="submit"
+          className="w-full"
+          disabled={loading || otp.length < 6}
         >
-          Usa un&apos;altra email
+          {loading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : null}
+          Verifica e accedi
         </Button>
-      </div>
+
+        <div className="flex items-center justify-between">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleBack}
+            className="gap-1 text-muted-foreground"
+          >
+            <ArrowLeft className="h-3 w-3" />
+            Cambia email
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleSendOtp}
+            disabled={loading}
+            className="text-muted-foreground"
+          >
+            Reinvia codice
+          </Button>
+        </div>
+      </form>
     )
   }
 
   return (
-    <form onSubmit={handleSendLink} className="space-y-4 rounded-lg border p-6">
+    <form onSubmit={handleSendOtp} className="space-y-4 rounded-lg border p-6">
       <div className="space-y-2">
         <Label htmlFor="super-admin-email">Email</Label>
         <Input
@@ -106,11 +194,11 @@ export function SuperAdminLoginForm() {
         ) : (
           <Mail className="h-4 w-4" />
         )}
-        Invia link di accesso
+        Invia codice di accesso
       </Button>
 
       <p className="text-center text-xs text-muted-foreground">
-        Riceverai un link via email per accedere senza password.
+        Riceverai un codice a 6 cifre via email per accedere.
       </p>
     </form>
   )

@@ -1,23 +1,13 @@
 /**
  * API Route per gestione admin dei circoli.
- * POST: Crea/aggiungi admin tramite email (con auto-generazione password).
+ * POST: Crea/aggiungi admin tramite email (senza password, login via OTP).
  * DELETE: Rimuovi admin dal circolo.
  * Usa il client admin (service role) per bypassare RLS.
  */
-import { randomBytes } from "crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { clubAdminInviteSchema } from "@/lib/validations/club"
 import { sendAdminInviteEmail } from "@/lib/email/send"
 import { verifySuperAdmin } from "@/lib/auth/verify-super-admin"
-
-/** Genera una password random sicura di 16 caratteri */
-function generatePassword(): string {
-  const chars = "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%"
-  const bytes = randomBytes(16)
-  return Array.from(bytes)
-    .map((b) => chars[b % chars.length])
-    .join("")
-}
 
 /** POST /api/clubs/admins — Crea admin tramite email */
 export async function POST(request: NextRequest) {
@@ -93,13 +83,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ added: true, invited: false })
   }
 
-  // L'utente non esiste: crea account Supabase con password auto-generata
-  const generatedPassword = generatePassword()
-
+  // L'utente non esiste: crea account Supabase senza password (login via OTP)
   const { data: newUser, error: createError } = await admin.auth.admin.createUser({
     email,
-    password: generatedPassword,
-    email_confirm: true, // Salta conferma email — l'account è creato dal super-admin
+    email_confirm: true,
   })
 
   if (createError || !newUser?.user) {
@@ -126,13 +113,12 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Invia email con credenziali
+  // Invia email di benvenuto con link al pannello
   try {
     await sendAdminInviteEmail({
       to: email,
       clubName: club.name,
       inviteUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/admin/login?club=${club_id}`,
-      password: generatedPassword,
     })
   } catch (err) {
     console.error("[ADMINS] Errore invio email:", err)
@@ -141,7 +127,6 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     added: true,
     invited: true,
-    generatedPassword,
   })
 }
 
