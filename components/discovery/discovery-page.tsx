@@ -1,15 +1,17 @@
 /**
  * Pagina discovery con mappa di tutti i circoli sportivi in Italia.
+ * Caricamento dinamico per viewport (bounding box) con accumulo progressivo.
  * Filtraggio per sport, marker con popup, redirect al sito del circolo.
  */
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { Loader2, MapPin, ArrowRight } from "lucide-react"
 import { SportFilter } from "@/components/discovery/sport-filter"
 import type { MapClub } from "@/lib/types/map"
+import type { MapBounds } from "@/components/discovery/club-map"
 
 const ClubMap = dynamic(
   () => import("@/components/discovery/club-map").then((m) => m.ClubMap),
@@ -31,33 +33,62 @@ export function DiscoveryPage() {
   const [selectedSports, setSelectedSports] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
-  const fetchClubs = useCallback(async (sports: string[]) => {
+  // Tiene traccia degli ID già caricati per accumulare senza duplicati
+  const clubIdsRef = useRef<Set<string>>(new Set())
+  // Bounds correnti per re-fetch quando cambiano i filtri sport
+  const currentBoundsRef = useRef<MapBounds | null>(null)
+  // Sport correnti per il fetch su bounds change
+  const sportsRef = useRef<string[]>([])
+
+  const fetchClubs = useCallback(async (sports: string[], bounds: MapBounds | null) => {
     setLoading(true)
     const params = new URLSearchParams()
     if (sports.length > 0) {
       params.set("sports", sports.join(","))
     }
+    if (bounds) {
+      params.set("swLat", bounds.swLat.toString())
+      params.set("swLng", bounds.swLng.toString())
+      params.set("neLat", bounds.neLat.toString())
+      params.set("neLng", bounds.neLng.toString())
+    }
+
     const res = await fetch(`/api/clubs/map?${params}`)
     if (res.ok) {
       const data = await res.json()
-      setClubs(data.clubs)
+      const newClubs = (data.clubs || []) as MapClub[]
+
+      setClubs((prev) => {
+        // Merge: aggiungi solo i club non ancora presenti
+        const toAdd = newClubs.filter((c) => !clubIdsRef.current.has(c.id))
+        for (const c of toAdd) {
+          clubIdsRef.current.add(c.id)
+        }
+        return toAdd.length > 0 ? [...prev, ...toAdd] : prev
+      })
     }
     setLoading(false)
   }, [])
 
-  useEffect(() => {
-    fetchClubs(selectedSports)
-  }, [fetchClubs, selectedSports])
+  const handleBoundsChange = useCallback((bounds: MapBounds) => {
+    currentBoundsRef.current = bounds
+    fetchClubs(sportsRef.current, bounds)
+  }, [fetchClubs])
 
   function handleFilterChange(sports: string[]) {
     setSelectedSports(sports)
+    sportsRef.current = sports
+    // Reset accumulo e re-fetch con nuovi filtri
+    clubIdsRef.current.clear()
+    setClubs([])
+    fetchClubs(sports, currentBoundsRef.current)
   }
 
   return (
     <div className="relative h-screen">
       {/* ── Map (full screen) ── */}
       <div className="absolute inset-0">
-        <ClubMap clubs={clubs} />
+        <ClubMap clubs={clubs} onBoundsChange={handleBoundsChange} />
       </div>
 
       {/* ── Floating Header ── */}

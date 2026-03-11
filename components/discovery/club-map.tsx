@@ -9,11 +9,19 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import MarkerClusterGroup from "react-leaflet-cluster"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
-import { useMap } from "react-leaflet"
+import { useMap, useMapEvents } from "react-leaflet"
 import { ITALY_CENTER, ITALY_DEFAULT_ZOOM, type MapClub } from "@/lib/types/map"
 import { SPORT_ICONS } from "@/lib/validations/club"
 import { MapPin, Navigation, ChevronRight, AlertCircle, LocateFixed } from "lucide-react"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
+
+/** Bounding box per il viewport della mappa */
+export type MapBounds = {
+  swLat: number
+  swLng: number
+  neLat: number
+  neLng: number
+}
 
 // Marker icon for claimed clubs (blue)
 const ClaimedIcon = L.divIcon({
@@ -57,6 +65,7 @@ function getDirectionsUrl(club: MapClub): string {
 
 type ClubMapProps = {
   clubs: MapClub[]
+  onBoundsChange?: (bounds: MapBounds) => void
 }
 
 function ClubPopupContent({ club }: { club: MapClub }) {
@@ -249,7 +258,36 @@ function LocateUser() {
   )
 }
 
-export function ClubMap({ clubs }: ClubMapProps) {
+/** Emette i bounds della mappa su moveend (con debounce) */
+function MapEventHandler({ onBoundsChange }: { onBoundsChange: (bounds: MapBounds) => void }) {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const emitBounds = useCallback((map: L.Map) => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      const b = map.getBounds()
+      onBoundsChange({
+        swLat: b.getSouthWest().lat,
+        swLng: b.getSouthWest().lng,
+        neLat: b.getNorthEast().lat,
+        neLng: b.getNorthEast().lng,
+      })
+    }, 300)
+  }, [onBoundsChange])
+
+  const map = useMapEvents({
+    moveend: () => emitBounds(map),
+  })
+
+  // Emit bounds on mount
+  useEffect(() => {
+    emitBounds(map)
+  }, [map, emitBounds])
+
+  return null
+}
+
+export function ClubMap({ clubs, onBoundsChange }: ClubMapProps) {
   return (
     <MapContainer
       center={[ITALY_CENTER.lat, ITALY_CENTER.lng]}
@@ -263,6 +301,7 @@ export function ClubMap({ clubs }: ClubMapProps) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
+      {onBoundsChange && <MapEventHandler onBoundsChange={onBoundsChange} />}
       <LocateUser />
 
       <MarkerClusterGroup
