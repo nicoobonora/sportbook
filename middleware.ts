@@ -103,7 +103,7 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  // ── SUPER-ADMIN: app.prenotauncampetto.it/* o localhost senza /club/ ──
+  // ──- SUPER-ADMIN: app.prenotauncampetto.it/* o localhost senza /club/ ──-
   if (isAppDomain || isLocalhost) {
     const isSuperAdminRoute =
       pathname.startsWith("/super-admin") && pathname !== "/super-admin/login"
