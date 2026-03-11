@@ -1,6 +1,6 @@
 /**
  * Form di login per gli admin dei circoli.
- * Flow OTP: inserisci email → ricevi codice a 6 cifre → verifica.
+ * Flow OTP custom: email → codice 6 cifre (inviato via Resend) → verifica sessione.
  */
 "use client"
 
@@ -31,21 +31,16 @@ export function LoginForm({ redirectTo = "/admin/dashboard" }: { redirectTo?: st
     setError(null)
 
     try {
-      const supabase = createClient()
-
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: false,
-        },
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       })
 
-      if (otpError) {
-        if (otpError.message.includes("Signups not allowed")) {
-          setError("Nessun account trovato con questa email.")
-        } else {
-          setError(otpError.message)
-        }
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || "Errore durante l'invio del codice.")
       } else {
         setStep("otp")
       }
@@ -64,20 +59,34 @@ export function LoginForm({ redirectTo = "/admin/dashboard" }: { redirectTo?: st
     setError(null)
 
     try {
-      const supabase = createClient()
+      // 1. Verifica il codice OTP sul server
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code: otp }),
+      })
 
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || "Codice non valido.")
+        return
+      }
+
+      // 2. Usa il token_hash per stabilire la sessione Supabase lato client
+      const supabase = createClient()
       const { error: verifyError } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: "email",
+        token_hash: data.token_hash,
+        type: "magiclink",
       })
 
       if (verifyError) {
-        setError("Codice non valido o scaduto. Riprova.")
-      } else {
-        router.push(redirectTo)
-        router.refresh()
+        setError("Errore durante l'accesso. Riprova.")
+        return
       }
+
+      router.push(redirectTo)
+      router.refresh()
     } catch {
       setError("Errore di connessione. Riprova.")
     } finally {

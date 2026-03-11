@@ -492,6 +492,33 @@ export type Database = {
         }
         Relationships: []
       }
+      otp_codes: {
+        Row: {
+          id: string
+          email: string
+          code: string
+          expires_at: string
+          used: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          code: string
+          expires_at: string
+          used?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          code?: string
+          expires_at?: string
+          used?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
       cookie_configs: {
         Row: {
           id: string
@@ -586,6 +613,9 @@ export type ClaimRequestInsert = Database["public"]["Tables"]["claim_requests"][
 
 export type CookieConfig = Database["public"]["Tables"]["cookie_configs"]["Row"]
 export type CookieConfigInsert = Database["public"]["Tables"]["cookie_configs"]["Insert"]
+
+export type OtpCode = Database["public"]["Tables"]["otp_codes"]["Row"]
+export type OtpCodeInsert = Database["public"]["Tables"]["otp_codes"]["Insert"]
 
 export type OpeningHours = Database["public"]["Tables"]["opening_hours"]["Row"]
 export type OpeningHoursInsert = Database["public"]["Tables"]["opening_hours"]["Insert"]

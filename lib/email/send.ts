@@ -7,6 +7,7 @@ import { BookingReceivedEmail } from "./templates/booking-received"
 import { BookingConfirmedEmail } from "./templates/booking-confirmed"
 import { BookingRejectedEmail } from "./templates/booking-rejected"
 import { AdminInviteEmail } from "./templates/admin-invite"
+import { OtpCodeEmail } from "./templates/otp-code"
 
 async function getResend() {
   const apiKey = process.env.RESEND_API_KEY
@@ -155,6 +156,24 @@ export async function sendAdminInviteEmail(params: {
     from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
     to: params.to,
     subject: `Sei stato invitato come admin di ${params.clubName} — PrenotaUnCampetto`,
+    html,
+  })
+}
+
+/** Invia codice OTP per il login */
+export async function sendOtpEmail(params: { to: string; code: string }) {
+  const resend = await getResend()
+  if (!resend) {
+    console.log("[EMAIL] OTP →", params.to, "code:", params.code)
+    return
+  }
+
+  const html = await render(OtpCodeEmail({ code: params.code }))
+
+  await resend.emails.send({
+    from: "PrenotaUnCampetto <noreply@prenotauncampetto.it>",
+    to: params.to,
+    subject: `${params.code} — Codice di accesso PrenotaUnCampetto`,
     html,
   })
 }
