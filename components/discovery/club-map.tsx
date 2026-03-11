@@ -267,11 +267,15 @@ function MapEventHandler({ onBoundsChange }: { onBoundsChange: (bounds: MapBound
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
       const b = map.getBounds()
+      const sw = b.getSouthWest()
+      const ne = b.getNorthEast()
+      // Skip degenerate bounds (single point) — accade al primo mount prima del layout
+      if (Math.abs(ne.lat - sw.lat) < 0.0001 && Math.abs(ne.lng - sw.lng) < 0.0001) return
       onBoundsChange({
-        swLat: b.getSouthWest().lat,
-        swLng: b.getSouthWest().lng,
-        neLat: b.getNorthEast().lat,
-        neLng: b.getNorthEast().lng,
+        swLat: sw.lat,
+        swLng: sw.lng,
+        neLat: ne.lat,
+        neLng: ne.lng,
       })
     }, 300)
   }, [onBoundsChange])
@@ -280,9 +284,10 @@ function MapEventHandler({ onBoundsChange }: { onBoundsChange: (bounds: MapBound
     moveend: () => emitBounds(map),
   })
 
-  // Emit bounds on mount
+  // Emit bounds on mount — piccolo delay per dare tempo al layout
   useEffect(() => {
-    emitBounds(map)
+    const t = setTimeout(() => emitBounds(map), 100)
+    return () => clearTimeout(t)
   }, [map, emitBounds])
 
   return null

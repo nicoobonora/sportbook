@@ -450,7 +450,7 @@ export default function PerCircoliPage() {
           </div>
           <div className="mx-auto mt-8 grid max-w-2xl gap-4 sm:grid-cols-3">
             {[
-              { title: "Registrazione immediata", desc: "Crei il tuo circolo in 2 minuti, senza burocrazia." },
+              { title: "Registrazione immediata", desc: "Entro massimo 24 ore il tuo sito sarà online" },
               { title: "Nessuna carta richiesta", desc: "Non chiediamo dati di pagamento per la prova." },
               { title: "Nessun rinnovo automatico", desc: "Alla scadenza, scegli tu se continuare." },
             ].map((item) => (
