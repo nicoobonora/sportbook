@@ -7,6 +7,7 @@
  */
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 import { notFound } from "next/navigation"
 import { createAdminClient } from "@/lib/supabase/admin"
 import { Card, CardContent } from "@/components/ui/card"
@@ -60,7 +61,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const sport = params.sport
   const citySlug = params.city
 
-  if (!VALID_SPORTS.includes(sport as any)) {
+  if (!VALID_SPORTS.includes(sport as (typeof VALID_SPORTS)[number])) {
     return { title: "Sport non trovato" }
   }
 
@@ -95,7 +96,7 @@ export default async function SportCityPage({ params }: PageProps) {
   const citySlug = params.city
 
   // Valida sport
-  if (!VALID_SPORTS.includes(sport as any)) {
+  if (!VALID_SPORTS.includes(sport as (typeof VALID_SPORTS)[number])) {
     notFound()
   }
 
@@ -206,12 +207,13 @@ export default async function SportCityPage({ params }: PageProps) {
                     <CardContent className="flex gap-4 p-4 sm:p-5">
                       {/* Logo */}
                       {club.logo_url && (
-                        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted">
-                          <img
+                        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
+                          <Image
                             src={club.logo_url}
                             alt={`Logo ${club.name}`}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
+                            fill
+                            className="object-cover"
+                            sizes="64px"
                           />
                         </div>
                       )}

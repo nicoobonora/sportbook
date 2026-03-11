@@ -29,7 +29,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const sport = params.sport
-  if (!VALID_SPORTS.includes(sport as any)) {
+  if (!VALID_SPORTS.includes(sport as (typeof VALID_SPORTS)[number])) {
     return { title: "Sport non trovato" }
   }
 
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function SportIndexPage({ params }: PageProps) {
   const sport = params.sport
-  if (!VALID_SPORTS.includes(sport as any)) {
+  if (!VALID_SPORTS.includes(sport as (typeof VALID_SPORTS)[number])) {
     notFound()
   }
 
