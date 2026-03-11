@@ -162,13 +162,13 @@ export function DiscoveryPage() {
       {/* ── Floating Banner for Club Owners ── */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1000] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-4 sm:pb-4">
         <Link
-          href="/registra-circolo"
+          href="/per-circoli"
           className="pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/90 px-4 py-3 text-primary-foreground shadow-lg backdrop-blur-xl transition-colors hover:bg-primary"
         >
           <div>
             <p className="text-sm font-semibold">Sei il gestore di un circolo?</p>
             <p className="text-xs opacity-90">
-              Registra la tua struttura e attiva le prenotazioni online
+              Scopri i vantaggi e attiva le prenotazioni online
             </p>
           </div>
           <ArrowRight className="h-5 w-5 shrink-0" aria-hidden="true" />
