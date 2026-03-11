@@ -2,6 +2,7 @@
  * Mappa Leaflet con marker dei circoli sportivi.
  * Importare via next/dynamic con ssr: false.
  * Marker differenziati per club claimed vs unclaimed.
+ * Supporta caricamento dinamico per viewport e posizione utente.
  */
 "use client"
 
@@ -66,6 +67,8 @@ function getDirectionsUrl(club: MapClub): string {
 type ClubMapProps = {
   clubs: MapClub[]
   onBoundsChange?: (bounds: MapBounds) => void
+  /** Posizione iniziale dell'utente (se disponibile dalla geolocalizzazione) */
+  initialCenter?: [number, number] | null
 }
 
 function ClubPopupContent({ club }: { club: MapClub }) {
@@ -204,53 +207,51 @@ const UserPositionIcon = L.divIcon({
 
 const USER_ZOOM = 12
 
-/** Handles geolocation: auto-locates on mount, provides a re-center button */
-function LocateUser() {
+/**
+ * Mostra il marker della posizione utente e il pulsante "Vicino a me".
+ * La posizione viene passata dal parent (discovery-page) che la chiede prima di montare la mappa.
+ */
+function UserLocation({ position }: { position: [number, number] | null }) {
   const map = useMap()
-  const [userPos, setUserPos] = useState<[number, number] | null>(null)
   const [locating, setLocating] = useState(false)
 
-  const locate = useCallback(() => {
+  const flyToUser = useCallback(() => {
+    if (position) {
+      map.flyTo(position, USER_ZOOM, { duration: 1.2 })
+      return
+    }
+    // Se non abbiamo la posizione, riprova
     if (!navigator.geolocation) return
     setLocating(true)
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const latlng: [number, number] = [pos.coords.latitude, pos.coords.longitude]
-        setUserPos(latlng)
-        map.flyTo(latlng, USER_ZOOM, { duration: 1.2 })
+        map.flyTo([pos.coords.latitude, pos.coords.longitude], USER_ZOOM, { duration: 1.2 })
         setLocating(false)
       },
-      () => {
-        // Silently fail — user denied or unavailable
-        setLocating(false)
-      },
+      () => setLocating(false),
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
     )
-  }, [map])
-
-  // Auto-locate on mount
-  useEffect(() => {
-    locate()
-  }, [locate])
+  }, [map, position])
 
   return (
     <>
       {/* User position marker */}
-      {userPos && (
-        <Marker position={userPos} icon={UserPositionIcon} interactive={false} />
+      {position && (
+        <Marker position={position} icon={UserPositionIcon} interactive={false} />
       )}
 
-      {/* Locate button */}
-      <div className="leaflet-top leaflet-right" style={{ pointerEvents: "auto" }}>
+      {/* "Vicino a me" button — positioned bottom-right, above the banner */}
+      <div className="leaflet-bottom leaflet-right" style={{ pointerEvents: "auto", marginBottom: 72 }}>
         <div className="leaflet-control">
           <button
             type="button"
-            onClick={locate}
-            className="locate-btn"
-            aria-label="Centra sulla mia posizione"
+            onClick={flyToUser}
+            className="locate-btn locate-btn--label"
+            aria-label="Vicino a me"
             disabled={locating}
           >
-            <LocateFixed className={`h-5 w-5 ${locating ? "animate-pulse" : ""}`} />
+            <LocateFixed className={`h-4 w-4 ${locating ? "animate-pulse" : ""}`} />
+            <span>Vicino a me</span>
           </button>
         </div>
       </div>
@@ -287,11 +288,16 @@ function MapEventHandler({ onBoundsChange }: { onBoundsChange: (bounds: MapBound
   return null
 }
 
-export function ClubMap({ clubs, onBoundsChange }: ClubMapProps) {
+export function ClubMap({ clubs, onBoundsChange, initialCenter }: ClubMapProps) {
+  // Se abbiamo la posizione utente, partiamo da lì a zoom 12.
+  // Altrimenti, Italia intera a zoom 6.
+  const center: [number, number] = initialCenter || [ITALY_CENTER.lat, ITALY_CENTER.lng]
+  const zoom = initialCenter ? USER_ZOOM : ITALY_DEFAULT_ZOOM
+
   return (
     <MapContainer
-      center={[ITALY_CENTER.lat, ITALY_CENTER.lng]}
-      zoom={ITALY_DEFAULT_ZOOM}
+      center={center}
+      zoom={zoom}
       className="h-full w-full"
       scrollWheelZoom
       zoomControl
@@ -302,7 +308,7 @@ export function ClubMap({ clubs, onBoundsChange }: ClubMapProps) {
       />
 
       {onBoundsChange && <MapEventHandler onBoundsChange={onBoundsChange} />}
-      <LocateUser />
+      <UserLocation position={initialCenter || null} />
 
       <MarkerClusterGroup
         chunkedLoading

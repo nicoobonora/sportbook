@@ -223,6 +223,16 @@
     cursor: not-allowed;
   }
 
+  /* Variante con label "Vicino a me" */
+  .locate-btn--label {
+    width: auto;
+    height: auto;
+    padding: 8px 14px;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
   /* ── Club popup card ── */
   .club-popup-card {
     display: flex;

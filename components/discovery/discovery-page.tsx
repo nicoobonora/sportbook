@@ -1,11 +1,12 @@
 /**
  * Pagina discovery con mappa di tutti i circoli sportivi in Italia.
+ * Flusso: chiedi posizione → centra mappa → carica club nel viewport.
  * Caricamento dinamico per viewport (bounding box) con accumulo progressivo.
  * Filtraggio per sport, marker con popup, redirect al sito del circolo.
  */
 "use client"
 
-import { useState, useCallback, useRef } from "react"
+import { useState, useCallback, useRef, useEffect } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { Loader2, MapPin, ArrowRight } from "lucide-react"
@@ -33,12 +34,35 @@ export function DiscoveryPage() {
   const [selectedSports, setSelectedSports] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
+  // Posizione utente: richiesta PRIMA di mostrare la mappa
+  const [userPosition, setUserPosition] = useState<[number, number] | null>(null)
+  const [geoReady, setGeoReady] = useState(false)
+
   // Tiene traccia degli ID già caricati per accumulare senza duplicati
   const clubIdsRef = useRef<Set<string>>(new Set())
   // Bounds correnti per re-fetch quando cambiano i filtri sport
   const currentBoundsRef = useRef<MapBounds | null>(null)
   // Sport correnti per il fetch su bounds change
   const sportsRef = useRef<string[]>([])
+
+  // Chiedi geolocalizzazione prima di tutto
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setGeoReady(true)
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserPosition([pos.coords.latitude, pos.coords.longitude])
+        setGeoReady(true)
+      },
+      () => {
+        // Utente ha negato o errore → mostra Italia intera
+        setGeoReady(true)
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+    )
+  }, [])
 
   const fetchClubs = useCallback(async (sports: string[], bounds: MapBounds | null) => {
     setLoading(true)
@@ -84,11 +108,27 @@ export function DiscoveryPage() {
     fetchClubs(sports, currentBoundsRef.current)
   }
 
+  // Splash durante la richiesta di geolocalizzazione
+  if (!geoReady) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-muted/30">
+        <div className="flex flex-col items-center gap-3 text-muted-foreground">
+          <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
+          <span className="text-sm">Ricerca della tua posizione...</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="relative h-screen">
       {/* ── Map (full screen) ── */}
       <div className="absolute inset-0">
-        <ClubMap clubs={clubs} onBoundsChange={handleBoundsChange} />
+        <ClubMap
+          clubs={clubs}
+          onBoundsChange={handleBoundsChange}
+          initialCenter={userPosition}
+        />
       </div>
 
       {/* ── Floating Header ── */}
@@ -120,7 +160,7 @@ export function DiscoveryPage() {
       </header>
 
       {/* ── Floating Banner for Club Owners ── */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1000] p-3 sm:p-4">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1000] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-4 sm:pb-4">
         <Link
           href="/registra-circolo"
           className="pointer-events-auto mx-auto flex max-w-lg items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/90 px-4 py-3 text-primary-foreground shadow-lg backdrop-blur-xl transition-colors hover:bg-primary"
