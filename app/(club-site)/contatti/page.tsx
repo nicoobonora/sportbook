@@ -12,9 +12,13 @@ import { SocialLinks } from "@/components/club-site/social-links"
 export async function generateMetadata(): Promise<Metadata> {
   const club = await getClubFromHeaders()
   if (!club) return { title: "Contatti — SportBook" }
+
+  const locationParts = [club.address, club.city, club.province].filter(Boolean)
+  const locationLabel = locationParts.join(", ")
+
   return {
-    title: `Contatti — ${club.name}`,
-    description: `Come raggiungere e contattare ${club.name}`,
+    title: `Contatti e Come Raggiungerci — ${club.name}${club.city ? `, ${club.city}` : ""}`,
+    description: `Contatta ${club.name}${locationLabel ? ` — ${locationLabel}` : ""}. Telefono, indirizzo, indicazioni e form contatto per informazioni e prenotazioni.`,
   }
 }
 

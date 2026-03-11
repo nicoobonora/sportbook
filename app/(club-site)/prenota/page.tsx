@@ -14,9 +14,16 @@ import { AlertCircle, ArrowLeft } from "lucide-react"
 export async function generateMetadata(): Promise<Metadata> {
   const club = await getClubFromHeaders()
   if (!club) return { title: "Prenota — SportBook" }
+
+  const sportsLabel = club.sports.length > 0
+    ? club.sports.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(", ")
+    : "Sport"
+  const locationLabel = [club.city, club.province].filter(Boolean).join(", ")
+  const locationSuffix = locationLabel ? ` a ${locationLabel}` : ""
+
   return {
-    title: `Prenota — ${club.name}`,
-    description: `Prenota un campo o una struttura presso ${club.name}`,
+    title: `Prenota ${sportsLabel}${locationSuffix} — ${club.name}`,
+    description: `Prenota online campi da ${sportsLabel.toLowerCase()}${locationSuffix} presso ${club.name}. Scegli struttura, data e orario in pochi click.`,
   }
 }
 

@@ -18,9 +18,28 @@ export async function generateMetadata(): Promise<Metadata> {
   if (!club) {
     return { title: "SportBook" }
   }
+
+  const sportsLabel = club.sports.length > 0
+    ? club.sports.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(", ")
+    : "Sport"
+  const locationLabel = [club.city, club.province].filter(Boolean).join(", ")
+  const locationSuffix = locationLabel ? ` a ${locationLabel}` : ""
+
+  const title = `${club.name} — ${sportsLabel}${locationSuffix} | Prenota un Campo`
+  const description = club.tagline
+    ? `${club.tagline}. ${sportsLabel}${locationSuffix}. Prenota campi online su PrenotaUnCampetto.`
+    : `Prenota campi da ${sportsLabel.toLowerCase()}${locationSuffix} presso ${club.name}. Orari, prezzi e prenotazione online.`
+
   return {
-    title: `${club.name} — ${club.tagline || "Circolo sportivo"}`,
-    description: club.tagline || `Sito ufficiale di ${club.name}`,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      locale: "it_IT",
+      ...(club.cover_image_url && { images: [{ url: club.cover_image_url, alt: club.name }] }),
+    },
   }
 }
 

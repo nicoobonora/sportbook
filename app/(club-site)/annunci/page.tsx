@@ -13,9 +13,13 @@ const PAGE_SIZE = 10
 export async function generateMetadata(): Promise<Metadata> {
   const club = await getClubFromHeaders()
   if (!club) return { title: "Annunci — SportBook" }
+
+  const locationLabel = [club.city, club.province].filter(Boolean).join(", ")
+  const locationSuffix = locationLabel ? ` — ${locationLabel}` : ""
+
   return {
-    title: `Annunci — ${club.name}`,
-    description: `Annunci e novità da ${club.name}`,
+    title: `Annunci e Novità — ${club.name}${locationSuffix}`,
+    description: `Scopri annunci, eventi e novità dal circolo sportivo ${club.name}${locationLabel ? ` di ${locationLabel}` : ""}. Resta aggiornato sulle attività.`,
   }
 }
 
