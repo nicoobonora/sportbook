@@ -367,8 +367,9 @@ export default function PerCircoliPage() {
       {/* ── Navbar ────────────────────────────────────────── */}
       <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-          <Link href="/" className="font-display text-lg font-bold uppercase tracking-tight">
-            Prenota<span className="text-primary">Un</span>Campetto
+          <Link href="/">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-prenotauncampetto.svg" alt="PrenotaUnCampetto" className="h-7 sm:h-8" />
           </Link>
           <div className="flex items-center gap-3">
             <Link
@@ -636,8 +637,9 @@ export default function PerCircoliPage() {
       {/* ── Footer minimo ─────────────────────────────────── */}
       <footer className="border-t bg-background py-8">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 px-4 text-center text-sm text-muted-foreground">
-          <Link href="/" className="font-display text-sm font-bold uppercase tracking-tight text-foreground">
-            Prenota<span className="text-primary">Un</span>Campetto
+          <Link href="/">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-prenotauncampetto.svg" alt="PrenotaUnCampetto" className="h-6" />
           </Link>
           <div className="flex gap-4">
             <Link href="/" className="hover:text-foreground transition-colors">Mappa</Link>
