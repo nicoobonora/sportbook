@@ -40,9 +40,10 @@ export default async function AdminLoginPage() {
       if (isLocalhost) {
         redirect(`/club/${club.slug}/admin/dashboard`, RedirectType.replace)
       } else {
-        const rootDomain = host.replace(/^[^.]+\./, "")
+        // host è il dominio root (es. prenotauncampetto.it)
+        // perché /admin-login è servito dal dominio principale
         redirect(
-          `https://${club.slug}.${rootDomain}/admin/dashboard`,
+          `https://${club.slug}.${host}/admin/dashboard`,
           RedirectType.replace
         )
       }

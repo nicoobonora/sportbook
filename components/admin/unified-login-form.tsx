@@ -50,15 +50,16 @@ export function UnifiedLoginForm() {
     }
 
     // Redirect al dashboard del circolo
+    // window.location.hostname è il dominio root (es. prenotauncampetto.it)
+    // perché la pagina di login unificata è sul dominio principale
+    const hostname = window.location.hostname
     const isLocalhost =
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1"
+      hostname === "localhost" || hostname === "127.0.0.1"
 
     if (isLocalhost) {
       window.location.href = `/club/${club.slug}/admin/dashboard`
     } else {
-      const rootDomain = window.location.hostname.replace(/^[^.]+\./, "")
-      window.location.href = `${window.location.protocol}//${club.slug}.${rootDomain}/admin/dashboard`
+      window.location.href = `${window.location.protocol}//${club.slug}.${hostname}/admin/dashboard`
     }
   }
 
