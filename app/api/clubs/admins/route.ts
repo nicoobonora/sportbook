@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
     await sendAdminInviteEmail({
       to: email,
       clubName: club.name,
-      inviteUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/admin/login?club=${club_id}`,
+      inviteUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/admin-login`,
       password: generatedPassword,
     })
   } catch (err) {
