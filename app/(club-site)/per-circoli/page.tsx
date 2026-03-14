@@ -4,6 +4,7 @@
  */
 import type { Metadata } from "next"
 import Link from "next/link"
+import { AdminGuide } from "@/components/per-circoli/admin-guide"
 
 export const metadata: Metadata = {
   title: "Per i Circoli Sportivi — PrenotaUnCampetto",
@@ -373,6 +374,12 @@ export default function PerCircoliPage() {
           </Link>
           <div className="flex items-center gap-3">
             <Link
+              href="#guida-admin"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Guida Admin
+            </Link>
+            <Link
               href="/admin-login"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -604,6 +611,9 @@ export default function PerCircoliPage() {
         </div>
       </section>
 
+      {/* ── Guida Admin ──────────────────────────────────── */}
+      <AdminGuide />
+
       {/* ── CTA finale ────────────────────────────────────── */}
       <section className="bg-primary py-16 text-white sm:py-20">
         <div className="mx-auto max-w-3xl px-4 text-center">
@@ -644,6 +654,7 @@ export default function PerCircoliPage() {
           <div className="flex gap-4">
             <Link href="/" className="hover:text-foreground transition-colors">Mappa</Link>
             <Link href="/registra-circolo" className="hover:text-foreground transition-colors">Registra circolo</Link>
+            <Link href="/per-circoli#guida-admin" className="hover:text-foreground transition-colors">Guida Admin</Link>
             <Link href="/admin-login" className="hover:text-foreground transition-colors">Accedi</Link>
             <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
           </div>
