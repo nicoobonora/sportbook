@@ -423,10 +423,10 @@ export default function PerCircoliPage() {
                   </svg>
                 </Link>
                 <Link
-                  href="/"
+                  href="/per-circoli#guida-admin"
                   className="inline-flex h-12 items-center gap-2 rounded-lg border border-border px-6 text-base font-medium text-foreground hover:bg-muted/50 transition-colors"
                 >
-                  Esplora la mappa
+                  Come funziona
                 </Link>
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
